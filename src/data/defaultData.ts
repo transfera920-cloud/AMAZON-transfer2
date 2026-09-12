@@ -28,32 +28,28 @@ export const DEFAULT_DATA: SiteData = {
       icon: "fa-calculator",
       title: "價格估算系統",
       desc: "透明化高山包車資估算，快速試算包車費用",
-      url: "#calc",
-      badge: "即時試算"
+      url: "#calc"
     },
     {
       id: "card-2",
       icon: "fa-hotel",
       title: "D0 住宿查詢",
       desc: "登山口周邊優質民宿與接駁合作住宿推薦篇",
-      url: "#hotel",
-      badge: "行前特選"
+      url: "#hotel"
     },
     {
       id: "card-3",
       icon: "fa-utensils",
       title: "下山慶功宴查詢",
       desc: "精選完登下山補給合菜與在地美食餐廳",
-      url: "#food",
-      badge: "完登犒賞"
+      url: "#food"
     },
     {
       id: "card-4",
       icon: "fa-triangle-exclamation",
       title: "道路路線管制查詢",
       desc: "即時掌握林道與高山省道最新施工管制時間",
-      url: "#road",
-      badge: "路況指南"
+      url: "#road"
     }
   ]
 };

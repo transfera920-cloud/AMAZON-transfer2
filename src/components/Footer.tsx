@@ -11,8 +11,8 @@ export const Footer: React.FC<FooterProps> = ({ data }) => {
 
   return (
     <footer className="bg-dark-green text-white py-4 px-6 mt-auto border-t border-emerald-900/60 shadow-lg">
-      <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-        <div className="text-center md:text-left">
+      <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-center items-center gap-6 md:gap-10">
+        <div className="text-center md:text-left flex-shrink-0">
           <h4 id="footer-banner-title" className="font-bold text-lg text-white">
             {data.footerBannerTitle || "高山登山接駁專屬預約"}
           </h4>
@@ -50,7 +50,7 @@ export const Footer: React.FC<FooterProps> = ({ data }) => {
             href={data.lineUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-accent-green hover:bg-[#00e676] text-white font-bold px-4 py-2 rounded-lg text-sm flex items-center transition shadow-xs cursor-pointer"
+            className="bg-accent-green hover:bg-[#00e676] text-white font-bold px-5 py-2 rounded-lg text-sm flex items-center transition shadow-xs cursor-pointer"
             title="開啟 LINE 官方帳號"
           >
             <i className="fa-brands fa-line text-lg mr-2" aria-hidden="true"></i>

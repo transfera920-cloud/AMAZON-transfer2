@@ -16,7 +16,8 @@ import {
   Sparkles,
   Link as LinkIcon,
   Cloud,
-  Loader2
+  Loader2,
+  LogOut
 } from 'lucide-react';
 import { DynamicIcon } from './DynamicIcon';
 
@@ -26,6 +27,7 @@ interface AdminModalProps {
   data: SiteData;
   onSave: (newData: SiteData) => Promise<void> | void;
   isCloudConnected?: boolean;
+  onLogout?: () => void;
 }
 
 const COMMON_ICONS = [
@@ -45,7 +47,8 @@ export const AdminModal: React.FC<AdminModalProps> = ({
   onClose,
   data,
   onSave,
-  isCloudConnected = false
+  isCloudConnected = false,
+  onLogout
 }) => {
   const [formData, setFormData] = useState<SiteData>(data);
   const [newFeatureText, setNewFeatureText] = useState('');
@@ -242,6 +245,19 @@ export const AdminModal: React.FC<AdminModalProps> = ({
               <RotateCcw className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">恢復預設</span>
             </button>
+
+            {onLogout && (
+              <button
+                type="button"
+                onClick={onLogout}
+                disabled={isSaving}
+                className="text-xs bg-red-900/60 hover:bg-red-800 text-red-200 border border-red-700/50 px-2.5 py-1.5 rounded-lg flex items-center gap-1 transition cursor-pointer disabled:opacity-50"
+                title="登出管理後台"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">登出</span>
+              </button>
+            )}
 
             <button
               onClick={onClose}

@@ -18,6 +18,7 @@ import { CardsGrid } from './components/CardsGrid';
 import { AboutSection } from './components/AboutSection';
 import { Footer } from './components/Footer';
 import { AdminModal } from './components/AdminModal';
+import { AdminLoginModal, ADMIN_AUTH_KEY } from './components/AdminLoginModal';
 import { PriceCalcModal } from './components/PriceCalcModal';
 import { D0LodgingModal } from './components/D0LodgingModal';
 import { FeastModal } from './components/FeastModal';
@@ -28,7 +29,41 @@ export default function App() {
   const [siteData, setSiteData] = useState<SiteData>(() => getLocalCachedData());
   const [isCloudConnected, setIsCloudConnected] = useState<boolean>(false);
   const [activeModal, setActiveModal] = useState<ActiveModalType>(null);
+  
+  // Admin Login authentication state
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState<boolean>(() => {
+    try {
+      return sessionStorage.getItem(ADMIN_AUTH_KEY) === 'true';
+    } catch {
+      return false;
+    }
+  });
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
+
+  const handleOpenAdmin = () => {
+    if (isAdminLoggedIn) {
+      setIsAdminOpen(true);
+    } else {
+      setIsLoginOpen(true);
+    }
+  };
+
+  const handleLoginSuccess = () => {
+    setIsAdminLoggedIn(true);
+    setIsLoginOpen(false);
+    setIsAdminOpen(true);
+  };
+
+  const handleLogout = () => {
+    try {
+      sessionStorage.removeItem(ADMIN_AUTH_KEY);
+    } catch (e) {
+      console.warn(e);
+    }
+    setIsAdminLoggedIn(false);
+    setIsAdminOpen(false);
+  };
 
   // Sync document title and meta description dynamically
   useEffect(() => {
@@ -86,12 +121,12 @@ export default function App() {
   // Support legacy global toggleAdminModal if referenced by external inline onclick
   useEffect(() => {
     (window as any).toggleAdminModal = () => {
-      setIsAdminOpen(prev => !prev);
+      handleOpenAdmin();
     };
     return () => {
       delete (window as any).toggleAdminModal;
     };
-  }, []);
+  }, [isAdminLoggedIn]);
 
   const handleSaveData = async (newData: SiteData) => {
     // Save to Firestore cloud database (and auto-update localStorage backup)
@@ -105,7 +140,7 @@ export default function App() {
       {/* 頁首區塊 Header & 後台按鈕 */}
       <Header
         data={siteData}
-        onOpenAdmin={() => setIsAdminOpen(true)}
+        onOpenAdmin={handleOpenAdmin}
         isCloudConnected={isCloudConnected}
       />
 
@@ -128,6 +163,13 @@ export default function App() {
       {/* 底部預約 Bar (Sticky/Fixed Footer) */}
       <Footer data={siteData} />
 
+      {/* 後台登入彈出視窗 (Admin Login Modal) */}
+      <AdminLoginModal
+        isOpen={isLoginOpen}
+        onClose={() => setIsLoginOpen(false)}
+        onLoginSuccess={handleLoginSuccess}
+      />
+
       {/* 後台管理彈出視窗 (Admin Modal) */}
       <AdminModal
         isOpen={isAdminOpen}
@@ -135,6 +177,7 @@ export default function App() {
         data={siteData}
         onSave={handleSaveData}
         isCloudConnected={isCloudConnected}
+        onLogout={handleLogout}
       />
 
       {/* 互動工具彈出視窗: 價格估算系統 */}
