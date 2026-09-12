@@ -5,20 +5,27 @@ import { SiteData } from '../types';
 interface HeaderProps {
   data: SiteData;
   onOpenAdmin: () => void;
+  isCloudConnected?: boolean;
 }
 
-export const Header: React.FC<HeaderProps> = ({ data, onOpenAdmin }) => {
+export const Header: React.FC<HeaderProps> = ({ data, onOpenAdmin, isCloudConnected = false }) => {
   return (
     <>
       {/* 管理後台按鈕 (固定右上角) */}
       <button
         id="btn-admin-open"
         onClick={onOpenAdmin}
-        className="fixed top-4 right-4 z-40 bg-gray-700/85 hover:bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg shadow-md flex items-center gap-1.5 backdrop-blur-sm transition-all border border-gray-600/50 cursor-pointer"
+        className="fixed top-4 right-4 z-40 bg-gray-800/90 hover:bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg shadow-md flex items-center gap-1.5 backdrop-blur-sm transition-all border border-gray-600/50 cursor-pointer"
         title="開啟網站內容管理後台"
       >
         <i className="fa-solid fa-gear" aria-hidden="true"></i>
         <span>管理後台</span>
+        {isCloudConnected && (
+          <span
+            className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"
+            title="已連線至 Firebase Firestore 雲端共用資料庫"
+          ></span>
+        )}
       </button>
 
       {/* 頁首區塊 Header */}

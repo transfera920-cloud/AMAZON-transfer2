@@ -5,7 +5,14 @@
 
 import React, { useState, useEffect } from 'react';
 import { SiteData, ActiveModalType } from './types';
-import { DEFAULT_DATA, STORAGE_KEY } from './data/defaultData';
+import { DEFAULT_DATA } from './data/defaultData';
+import {
+  getLocalCachedData,
+  loadSiteDataFromCloud,
+  saveSiteDataToCloud,
+  subscribeToSiteData,
+  testConnection
+} from './firebase';
 import { Header } from './components/Header';
 import { CardsGrid } from './components/CardsGrid';
 import { AboutSection } from './components/AboutSection';
@@ -17,24 +24,9 @@ import { FeastModal } from './components/FeastModal';
 import { RoadStatusModal } from './components/RoadStatusModal';
 
 export default function App() {
-  const [siteData, setSiteData] = useState<SiteData>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        return {
-          ...DEFAULT_DATA,
-          ...parsed,
-          features: Array.isArray(parsed.features) ? parsed.features : DEFAULT_DATA.features,
-          cards: Array.isArray(parsed.cards) && parsed.cards.length > 0 ? parsed.cards : DEFAULT_DATA.cards
-        };
-      }
-    } catch (e) {
-      console.error('Failed to parse localStorage data, loading default', e);
-    }
-    return DEFAULT_DATA;
-  });
-
+  // Initialize with local cache for instant paint, then update with Cloud data
+  const [siteData, setSiteData] = useState<SiteData>(() => getLocalCachedData());
+  const [isCloudConnected, setIsCloudConnected] = useState<boolean>(false);
   const [activeModal, setActiveModal] = useState<ActiveModalType>(null);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
 
@@ -53,6 +45,44 @@ export default function App() {
     }
   }, [siteData.siteTitle, siteData.seoDesc]);
 
+  // Connect to Firestore and subscribe to live changes across all devices
+  useEffect(() => {
+    let isMounted = true;
+
+    // Validate connection
+    testConnection();
+
+    // Initial load from cloud with automatic localStorage fallback
+    loadSiteDataFromCloud()
+      .then(({ data, fromCloud }) => {
+        if (isMounted) {
+          setSiteData(data);
+          setIsCloudConnected(fromCloud);
+        }
+      })
+      .catch((err) => {
+        console.warn('Initial cloud fetch error, relying on local cache:', err);
+      });
+
+    // Real-time multi-device sync listener
+    const unsubscribe = subscribeToSiteData(
+      (updatedData) => {
+        if (isMounted) {
+          setSiteData(updatedData);
+          setIsCloudConnected(true);
+        }
+      },
+      (err) => {
+        console.warn('Realtime sync subscription status:', err);
+      }
+    );
+
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
+  }, []);
+
   // Support legacy global toggleAdminModal if referenced by external inline onclick
   useEffect(() => {
     (window as any).toggleAdminModal = () => {
@@ -63,13 +93,11 @@ export default function App() {
     };
   }, []);
 
-  const handleSaveData = (newData: SiteData) => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newData));
-    } catch (e) {
-      console.error('Failed to save data to localStorage', e);
-    }
+  const handleSaveData = async (newData: SiteData) => {
+    // Save to Firestore cloud database (and auto-update localStorage backup)
+    await saveSiteDataToCloud(newData);
     setSiteData(newData);
+    setIsCloudConnected(true);
   };
 
   return (
@@ -78,6 +106,7 @@ export default function App() {
       <Header
         data={siteData}
         onOpenAdmin={() => setIsAdminOpen(true)}
+        isCloudConnected={isCloudConnected}
       />
 
       {/* 主要內容區 Main Content */}
@@ -105,6 +134,7 @@ export default function App() {
         onClose={() => setIsAdminOpen(false)}
         data={siteData}
         onSave={handleSaveData}
+        isCloudConnected={isCloudConnected}
       />
 
       {/* 互動工具彈出視窗: 價格估算系統 */}

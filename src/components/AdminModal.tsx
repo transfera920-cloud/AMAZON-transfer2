@@ -14,7 +14,9 @@ import {
   Check,
   AlertCircle,
   Sparkles,
-  Link as LinkIcon
+  Link as LinkIcon,
+  Cloud,
+  Loader2
 } from 'lucide-react';
 import { DynamicIcon } from './DynamicIcon';
 
@@ -22,7 +24,8 @@ interface AdminModalProps {
   isOpen: boolean;
   onClose: () => void;
   data: SiteData;
-  onSave: (newData: SiteData) => void;
+  onSave: (newData: SiteData) => Promise<void> | void;
+  isCloudConnected?: boolean;
 }
 
 const COMMON_ICONS = [
@@ -37,15 +40,24 @@ const COMMON_ICONS = [
   { label: '安全保險', icon: 'fa-shield-halved' }
 ];
 
-export const AdminModal: React.FC<AdminModalProps> = ({ isOpen, onClose, data, onSave }) => {
+export const AdminModal: React.FC<AdminModalProps> = ({
+  isOpen,
+  onClose,
+  data,
+  onSave,
+  isCloudConnected = false
+}) => {
   const [formData, setFormData] = useState<SiteData>(data);
   const [newFeatureText, setNewFeatureText] = useState('');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   // Sync state whenever modal opens or parent data updates
   useEffect(() => {
     if (isOpen) {
       setFormData(JSON.parse(JSON.stringify(data)));
+      setSaveError(null);
     }
   }, [isOpen, data]);
 
@@ -167,12 +179,23 @@ export const AdminModal: React.FC<AdminModalProps> = ({ isOpen, onClose, data, o
     e.target.value = '';
   };
 
-  const handleSave = () => {
-    onSave(formData);
-    showToast('網頁資料已成功更新並儲存至本地！');
-    setTimeout(() => {
-      onClose();
-    }, 600);
+  const handleSave = async () => {
+    setIsSaving(true);
+    setSaveError(null);
+    try {
+      await onSave(formData);
+      showToast('網頁資料已成功同步至 Firebase 雲端與所有裝置！');
+      setTimeout(() => {
+        onClose();
+      }, 700);
+    } catch (err: any) {
+      console.error('Failed to save to cloud:', err);
+      setSaveError(
+        err?.message || '雲端儲存失敗，請檢查網路連線或稍後再試。'
+      );
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -183,15 +206,28 @@ export const AdminModal: React.FC<AdminModalProps> = ({ isOpen, onClose, data, o
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden border border-slate-200">
         
         {/* 後台 Header */}
-        <div className="bg-gray-850 bg-[#1e293b] text-white px-6 py-4 flex justify-between items-center border-b border-slate-700">
+        <div className="bg-[#1e293b] text-white px-6 py-4 flex justify-between items-center border-b border-slate-700">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-emerald-600/30 text-emerald-400 flex items-center justify-center">
               <i className="fa-solid fa-pen-to-square text-base"></i>
             </div>
             <div>
-              <h3 className="font-bold text-base md:text-lg">網站內容即時管理後台</h3>
+              <div className="flex items-center gap-2">
+                <h3 className="font-bold text-base md:text-lg">網站內容即時管理後台</h3>
+                {isCloudConnected ? (
+                  <span className="inline-flex items-center gap-1 text-[11px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full">
+                    <Cloud className="w-3 h-3" />
+                    <span>Firestore 雲端同步</span>
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 text-[11px] bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-full">
+                    <Cloud className="w-3 h-3" />
+                    <span>本地備援模式</span>
+                  </span>
+                )}
+              </div>
               <p className="text-[11px] text-slate-300">
-                即時自訂高山接駁網站標題、聯絡連結、功能板塊與特色介紹
+                修改後將直接同步至 Firebase 雲端，任何電腦或手機打開網站皆即時生效
               </p>
             </div>
           </div>
@@ -199,7 +235,8 @@ export const AdminModal: React.FC<AdminModalProps> = ({ isOpen, onClose, data, o
           <div className="flex items-center gap-2">
             <button
               onClick={handleResetToDefault}
-              className="text-xs bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1.5 rounded-lg flex items-center gap-1 transition"
+              disabled={isSaving}
+              className="text-xs bg-slate-700 hover:bg-slate-600 disabled:opacity-50 text-slate-200 px-3 py-1.5 rounded-lg flex items-center gap-1 transition cursor-pointer"
               title="恢復預設底稿"
             >
               <RotateCcw className="w-3.5 h-3.5" />
@@ -208,12 +245,29 @@ export const AdminModal: React.FC<AdminModalProps> = ({ isOpen, onClose, data, o
 
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/10 transition"
+              disabled={isSaving}
+              className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/10 transition cursor-pointer disabled:opacity-50"
             >
               <X className="w-6 h-6" />
             </button>
           </div>
         </div>
+
+        {/* 錯誤警示條 (Error Alert) */}
+        {saveError && (
+          <div className="bg-red-50 border-b border-red-200 text-red-800 text-xs py-2.5 px-6 flex items-center justify-between gap-2 animate-fade-in">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0" />
+              <span><strong>儲存失敗：</strong>{saveError}</span>
+            </div>
+            <button
+              onClick={() => setSaveError(null)}
+              className="text-red-600 hover:text-red-900 font-bold ml-2 cursor-pointer"
+            >
+              ✕
+            </button>
+          </div>
+        )}
 
         {/* Toast alert inside modal */}
         {toastMessage && (
@@ -619,24 +673,35 @@ export const AdminModal: React.FC<AdminModalProps> = ({ isOpen, onClose, data, o
         {/* 後台 Footer / 儲存按鈕 */}
         <div className="bg-gray-100 px-6 py-3.5 flex items-center justify-between border-t border-gray-200">
           <div className="text-xs text-gray-500 hidden sm:block">
-            儲存後立即更新首頁與手機端顯示，並自動同步至瀏覽器本地快照。
+            儲存後將同步寫入 Firebase 雲端資料庫，任何訪客與裝置即時查看最新內容（並更新本地備援快取）。
           </div>
 
           <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-200 text-xs font-semibold transition"
+              disabled={isSaving}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-200 text-xs font-semibold transition cursor-pointer disabled:opacity-50"
             >
               取消
             </button>
             <button
               type="button"
               onClick={handleSave}
-              className="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold shadow-sm transition flex items-center gap-1.5 text-xs sm:text-sm cursor-pointer"
+              disabled={isSaving}
+              className="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-500 text-white rounded-lg font-bold shadow-sm transition flex items-center gap-2 text-xs sm:text-sm cursor-pointer disabled:cursor-not-allowed"
             >
-              <Save className="w-4 h-4" />
-              <span>儲存並同步更新</span>
+              {isSaving ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>雲端同步寫入中...</span>
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4" />
+                  <span>儲存並同步至雲端</span>
+                </>
+              )}
             </button>
           </div>
         </div>
