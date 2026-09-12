@@ -1,0 +1,6 @@
+{
+  "name": "亞馬遜高山接駁",
+  "description": "專業百岳包車接駁服務，提供全台灣熱門百岳與高山步道之合法租賃車輛、安全舒適準時接駁。",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
