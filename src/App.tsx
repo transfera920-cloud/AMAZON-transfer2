@@ -136,7 +136,7 @@ export default function App() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#f4f6f4] text-[#2d3748] relative selection:bg-emerald-200 selection:text-emerald-900">
+    <div className="flex flex-col min-h-screen bg-[#07130e] text-slate-100 relative selection:bg-emerald-600 selection:text-white bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(16,185,129,0.15),rgba(7,19,14,0))]">
       {/* 頁首區塊 Header & 後台按鈕 */}
       <Header
         data={siteData}

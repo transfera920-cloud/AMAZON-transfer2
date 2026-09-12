@@ -88,12 +88,13 @@ export const CardsGrid: React.FC<CardsGridProps> = ({ sectionTitle, cards, onOpe
   };
 
   return (
-    <section className="mb-10">
+    <section className="mb-12">
       {/* 功能板塊區塊標題 */}
-      <div className="text-center mb-8">
-        <h2 id="section-title" className="text-2xl md:text-3xl font-extrabold text-gray-800 tracking-tight">
+      <div className="text-center mb-9">
+        <h2 id="section-title" className="text-2xl md:text-3xl font-extrabold text-white tracking-tight drop-shadow-sm">
           {sectionTitle}
         </h2>
+        <div className="w-12 h-1 bg-gradient-to-r from-emerald-500 to-[#00c853] mx-auto mt-3 rounded-full shadow-[0_0_8px_rgba(0,200,83,0.5)]"></div>
       </div>
 
       {/* 板塊網格 (動態渲染) */}
@@ -106,7 +107,7 @@ export const CardsGrid: React.FC<CardsGridProps> = ({ sectionTitle, cards, onOpe
             <div
               key={card.id}
               onClick={(e) => handleCardClick(card, e)}
-              className="bg-white p-6 rounded-xl shadow-xs hover:shadow-md border border-gray-100 flex flex-col items-center text-center card-hover group cursor-pointer relative overflow-hidden transition-all duration-200"
+              className="bg-[#0e2318]/85 hover:bg-[#122e20] p-6 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_35px_rgba(0,200,83,0.2)] border border-emerald-900/60 hover:border-emerald-500/60 flex flex-col items-center text-center card-hover group cursor-pointer relative overflow-hidden transition-all duration-300 backdrop-blur-md"
               role="button"
               tabIndex={0}
               onKeyDown={(e) => {
@@ -117,18 +118,21 @@ export const CardsGrid: React.FC<CardsGridProps> = ({ sectionTitle, cards, onOpe
               }}
               title={isExternal ? `開啟連結：${rawUrl}` : card.title}
             >
+              {/* Ambient glow in card corner */}
+              <div className="absolute -top-10 -right-10 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl group-hover:bg-emerald-400/25 transition duration-300 pointer-events-none"></div>
+
               {/* Icon */}
-              <div className="w-14 h-14 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center text-2xl mb-4 group-hover:bg-emerald-600 group-hover:text-white transition duration-200 shadow-xs">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#0a2718] to-[#06190f] text-[#00e676] border border-emerald-700/50 flex items-center justify-center text-2xl mb-4 group-hover:from-[#00c853] group-hover:to-[#00963e] group-hover:text-white group-hover:shadow-[0_0_20px_rgba(0,200,83,0.45)] transition-all duration-300 shadow-sm">
                 <DynamicIcon iconName={card.icon} className="w-6 h-6" />
               </div>
 
               {/* Title */}
-              <h3 className="font-bold text-gray-800 text-base mb-2 group-hover:text-emerald-700 transition">
+              <h3 className="font-bold text-white text-base mb-2 group-hover:text-[#00e676] transition-colors duration-200">
                 {card.title}
               </h3>
 
               {/* Description */}
-              <p className="text-xs text-gray-500 leading-relaxed flex-grow">
+              <p className="text-xs text-emerald-100/70 group-hover:text-emerald-100/90 leading-relaxed flex-grow transition-colors">
                 {card.desc}
               </p>
             </div>

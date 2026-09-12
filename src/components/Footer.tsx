@@ -10,10 +10,10 @@ export const Footer: React.FC<FooterProps> = ({ data }) => {
   const emailHref = `mailto:${data.email || ''}`;
 
   return (
-    <footer className="bg-dark-green text-white py-4 px-6 mt-auto border-t border-emerald-900/60 shadow-lg">
+    <footer className="bg-[#040e08] text-white py-5 px-6 mt-auto border-t border-emerald-900/80 shadow-[0_-8px_30px_rgba(0,0,0,0.5)]">
       <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-center items-center gap-6 md:gap-10">
         <div className="text-center md:text-left flex-shrink-0">
-          <h4 id="footer-banner-title" className="font-bold text-lg text-white">
+          <h4 id="footer-banner-title" className="font-bold text-lg text-white drop-shadow-xs">
             {data.footerBannerTitle || "高山登山接駁專屬預約"}
           </h4>
           <p id="footer-banner-sub" className="text-xs text-emerald-200/90 mt-0.5">
@@ -26,10 +26,10 @@ export const Footer: React.FC<FooterProps> = ({ data }) => {
           <a
             id="footer-phone-link"
             href={phoneHref}
-            className="bg-white text-gray-800 font-bold px-4 py-2 rounded-lg text-sm flex items-center hover:bg-gray-100 transition shadow-xs cursor-pointer"
+            className="bg-[#0e271a] hover:bg-[#133725] text-emerald-100 border border-emerald-700/60 font-bold px-4 py-2 rounded-lg text-sm flex items-center transition shadow-xs cursor-pointer"
             title={`撥打電話：${data.phone}`}
           >
-            <i className="fa-solid fa-phone text-emerald-700 mr-2" aria-hidden="true"></i>
+            <i className="fa-solid fa-phone text-[#00e676] mr-2" aria-hidden="true"></i>
             <span>來電諮詢</span>
           </a>
 
@@ -37,10 +37,10 @@ export const Footer: React.FC<FooterProps> = ({ data }) => {
           <a
             id="footer-email-link"
             href={emailHref}
-            className="bg-emerald-800 text-white font-bold px-4 py-2 rounded-lg text-sm flex items-center hover:bg-emerald-700 transition shadow-xs cursor-pointer"
+            className="bg-[#091f14] hover:bg-[#0f2e1e] text-emerald-200 border border-emerald-800/60 font-bold px-4 py-2 rounded-lg text-sm flex items-center transition shadow-xs cursor-pointer"
             title={`發送電子郵件：${data.email}`}
           >
-            <i className="fa-solid fa-envelope mr-2" aria-hidden="true"></i>
+            <i className="fa-solid fa-envelope text-emerald-400 mr-2" aria-hidden="true"></i>
             <span>Email 聯絡</span>
           </a>
 
@@ -50,7 +50,7 @@ export const Footer: React.FC<FooterProps> = ({ data }) => {
             href={data.lineUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-accent-green hover:bg-[#00e676] text-white font-bold px-5 py-2 rounded-lg text-sm flex items-center transition shadow-xs cursor-pointer"
+            className="bg-gradient-to-r from-[#00c853] to-[#00b248] hover:from-[#00e676] hover:to-[#00c853] text-white font-bold px-5 py-2 rounded-lg text-sm flex items-center transition shadow-[0_0_20px_rgba(0,200,83,0.35)] cursor-pointer"
             title="開啟 LINE 官方帳號"
           >
             <i className="fa-brands fa-line text-lg mr-2" aria-hidden="true"></i>
