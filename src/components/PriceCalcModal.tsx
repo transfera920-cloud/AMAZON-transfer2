@@ -16,9 +16,9 @@ interface MountainRoute {
   estimatedHours: string;
 }
 
-const DEPARTURE_CITIES = ['台北/新北', '桃園', '新竹', '台中', '彰化', '嘉義', '台南', '高雄', '宜蘭'];
+export const DEPARTURE_CITIES = ['台北/新北', '桃園', '新竹', '台中', '彰化', '嘉義', '台南', '高雄', '宜蘭'];
 
-const ROUTES: MountainRoute[] = [
+export const ROUTES: MountainRoute[] = [
   {
     name: '合歡山群峰 / 武嶺 / 小奇萊',
     category: '合歡山系',

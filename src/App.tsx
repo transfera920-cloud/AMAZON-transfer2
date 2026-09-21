@@ -23,6 +23,7 @@ import { PriceCalcModal } from './components/PriceCalcModal';
 import { D0LodgingModal } from './components/D0LodgingModal';
 import { FeastModal } from './components/FeastModal';
 import { RoadStatusModal } from './components/RoadStatusModal';
+import { TrailheadCharterSection, PopularRoutesSection, OneWayTripSection, ServiceProcessSection } from './components/ServiceSections';
 
 export default function App() {
   // Initialize with local cache for instant paint, then update with Cloud data
@@ -146,16 +147,21 @@ export default function App() {
 
       {/* 主要內容區 Main Content */}
       <main className="max-w-5xl mx-auto px-4 py-10 flex-grow w-full">
-        {/* 板塊網格 (高山接駁服務與即時查詢) */}
+        {/* 板塊網格 (百岳與高山登山接駁) */}
         <CardsGrid
-          sectionTitle={siteData.sectionTitle || "高山接駁服務與即時查詢"}
+          sectionTitle={siteData.sectionTitle || "百岳與高山登山接駁"}
           cards={siteData.cards}
           onOpenModal={(modalType) => setActiveModal(modalType)}
         />
 
+        <TrailheadCharterSection />
+        <PopularRoutesSection />
+        <OneWayTripSection />
+        <ServiceProcessSection />
+
         {/* 關於我們區塊 */}
         <AboutSection
-          title={siteData.aboutTitle || "關於亞馬遜高山接駁"}
+          title={siteData.aboutTitle || "關於我們"}
           content={siteData.aboutContent}
         />
       </main>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Settings, ExternalLink } from 'lucide-react';
 import { SiteData } from '../types';
+import { PAGE_H1 } from '../data/seoContent';
 
 interface HeaderProps {
   data: SiteData;
@@ -34,12 +35,20 @@ export const Header: React.FC<HeaderProps> = ({ data, onOpenAdmin, isCloudConnec
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 max-w-3xl h-56 bg-emerald-500/10 blur-3xl pointer-events-none rounded-full"></div>
 
         <div className="max-w-4xl mx-auto relative z-10">
-          {/* 網站大標題 */}
+          {/* 品牌名稱 (非標題，H1 專注於頁面搜尋主題) */}
+          <p
+            id="site-brand"
+            className="text-emerald-300 text-sm md:text-base tracking-widest mb-3 font-semibold"
+          >
+            {data.siteTitle}
+          </p>
+
+          {/* 網站大標題 (H1：頁面搜尋主題) */}
           <h1
             id="site-title"
             className="text-3xl md:text-5xl font-extrabold tracking-wide mb-3.5 text-white drop-shadow-[0_2px_18px_rgba(0,200,83,0.35)]"
           >
-            {data.siteTitle}
+            {PAGE_H1}
           </h1>
 
           {/* 副標題 / 標語 */}
@@ -81,7 +90,7 @@ export const Header: React.FC<HeaderProps> = ({ data, onOpenAdmin, isCloudConnec
               ))
             ) : (
               <span className="px-4 py-1.5 rounded-full bg-[#0a2015]/80 border border-emerald-700/40 text-emerald-200">
-                • 合法租賃營業車 • 職業駕照司機 • 準時接送不延誤 • 500萬乘客險
+                • 合法租賃營業車 • 職業駕照司機 • 準時接送不延誤 • 600萬乘客險
               </span>
             )}
           </div>

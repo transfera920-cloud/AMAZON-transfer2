@@ -11,10 +11,10 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ title, content }) =>
       {/* 裝飾背景柔光 */}
       <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none"></div>
 
-      <h3 className="text-lg md:text-xl font-bold text-white mb-4 flex items-center relative z-10">
+      <h2 className="text-lg md:text-xl font-bold text-white mb-4 flex items-center relative z-10">
         <span className="w-1.5 h-5 bg-gradient-to-b from-[#00e676] to-[#00c853] rounded-full mr-3 inline-block shadow-[0_0_8px_rgba(0,200,83,0.6)]"></span>
         <span id="about-title">{title}</span>
-      </h3>
+      </h2>
 
       {/* Content paragraphs */}
       <div
