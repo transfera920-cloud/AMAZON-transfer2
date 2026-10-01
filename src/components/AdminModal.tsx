@@ -186,7 +186,12 @@ export const AdminModal: React.FC<AdminModalProps> = ({
     setIsSaving(true);
     setSaveError(null);
     try {
-      await onSave(formData);
+      const todayDefault = `${new Date().getFullYear()}年${new Date().getMonth() + 1}月${new Date().getDate()}日`;
+      const dataToSave: SiteData = {
+        ...formData,
+        lastUpdated: formData.lastUpdated && formData.lastUpdated.trim() ? formData.lastUpdated.trim() : todayDefault
+      };
+      await onSave(dataToSave);
       showToast('網頁資料已成功同步至 Firebase 雲端與所有裝置！');
       setTimeout(() => {
         onClose();
@@ -378,6 +383,32 @@ export const AdminModal: React.FC<AdminModalProps> = ({
                   value={formData.siteSubtitle}
                   onChange={(e) => handleTextChange('siteSubtitle', e.target.value)}
                   className="w-full border border-gray-300 p-2 rounded-lg text-xs focus:ring-2 focus:ring-emerald-600 focus:outline-none bg-slate-50 focus:bg-white"
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-semibold text-gray-700">
+                    資料最後更新時間
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const todayStr = `${new Date().getFullYear()}年${new Date().getMonth() + 1}月${new Date().getDate()}日`;
+                      handleTextChange('lastUpdated', todayStr);
+                    }}
+                    className="text-[11px] text-emerald-700 hover:text-emerald-900 underline font-medium cursor-pointer"
+                  >
+                    設為今日
+                  </button>
+                </div>
+                <input
+                  type="text"
+                  id="edit-last-updated"
+                  value={formData.lastUpdated || ''}
+                  onChange={(e) => handleTextChange('lastUpdated', e.target.value)}
+                  className="w-full border border-gray-300 p-2 rounded-lg text-xs focus:ring-2 focus:ring-emerald-600 focus:outline-none bg-slate-50 focus:bg-white font-mono"
+                  placeholder="例：2026年10月1日"
                 />
               </div>
             </div>

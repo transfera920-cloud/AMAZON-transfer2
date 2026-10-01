@@ -259,7 +259,7 @@ export const D0LodgingModal: React.FC<D0LodgingModalProps> = ({ isOpen, onClose 
 
         {/* Footer info */}
         <div className="bg-slate-50 px-6 py-3 border-t border-slate-200 text-xs text-slate-500 flex items-center justify-between">
-          <span>亞馬遜包車提供全台各登山口至配合民宿點對點彈性接送。</span>
+          <span>亞馬遜高山接駁提供全台各登山口至配合民宿點對點彈性接送。</span>
           <button
             onClick={onClose}
             className="px-4 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg font-medium transition"

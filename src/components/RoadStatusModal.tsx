@@ -32,7 +32,7 @@ const ROAD_NOTICES: RoadNotice[] = [
     section: '18K (翠峰) ~ 41.5K (大禹嶺)',
     controlTime: '視天候降雪狀況彈性啟動雪季管制；夜間視結冰情形實施預警封閉',
     targetMountains: '合歡主東石門、合歡北西峰、小奇萊、奇萊主北',
-    description: '冬季若有低溫降雪結冰，翠峰至大禹嶺路段需加掛雪鍊方可通行。亞馬遜接駁車隊備有專業雪鍊裝備與經驗駕駛，隨時掌握即時監控。',
+    description: '冬季若有低溫降雪結冰，翠峰至大禹嶺路段需加掛雪鍊方可通行。亞馬遜高山接駁車隊備有專業雪鍊裝備與經驗駕駛，隨時掌握即時監控。',
     status: 'warning'
   },
   {
@@ -59,7 +59,7 @@ const ROAD_NOTICES: RoadNotice[] = [
     section: '0K (檢查哨) ~ 32K (郡大山登山口)',
     controlTime: '林道開放時間 06:00 ~ 17:00 (夜間關閉)',
     targetMountains: '郡大山、望鄉山、無雙山',
-    description: '路面崎嶇不平且多坑洞碎石，一般轎車切勿進入。亞馬遜提供專用高底盤4WD四驅越野車與經驗司機帶路，確保全隊安全抵達。',
+    description: '路面崎嶇不平且多坑洞碎石，一般轎車切勿進入。亞馬遜高山接駁提供專用高底盤4WD四驅越野車與經驗司機帶路，確保全隊安全抵達。',
     status: 'controlled'
   },
   {
@@ -184,7 +184,7 @@ export const RoadStatusModal: React.FC<RoadStatusModalProps> = ({ isOpen, onClos
 
         {/* Footer info */}
         <div className="bg-slate-50 px-6 py-3 border-t border-slate-200 text-xs text-slate-500 flex items-center justify-between">
-          <span>亞馬遜司機群出車前均會主動追蹤即時路況，保障登山客順利出入山。</span>
+          <span>亞馬遜高山接駁司機群出車前均會主動追蹤即時路況，保障登山客順利出入山。</span>
           <button
             onClick={onClose}
             className="px-4 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg font-medium transition"

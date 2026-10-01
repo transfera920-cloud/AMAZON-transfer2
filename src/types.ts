@@ -22,6 +22,7 @@ export interface SiteData {
   footerBannerTitle: string;
   footerBannerSub: string;
   cards: CardItem[];
+  lastUpdated?: string;
 }
 
 export type ActiveModalType = 'admin' | 'calc' | 'hotel' | 'food' | 'road' | null;

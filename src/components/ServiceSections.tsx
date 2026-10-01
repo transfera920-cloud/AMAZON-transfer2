@@ -48,6 +48,55 @@ export const OneWayTripSection: React.FC = () => (
   </SectionShell>
 );
 
+interface RelatedTool {
+  name: string;
+  url: string;
+  desc: string;
+}
+
+const RELATED_TOOLS: RelatedTool[] = [
+  {
+    name: '高山包車價格估算系統',
+    url: 'https://summit-route-advisor.lovable.app/',
+    desc: '輸入登山口、車型與乘客人數，即可試算來回或單程包車費用。'
+  },
+  {
+    name: '登山口 D0 住宿查詢',
+    url: 'https://google-trek-finder.lovable.app/trailhead-stays',
+    desc: '查詢各百岳登山口周邊民宿與山屋，安排入山前一晚住宿。'
+  },
+  {
+    name: '下山慶功宴餐廳查詢',
+    url: 'https://summit-feast-finder.lovable.app/',
+    desc: '精選完登下山後的在地合菜與美食餐廳推薦。'
+  },
+  {
+    name: '高山道路與林道管制查詢',
+    url: 'https://a28d92ab-amazon-control.yy661003.workers.dev/',
+    desc: '即時掌握高山公路、林道封閉施工與管制時段。'
+  }
+];
+
+export const RelatedToolsSection: React.FC = () => (
+  <SectionShell title="相關工具與合作網站">
+    <ul className="space-y-3 list-none">
+      {RELATED_TOOLS.map((tool) => (
+        <li key={tool.url}>
+          <a
+            href={tool.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold text-[#00e676] hover:text-white underline decoration-emerald-600/50 underline-offset-2 transition-colors"
+          >
+            {tool.name}
+          </a>
+          <span className="text-emerald-100/85">：{tool.desc}</span>
+        </li>
+      ))}
+    </ul>
+  </SectionShell>
+);
+
 export const ServiceProcessSection: React.FC = () => (
   <SectionShell title="登山接駁服務流程">
     <ol className="space-y-2.5 list-decimal list-inside">
@@ -56,5 +105,86 @@ export const ServiceProcessSection: React.FC = () => (
       <li>查看試算的預估費用。</li>
       <li>點選「帶入報價加 LINE 預約」，系統會複製行程摘要並開啟 LINE，貼上訊息即可詢問預約日期是否有車趟。</li>
     </ol>
+  </SectionShell>
+);
+
+export const RoadStatusGuideSection: React.FC<{ lastUpdated?: string }> = ({ lastUpdated }) => (
+  <SectionShell title="高山道路與林道管制即時指南">
+    <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-emerald-900/60 text-xs text-emerald-200">
+      <div className="flex items-center gap-2">
+        <span className="w-2 h-2 rounded-full bg-[#00e676] animate-pulse"></span>
+        <span>資料最後更新時間：<strong className="text-white font-mono">{lastUpdated || "2026年10月1日"}</strong></span>
+      </div>
+      <div className="flex items-center gap-2">
+        <span>官方即時路況查詢：</span>
+        <a
+          href="https://168.thb.gov.tw/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[#00e676] hover:text-white underline decoration-emerald-600/50 underline-offset-2 transition-colors font-medium"
+        >
+          公路局 168 即時路況
+        </a>
+        <span className="text-emerald-700">|</span>
+        <a
+          href="https://www.forest.gov.tw/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[#00e676] hover:text-white underline decoration-emerald-600/50 underline-offset-2 transition-colors font-medium"
+        >
+          林業署林道動態
+        </a>
+      </div>
+    </div>
+
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+      <div className="bg-[#071a10]/80 p-4 rounded-xl border border-emerald-800/40">
+        <div className="flex items-center justify-between mb-2">
+          <span className="bg-emerald-800 text-white text-xs font-bold px-2 py-0.5 rounded">台21線</span>
+          <span className="text-xs text-amber-300 font-semibold">夜間常態管制</span>
+        </div>
+        <h3 className="font-bold text-white text-sm mb-1">新中橫公路（草坪頭至塔塔加段）</h3>
+        <p className="text-xs text-amber-200/90 font-medium mb-1.5">每日 17:30 至隔日 07:00 實施常態夜間預警性封閉管制</p>
+        <p className="text-xs text-emerald-100/70 leading-relaxed">
+          影響百岳：玉山主峰、排雲山莊、鹿林麟趾山。登山接駁若欲一早起登，需在 07:00 後通過或提前於前一日 17:30 前抵達東埔山莊 D0。
+        </p>
+      </div>
+
+      <div className="bg-[#071a10]/80 p-4 rounded-xl border border-emerald-800/40">
+        <div className="flex items-center justify-between mb-2">
+          <span className="bg-emerald-800 text-white text-xs font-bold px-2 py-0.5 rounded">台14甲線</span>
+          <span className="text-xs text-blue-300 font-semibold">雪季／天候管制</span>
+        </div>
+        <h3 className="font-bold text-white text-sm mb-1">合歡山景觀公路（翠峰至大禹嶺段）</h3>
+        <p className="text-xs text-blue-200/90 font-medium mb-1.5">視降雪與路面結冰彈性啟動雪季管制，夜間常態預警封閉</p>
+        <p className="text-xs text-emerald-100/70 leading-relaxed">
+          影響百岳：合歡主東石門、合歡北西峰、奇萊主北。冬季低溫結冰期翠峰至大禹嶺需加掛雪鍊，亞馬遜高山接駁車隊備有專業雪鍊裝備與經驗駕駛。
+        </p>
+      </div>
+
+      <div className="bg-[#071a10]/80 p-4 rounded-xl border border-emerald-800/40">
+        <div className="flex items-center justify-between mb-2">
+          <span className="bg-emerald-800 text-white text-xs font-bold px-2 py-0.5 rounded">台20線</span>
+          <span className="text-xs text-red-300 font-semibold">每週二四全日封閉</span>
+        </div>
+        <h3 className="font-bold text-white text-sm mb-1">南橫公路（梅山口至向陽登山口）</h3>
+        <p className="text-xs text-red-200/90 font-medium mb-1.5">每週二、週四不開放；開放日 07:00~14:00 放行，17:00 前淨空</p>
+        <p className="text-xs text-emerald-100/70 leading-relaxed">
+          影響百岳：嘉明湖（向陽）、戒茂斯、南橫三星。欲攀登向陽嘉明湖請務必避開二、四道路維護日，亞馬遜高山接駁依通行規定彈性調度車趟。
+        </p>
+      </div>
+
+      <div className="bg-[#071a10]/80 p-4 rounded-xl border border-emerald-800/40">
+        <div className="flex items-center justify-between mb-2">
+          <span className="bg-emerald-800 text-white text-xs font-bold px-2 py-0.5 rounded">郡大林道</span>
+          <span className="text-xs text-amber-300 font-semibold">四驅專用／日間開放</span>
+        </div>
+        <h3 className="font-bold text-white text-sm mb-1">郡大山林道（檢查哨至 32K 登山口）</h3>
+        <p className="text-xs text-amber-200/90 font-medium mb-1.5">開放時間 06:00 ~ 17:00（夜間關閉）；限高底盤四驅車進入</p>
+        <p className="text-xs text-emerald-100/70 leading-relaxed">
+          路面崎嶇不平且多坑洞碎石，一般轎車切勿進入。亞馬遜高山接駁提供專用高底盤 4WD 四驅越野車與經驗司機帶路，確保全隊安全抵達。
+        </p>
+      </div>
+    </div>
   </SectionShell>
 );

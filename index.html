@@ -3,21 +3,297 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title id="seo-title">亞馬遜高山接駁 | 專業百岳包車接駁服務</title>
-    <link rel="canonical" href="https://transfer.amazon-hike.com/" />
-    <meta id="seo-desc" name="description" content="亞馬遜高山接駁提供全台灣熱門百岳與高山步道之專業接駁服務。合法租賃營業車、職業駕照司機、600萬乘客平安險，讓您的登山行程更安心順暢。" />
-    <meta name="keywords" content="高山接駁, 百岳包車, 亞馬遜高山接駁, 登山口接駁, 合歡山接駁, 雪山接駁, 嘉明湖接駁" />
-    <meta property="og:title" content="亞馬遜高山接駁 | 專業百岳包車接駁服務" />
-    <meta property="og:description" content="專業百岳高山包車接駁，安全、舒適、準時。" />
-    <meta property="og:url" content="https://transfer.amazon-hike.com/" />
+    <title id="seo-title">亞馬遜高山接駁 | 專業百岳包車接駁與高山路況指南</title>
+    <link rel="canonical" href="https://transfer.amazon-hike.com/road-status" />
+    <meta id="seo-desc" name="description" content="亞馬遜高山接駁提供全台灣熱門百岳與高山步道之專業接駁服務。合歡山、雪山、玉山、嘉明湖包車接送、即時路況管制查詢與價格估算。合法租賃營業車、職業駕照司機、600萬乘客平安險。" />
+    <meta name="keywords" content="亞馬遜高山接駁, 高山接駁, 百岳包車, 登山口接駁, 高山路況管制, 合歡山接駁, 雪山接駁, 嘉明湖接駁, 玉山接駁" />
+    
+    <!-- OpenGraph 社群分享卡片 -->
+    <meta property="og:title" content="亞馬遜高山接駁 | 專業百岳包車接駁與高山路況指南" />
+    <meta property="og:description" content="亞馬遜高山接駁提供全台灣熱門百岳與高山步道之專業接駁服務。合歡山、雪山、玉山、嘉明湖包車接送、即時路況管制查詢與價格估算。" />
+    <meta property="og:url" content="https://transfer.amazon-hike.com/road-status" />
+    <meta property="og:site_name" content="亞馬遜高山接駁" />
     <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://transfer.amazon-hike.com/images/og-cover.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    
+    <!-- Twitter / X 卡片 -->
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="亞馬遜高山接駁 | 專業百岳包車接駁與高山路況指南" />
+    <meta name="twitter:description" content="亞馬遜高山接駁提供全台灣熱門百岳與高山步道之專業接駁服務。合歡山、雪山、玉山、嘉明湖包車接送、即時路況管制查詢與價格估算。" />
+    <meta name="twitter:image" content="https://transfer.amazon-hike.com/images/og-cover.jpg" />
+
+    <!-- Schema.org 結構化資料 (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "name": "亞馬遜高山接駁",
+      "alternateName": "Amazon Hike Transfer",
+      "description": "亞馬遜高山接駁提供全台灣熱門百岳與高山步道之專業接駁服務。合法租賃營業車、職業駕照司機、600萬乘客平安險，讓您的登山行程更安心順暢。",
+      "url": "https://transfer.amazon-hike.com/road-status",
+      "sameAs": [
+        "https://amazon-hike.com/"
+      ],
+      "telephone": "0912345678",
+      "email": "amazonchiayi@gmail.com",
+      "image": "https://transfer.amazon-hike.com/images/og-cover.jpg",
+      "priceRange": "$$",
+      "areaServed": {
+        "@type": "Country",
+        "name": "Taiwan"
+      },
+      "serviceType": [
+        "高山登山接駁",
+        "百岳登山口包車",
+        "高山道路與林道管制查詢",
+        "登山口接送服務"
+      ]
+    }
+    </script>
+
     <!-- FontAwesome 圖示庫 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   </head>
-  <body class="min-h-screen bg-[#f4f6f4] text-[#2d3748] flex flex-col font-sans antialiased">
-    <div id="root" class="flex flex-col min-h-screen"></div>
+  <body class="min-h-screen bg-[#07130e] text-slate-100 flex flex-col font-sans antialiased">
+    <!-- 初次載入即存在的主要文字與結構，供爬蟲與初次載入檢視，React 掛載後接手互動 -->
+    <div id="root" class="flex flex-col min-h-screen">
+      <header class="bg-gradient-to-b from-[#04110a] via-[#092215] to-[#0a1f14] text-white pt-14 pb-10 px-4 text-center border-b border-emerald-900/60">
+        <div class="max-w-4xl mx-auto">
+          <div class="mb-3">
+            <a
+              id="site-brand"
+              href="https://amazon-hike.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-1.5 text-emerald-300 hover:text-white transition-colors text-sm md:text-base tracking-widest font-semibold py-1 px-3.5 rounded-full border border-emerald-700/30"
+              title="前往 亞馬遜高山接駁 官方主網站 (amazon-hike.com)"
+            >
+              <span>亞馬遜高山接駁</span>
+            </a>
+          </div>
+
+          <h1 id="site-title" class="text-3xl md:text-5xl font-extrabold tracking-wide mb-3.5 text-white">
+            登山接駁｜百岳、高山登山口接送服務
+          </h1>
+
+          <p id="site-subtitle" class="text-emerald-200 text-sm md:text-base tracking-widest mb-4 font-medium">
+            安全 ‧ 舒適 ‧ 準時 | 專業百岳高山包車接駁
+          </p>
+
+          <div class="flex justify-center mb-7">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0a2718]/90 border border-emerald-600/50 text-emerald-200 text-xs md:text-sm">
+              <span class="w-2 h-2 rounded-full bg-[#00e676]"></span>
+              <span class="font-semibold text-white">資料最後更新時間：</span>
+              <span class="text-emerald-300 font-mono font-bold">2026年10月1日</span>
+              <span class="text-emerald-400/80 text-xs hidden sm:inline">（每日定時更新高山路況與接駁資訊）</span>
+            </div>
+          </div>
+
+          <div class="flex justify-center">
+            <a
+              id="hero-line-link"
+              href="https://line.me"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center justify-center bg-gradient-to-r from-[#00c853] to-[#00b248] text-white font-bold px-9 py-4 rounded-full text-base md:text-lg"
+            >
+              <span>點我加 LINE 官方帳號預約</span>
+            </a>
+          </div>
+
+          <div id="features-container" class="mt-9 pt-7 border-t border-emerald-800/40 flex flex-wrap justify-center gap-2.5 text-xs md:text-sm text-emerald-200">
+            <span class="px-3.5 py-1.5 rounded-full bg-[#0a2015]/80 border border-emerald-700/40">• 合法租賃營業車</span>
+            <span class="px-3.5 py-1.5 rounded-full bg-[#0a2015]/80 border border-emerald-700/40">• 職業駕照司機</span>
+            <span class="px-3.5 py-1.5 rounded-full bg-[#0a2015]/80 border border-emerald-700/40">• 準時接送不延誤</span>
+            <span class="px-3.5 py-1.5 rounded-full bg-[#0a2015]/80 border border-emerald-700/40">• 全台登山口接送</span>
+            <span class="px-3.5 py-1.5 rounded-full bg-[#0a2015]/80 border border-emerald-700/40">• 600萬乘客平安險</span>
+          </div>
+        </div>
+      </header>
+
+      <main class="max-w-5xl mx-auto px-4 py-10 flex-grow w-full">
+        <!-- 百岳與高山登山接駁核心卡片 -->
+        <section class="mb-12">
+          <div class="text-center mb-9">
+            <h2 class="text-2xl md:text-3xl font-extrabold text-white tracking-tight">百岳與高山登山接駁</h2>
+            <div class="w-12 h-1 bg-gradient-to-r from-emerald-500 to-[#00c853] mx-auto mt-3 rounded-full"></div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <a
+              href="https://summit-route-advisor.lovable.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="bg-[#0e2318]/85 p-6 rounded-2xl border border-emerald-900/60 flex flex-col items-center text-center block text-white"
+            >
+              <h3 class="font-bold text-white text-base mb-2">價格估算系統</h3>
+              <p class="text-xs text-emerald-100/70">透明化高山包車資估算，快速試算包車費用</p>
+            </a>
+
+            <a
+              href="https://google-trek-finder.lovable.app/trailhead-stays"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="bg-[#0e2318]/85 p-6 rounded-2xl border border-emerald-900/60 flex flex-col items-center text-center block text-white"
+            >
+              <h3 class="font-bold text-white text-base mb-2">D0 住宿查詢</h3>
+              <p class="text-xs text-emerald-100/70">登山口周邊優質民宿與接駁合作住宿推薦篇</p>
+            </a>
+
+            <a
+              href="https://summit-feast-finder.lovable.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="bg-[#0e2318]/85 p-6 rounded-2xl border border-emerald-900/60 flex flex-col items-center text-center block text-white"
+            >
+              <h3 class="font-bold text-white text-base mb-2">下山慶功宴查詢</h3>
+              <p class="text-xs text-emerald-100/70">精選完登下山補給合菜與在地美食餐廳</p>
+            </a>
+
+            <a
+              href="https://a28d92ab-amazon-control.yy661003.workers.dev/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="bg-[#0e2318]/85 p-6 rounded-2xl border border-emerald-900/60 flex flex-col items-center text-center block text-white"
+            >
+              <h3 class="font-bold text-white text-base mb-2">道路路線管制查詢</h3>
+              <p class="text-xs text-emerald-100/70">即時掌握林道與高山省道最新施工管制時間</p>
+            </a>
+          </div>
+        </section>
+
+        <!-- 登山口接送與登山包車 -->
+        <section class="bg-[#0e2318]/85 border border-emerald-900/60 rounded-2xl p-6 md:p-8 mb-12">
+          <h2 class="text-lg md:text-xl font-bold text-white mb-4">登山口接送與登山包車</h2>
+          <div class="text-emerald-100/85 leading-relaxed text-sm md:text-base space-y-4">
+            <p>提供由台北、新北、桃園、新竹、台中、彰化、南投、嘉義、台南、高雄出發的登山口包車接送。車型可選擇 9 人座商務車、7 人座休旅，或適合林道碎石路段的高底盤四驅車，並可依行程選擇來回包車或單程，也可選擇夜間或 D0 跨夜出發的時段。</p>
+            <p>可使用上方「價格估算系統」，先試算各路線的包車費用。</p>
+          </div>
+        </section>
+
+        <!-- 熱門百岳登山接駁路線 -->
+        <section class="bg-[#0e2318]/85 border border-emerald-900/60 rounded-2xl p-6 md:p-8 mb-12">
+          <h2 class="text-lg md:text-xl font-bold text-white mb-4">熱門百岳登山接駁路線</h2>
+          <ul class="space-y-2.5 list-none text-emerald-100/85 text-sm md:text-base">
+            <li><span class="font-semibold text-white">合歡山群峰／武嶺</span>：合歡主峰、東峰、北西峰、石門山登山口接駁</li>
+            <li><span class="font-semibold text-white">雪山主東峰／武陵四秀</span>：武陵農場登山口接駁</li>
+            <li><span class="font-semibold text-white">嘉明湖／向陽登山口</span>：向陽國家森林遊樂區、戒茂斯登山口接駁</li>
+            <li><span class="font-semibold text-white">玉山主峰／塔塔加</span>：塔塔加鞍部登山口、東埔山莊接駁</li>
+            <li><span class="font-semibold text-white">奇萊南華／屯原登山口</span>：屯原登山口、盧山溫泉接駁</li>
+            <li><span class="font-semibold text-white">能高越嶺／安東軍縱走</span>：屯原或奧萬大進出接駁</li>
+          </ul>
+        </section>
+
+        <!-- A進B出與行程接送 -->
+        <section class="bg-[#0e2318]/85 border border-emerald-900/60 rounded-2xl p-6 md:p-8 mb-12">
+          <h2 class="text-lg md:text-xl font-bold text-white mb-4">A進B出與行程接送</h2>
+          <div class="text-emerald-100/85 leading-relaxed text-sm md:text-base">
+            <p>A進B出是指從一個登山口入山、由另一個登山口下山的行程（例如縱走），起點與終點不同。本站價格估算提供「來回包車」與「單程」兩種行程模式；若您的行程入山口與下山口不同，歡迎透過 LINE 說明入山口、下山口與日期。</p>
+          </div>
+        </section>
+
+        <!-- 登山接駁服務流程 -->
+        <section class="bg-[#0e2318]/85 border border-emerald-900/60 rounded-2xl p-6 md:p-8 mb-12">
+          <h2 class="text-lg md:text-xl font-bold text-white mb-4">登山接駁服務流程</h2>
+          <ol class="space-y-2.5 list-decimal list-inside text-emerald-100/85 text-sm md:text-base">
+            <li>於「價格估算系統」選擇目標百岳／登山口與出發城市。</li>
+            <li>選擇車型、行程模式（來回或單程）、乘客人數，以及是否為夜間出發。</li>
+            <li>查看試算的預估費用。</li>
+            <li>點選「帶入報價加 LINE 預約」，系統會複製行程摘要並開啟 LINE，貼上訊息即可詢問預約日期是否有車趟。</li>
+          </ol>
+        </section>
+
+        <!-- 相關工具與合作網站 -->
+        <section class="bg-[#0e2318]/85 border border-emerald-900/60 rounded-2xl p-6 md:p-8 mb-12">
+          <h2 class="text-lg md:text-xl font-bold text-white mb-4">相關工具與合作網站</h2>
+          <ul class="space-y-3 list-none text-sm md:text-base">
+            <li>
+              <a href="https://summit-route-advisor.lovable.app/" target="_blank" rel="noopener noreferrer" class="font-semibold text-[#00e676] hover:text-white underline decoration-emerald-600/50 underline-offset-2 transition-colors">高山包車價格估算系統</a>
+              <span class="text-emerald-100/85">：輸入登山口、車型與乘客人數，即可試算來回或單程包車費用。</span>
+            </li>
+            <li>
+              <a href="https://google-trek-finder.lovable.app/trailhead-stays" target="_blank" rel="noopener noreferrer" class="font-semibold text-[#00e676] hover:text-white underline decoration-emerald-600/50 underline-offset-2 transition-colors">登山口 D0 住宿查詢</a>
+              <span class="text-emerald-100/85">：查詢各百岳登山口周邊民宿與山屋，安排入山前一晚住宿。</span>
+            </li>
+            <li>
+              <a href="https://summit-feast-finder.lovable.app/" target="_blank" rel="noopener noreferrer" class="font-semibold text-[#00e676] hover:text-white underline decoration-emerald-600/50 underline-offset-2 transition-colors">下山慶功宴餐廳查詢</a>
+              <span class="text-emerald-100/85">：精選完登下山後的在地合菜與美食餐廳推薦。</span>
+            </li>
+            <li>
+              <a href="https://a28d92ab-amazon-control.yy661003.workers.dev/" target="_blank" rel="noopener noreferrer" class="font-semibold text-[#00e676] hover:text-white underline decoration-emerald-600/50 underline-offset-2 transition-colors">高山道路與林道管制查詢</a>
+              <span class="text-emerald-100/85">：即時掌握高山公路、林道封閉施工與管制時段。</span>
+            </li>
+          </ul>
+        </section>
+
+        <!-- 高山道路與林道管制即時指南 (直接呈現於初次載入 HTML，對應 /road-status) -->
+        <section class="bg-[#0e2318]/85 border border-emerald-900/60 rounded-2xl p-6 md:p-8 mb-12">
+          <h2 class="text-lg md:text-xl font-bold text-white mb-4">高山道路與林道管制即時指南</h2>
+          <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-emerald-900/60 text-xs text-emerald-200">
+            <div>
+              <span>資料最後更新時間：<strong class="text-white font-mono">2026年10月1日</strong></span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span>官方即時路況查詢：</span>
+              <a href="https://168.thb.gov.tw/" target="_blank" rel="noopener noreferrer" class="text-[#00e676] hover:text-white underline">公路局 168 即時路況</a>
+              <span>|</span>
+              <a href="https://www.forest.gov.tw/" target="_blank" rel="noopener noreferrer" class="text-[#00e676] hover:text-white underline">林業署林道動態</a>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 text-xs text-emerald-100/80">
+            <div class="bg-[#071a10]/80 p-4 rounded-xl border border-emerald-800/40">
+              <h3 class="font-bold text-white text-sm mb-1">台21線 新中橫公路（草坪頭至塔塔加段）</h3>
+              <p class="text-amber-200/90 font-medium mb-1">每日 17:30 至隔日 07:00 實施常態夜間預警性封閉管制</p>
+              <p>影響百岳：玉山主峰、排雲山莊、鹿林麟趾山。欲一早起登需在 07:00 後通過或提前於前一日 17:30 前抵達東埔山莊 D0。</p>
+            </div>
+            <div class="bg-[#071a10]/80 p-4 rounded-xl border border-emerald-800/40">
+              <h3 class="font-bold text-white text-sm mb-1">台14甲線 合歡山景觀公路（翠峰至大禹嶺段）</h3>
+              <p class="text-blue-200/90 font-medium mb-1">視降雪與路面結冰彈性啟動雪季管制，夜間常態預警封閉</p>
+              <p>影響百岳：合歡群峰、奇萊主北。冬季低溫結冰期翠峰至大禹嶺需加掛雪鍊，亞馬遜高山接駁車隊備有專業雪鍊裝備。</p>
+            </div>
+            <div class="bg-[#071a10]/80 p-4 rounded-xl border border-emerald-800/40">
+              <h3 class="font-bold text-white text-sm mb-1">台20線 南橫公路（梅山口至向陽登山口）</h3>
+              <p class="text-red-200/90 font-medium mb-1">每週二、週四不開放；開放日 07:00~14:00 放行，17:00 前淨空</p>
+              <p>影響百岳：嘉明湖（向陽）、戒茂斯、南橫三星。欲攀登向陽嘉明湖請務必避開二、四道路維護日。</p>
+            </div>
+            <div class="bg-[#071a10]/80 p-4 rounded-xl border border-emerald-800/40">
+              <h3 class="font-bold text-white text-sm mb-1">郡大林道（檢查哨至 32K 登山口）</h3>
+              <p class="text-amber-200/90 font-medium mb-1">開放時間 06:00 ~ 17:00（夜間關閉）；限高底盤四驅車進入</p>
+              <p>路面崎嶇不平且多坑洞碎石，一般轎車切勿進入。亞馬遜高山接駁提供專用高底盤 4WD 四驅越野車與經驗司機帶路。</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- 關於我們 -->
+        <section class="bg-[#0e2318]/85 border border-emerald-900/60 rounded-2xl p-6 md:p-8 mb-12">
+          <h2 class="text-lg md:text-xl font-bold text-white mb-4">關於我們</h2>
+          <div id="about-content" class="text-emerald-100/85 leading-relaxed text-sm md:text-base space-y-4">
+            <p>亞馬遜高山接駁提供全台灣熱門百岳與高山步道之專業接駁服務。無論您是要前往合歡山群峰、雪山主東峰、嘉明湖（向陽）、玉山登山口、奇萊南華，或是能高越嶺等路線，我們皆提供安全、優質的接駁車隊體驗。</p>
+            <p>提供司機駕駛經驗豐富的高山接駁服務，協助登山客解決大眾運輸不便的問題。請善用本站提供的價格估算系統、D0住宿推薦、慶功宴餐廳資訊與即時道路管制動態，讓您的登山行程更安心順暢。</p>
+          </div>
+        </section>
+      </main>
+
+      <footer class="bg-[#040e08] text-white py-5 px-6 mt-auto border-t border-emerald-900/80">
+        <div class="max-w-5xl mx-auto flex flex-col md:flex-row justify-center items-center gap-6">
+          <div class="text-center md:text-left">
+            <h4 class="font-bold text-lg text-white">高山登山接駁專屬預約</h4>
+            <p class="text-xs text-emerald-200/90 mt-0.5">合法租賃車輛 ‧ 行程彈性安排 ‧ 歡迎提早預約包車</p>
+          </div>
+          <div class="flex flex-wrap items-center justify-center gap-3 text-sm">
+            <a href="tel:0912345678" class="bg-[#0e271a] text-emerald-100 border border-emerald-700/60 font-bold px-4 py-2 rounded-lg">來電諮詢：0912345678</a>
+            <a href="mailto:amazonchiayi@gmail.com" class="bg-[#091f14] text-emerald-200 border border-emerald-800/60 font-bold px-4 py-2 rounded-lg">Email 聯絡</a>
+            <a href="https://line.me" target="_blank" rel="noopener noreferrer" class="bg-gradient-to-r from-[#00c853] to-[#00b248] text-white font-bold px-5 py-2 rounded-lg">LINE 立即預約</a>
+          </div>
+        </div>
+        <div class="max-w-5xl mx-auto mt-4 pt-3 border-t border-emerald-950/80 text-center text-xs text-emerald-200/60 flex flex-col sm:flex-row items-center justify-between gap-2">
+          <span>© 亞馬遜高山接駁 ‧ 專業百岳高山包車接送</span>
+          <span class="text-emerald-400/80">資料最後更新時間：2026年10月1日</span>
+        </div>
+      </footer>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-

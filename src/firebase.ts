@@ -112,6 +112,7 @@ export function sanitizeSiteData(raw: any): SiteData {
     aboutContent: typeof raw.aboutContent === 'string' ? raw.aboutContent : DEFAULT_DATA.aboutContent,
     footerBannerTitle: typeof raw.footerBannerTitle === 'string' ? raw.footerBannerTitle : DEFAULT_DATA.footerBannerTitle,
     footerBannerSub: typeof raw.footerBannerSub === 'string' ? raw.footerBannerSub : DEFAULT_DATA.footerBannerSub,
+    lastUpdated: typeof raw.lastUpdated === 'string' && raw.lastUpdated.trim() ? raw.lastUpdated : (DEFAULT_DATA.lastUpdated || "2026年10月1日"),
     cards: Array.isArray(raw.cards) && raw.cards.length > 0 ? raw.cards : DEFAULT_DATA.cards
   };
 }

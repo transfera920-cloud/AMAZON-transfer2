@@ -234,7 +234,7 @@ export const FeastModal: React.FC<FeastModalProps> = ({ isOpen, onClose }) => {
 
         {/* Footer info */}
         <div className="bg-slate-50 px-6 py-3 border-t border-slate-200 text-xs text-slate-500 flex items-center justify-between">
-          <span>亞馬遜包車行程均可配合全隊在慶功宴餐廳用餐等候，吃飽後再載送返程！</span>
+          <span>亞馬遜高山接駁行程均可配合全隊在慶功宴餐廳用餐等候，吃飽後再載送返程！</span>
           <button
             onClick={onClose}
             className="px-4 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg font-medium transition"

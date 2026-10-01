@@ -35,13 +35,20 @@ export const Header: React.FC<HeaderProps> = ({ data, onOpenAdmin, isCloudConnec
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 max-w-3xl h-56 bg-emerald-500/10 blur-3xl pointer-events-none rounded-full"></div>
 
         <div className="max-w-4xl mx-auto relative z-10">
-          {/* 品牌名稱 (非標題，H1 專注於頁面搜尋主題) */}
-          <p
-            id="site-brand"
-            className="text-emerald-300 text-sm md:text-base tracking-widest mb-3 font-semibold"
-          >
-            {data.siteTitle}
-          </p>
+          {/* 品牌名稱超連結至主站 */}
+          <div className="mb-3">
+            <a
+              id="site-brand"
+              href="https://amazon-hike.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-emerald-300 hover:text-white transition-colors text-sm md:text-base tracking-widest font-semibold py-1 px-3.5 rounded-full hover:bg-emerald-900/40 border border-emerald-700/30 hover:border-emerald-500/60 group"
+              title="前往 亞馬遜高山接駁 官方主網站 (amazon-hike.com)"
+            >
+              <span>{data.siteTitle || "亞馬遜高山接駁"}</span>
+              <ExternalLink className="w-3.5 h-3.5 opacity-70 group-hover:opacity-100 transition-opacity" />
+            </a>
+          </div>
 
           {/* 網站大標題 (H1：頁面搜尋主題) */}
           <h1
@@ -54,10 +61,20 @@ export const Header: React.FC<HeaderProps> = ({ data, onOpenAdmin, isCloudConnec
           {/* 副標題 / 標語 */}
           <p
             id="site-subtitle"
-            className="text-emerald-200 text-sm md:text-base tracking-widest mb-8 font-medium drop-shadow-xs"
+            className="text-emerald-200 text-sm md:text-base tracking-widest mb-4 font-medium drop-shadow-xs"
           >
             {data.siteSubtitle}
           </p>
+
+          {/* 資料最後更新時間 */}
+          <div className="flex justify-center mb-7">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0a2718]/90 border border-emerald-600/50 text-emerald-200 text-xs md:text-sm shadow-md backdrop-blur-md">
+              <span className="w-2 h-2 rounded-full bg-[#00e676] animate-pulse"></span>
+              <span className="font-semibold text-white">資料最後更新時間：</span>
+              <span className="text-emerald-300 font-mono font-bold">{data.lastUpdated || "2026年10月1日"}</span>
+              <span className="text-emerald-400/80 text-xs hidden sm:inline">（每日定時更新高山路況與接駁資訊）</span>
+            </div>
+          </div>
 
           {/* 大 LINE 按鈕 */}
           <div className="flex justify-center">

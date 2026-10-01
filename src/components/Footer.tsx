@@ -58,6 +58,11 @@ export const Footer: React.FC<FooterProps> = ({ data }) => {
           </a>
         </div>
       </div>
+
+      <div className="max-w-5xl mx-auto mt-4 pt-3 border-t border-emerald-950/80 text-center text-xs text-emerald-200/60 flex flex-col sm:flex-row items-center justify-between gap-2">
+        <span>© 亞馬遜高山接駁 ‧ 專業百岳高山包車接送</span>
+        <span className="text-emerald-400/80">資料最後更新時間：{data.lastUpdated || "2026年10月1日"}</span>
+      </div>
     </footer>
   );
 };

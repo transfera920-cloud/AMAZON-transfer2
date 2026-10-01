@@ -23,7 +23,14 @@ import { PriceCalcModal } from './components/PriceCalcModal';
 import { D0LodgingModal } from './components/D0LodgingModal';
 import { FeastModal } from './components/FeastModal';
 import { RoadStatusModal } from './components/RoadStatusModal';
-import { TrailheadCharterSection, PopularRoutesSection, OneWayTripSection, ServiceProcessSection } from './components/ServiceSections';
+import {
+  TrailheadCharterSection,
+  PopularRoutesSection,
+  OneWayTripSection,
+  ServiceProcessSection,
+  RelatedToolsSection,
+  RoadStatusGuideSection
+} from './components/ServiceSections';
 
 export default function App() {
   // Initialize with local cache for instant paint, then update with Cloud data
@@ -158,6 +165,8 @@ export default function App() {
         <PopularRoutesSection />
         <OneWayTripSection />
         <ServiceProcessSection />
+        <RelatedToolsSection />
+        <RoadStatusGuideSection lastUpdated={siteData.lastUpdated} />
 
         {/* 關於我們區塊 */}
         <AboutSection
