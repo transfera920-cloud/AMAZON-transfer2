@@ -57,7 +57,7 @@ interface RelatedTool {
 const RELATED_TOOLS: RelatedTool[] = [
   {
     name: '高山包車價格估算系統',
-    url: 'https://route-amazon-hike-com.lovable.app/',
+    url: 'https://re-use-your-stuff.lovable.app/',
     desc: '輸入登山口、車型與乘客人數，即可試算來回或單程包車費用。'
   },
   {

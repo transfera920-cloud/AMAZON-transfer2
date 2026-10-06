@@ -115,8 +115,8 @@ export function sanitizeSiteData(raw: any): SiteData {
     lastUpdated: typeof raw.lastUpdated === 'string' && raw.lastUpdated.trim() ? raw.lastUpdated : (DEFAULT_DATA.lastUpdated || "2026年10月1日"),
     cards: Array.isArray(raw.cards) && raw.cards.length > 0
       ? raw.cards.map((c: any) =>
-          c.url === 'https://summit-route-advisor.lovable.app/' || (c.id === 'card-1' && (c.url === '#calc' || !c.url))
-            ? { ...c, url: 'https://route-amazon-hike-com.lovable.app/' }
+          c.url === 'https://route-amazon-hike-com.lovable.app/' || c.url === 'https://summit-route-advisor.lovable.app/' || (c.id === 'card-1' && (c.url === '#calc' || !c.url))
+            ? { ...c, url: 'https://re-use-your-stuff.lovable.app/' }
             : c
         )
       : DEFAULT_DATA.cards

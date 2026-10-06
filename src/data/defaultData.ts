@@ -29,7 +29,7 @@ export const DEFAULT_DATA: SiteData = {
       icon: "fa-calculator",
       title: "價格估算系統",
       desc: "透明化高山包車資估算，快速試算包車費用",
-      url: "https://route-amazon-hike-com.lovable.app/"
+      url: "https://re-use-your-stuff.lovable.app/"
     },
     {
       id: "card-2",
