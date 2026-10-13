@@ -7,12 +7,12 @@ interface SectionShellProps {
 }
 
 const SectionShell: React.FC<SectionShellProps> = ({ title, children }) => (
-  <section className="bg-[#0e2318]/85 border border-emerald-900/60 rounded-2xl p-6 md:p-8 shadow-[0_4px_20px_rgba(0,0,0,0.3)] backdrop-blur-md mb-12 relative overflow-hidden">
-    <h2 className="text-lg md:text-xl font-bold text-white mb-4 flex items-center relative z-10">
+  <section className="bg-[#0e2318]/85 border border-emerald-900/60 rounded-2xl p-4 md:p-8 shadow-[0_4px_20px_rgba(0,0,0,0.3)] backdrop-blur-md mb-4 md:mb-12 relative overflow-hidden">
+    <h2 className="text-lg md:text-xl font-bold text-white mb-2.5 md:mb-4 flex items-center relative z-10">
       <span className="w-1.5 h-5 bg-gradient-to-b from-[#00e676] to-[#00c853] rounded-full mr-3 inline-block shadow-[0_0_8px_rgba(0,200,83,0.6)]"></span>
       <span>{title}</span>
     </h2>
-    <div className="text-emerald-100/85 leading-relaxed text-sm md:text-base space-y-4 relative z-10">
+    <div className="text-emerald-100/85 leading-relaxed text-sm md:text-base space-y-2.5 md:space-y-4 relative z-10">
       {children}
     </div>
   </section>

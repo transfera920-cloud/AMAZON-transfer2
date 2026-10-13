@@ -16,7 +16,7 @@ export const Header: React.FC<HeaderProps> = ({ data, onOpenAdmin, isCloudConnec
       <button
         id="btn-admin-open"
         onClick={onOpenAdmin}
-        className="fixed top-4 right-4 z-40 bg-[#0a1b13]/90 hover:bg-[#102b1f] text-emerald-100 text-xs px-3.5 py-1.5 rounded-lg shadow-lg flex items-center gap-1.5 backdrop-blur-md transition-all border border-emerald-700/50 cursor-pointer"
+        className="absolute top-3 right-3 md:fixed md:top-4 md:right-4 z-40 bg-[#0a1b13]/90 hover:bg-[#102b1f] text-emerald-100 text-xs px-3.5 py-1.5 rounded-lg shadow-lg flex items-center gap-1.5 backdrop-blur-md transition-all border border-emerald-700/50 cursor-pointer"
         title="開啟網站內容管理後台"
       >
         <i className="fa-solid fa-gear text-emerald-400" aria-hidden="true"></i>
@@ -30,7 +30,7 @@ export const Header: React.FC<HeaderProps> = ({ data, onOpenAdmin, isCloudConnec
       </button>
 
       {/* 頁首區塊 Header */}
-      <header className="bg-gradient-to-b from-[#04110a] via-[#092215] to-[#0a1f14] text-white pt-14 pb-10 px-4 text-center relative shadow-xl border-b border-emerald-900/60 overflow-hidden">
+      <header className="bg-gradient-to-b from-[#04110a] via-[#092215] to-[#0a1f14] text-white pt-12 md:pt-14 pb-6 md:pb-10 px-4 text-center relative shadow-xl border-b border-emerald-900/60 overflow-hidden">
         {/* 背景裝飾光暈 */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 max-w-3xl h-56 bg-emerald-500/10 blur-3xl pointer-events-none rounded-full"></div>
 
@@ -67,7 +67,7 @@ export const Header: React.FC<HeaderProps> = ({ data, onOpenAdmin, isCloudConnec
           </p>
 
           {/* 資料最後更新時間 */}
-          <div className="flex justify-center mb-7">
+          <div className="flex justify-center mb-5 md:mb-7">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0a2718]/90 border border-emerald-600/50 text-emerald-200 text-xs md:text-sm shadow-md backdrop-blur-md">
               <span className="w-2 h-2 rounded-full bg-[#00e676] animate-pulse"></span>
               <span className="font-semibold text-white">資料最後更新時間：</span>
@@ -93,7 +93,7 @@ export const Header: React.FC<HeaderProps> = ({ data, onOpenAdmin, isCloudConnec
           {/* 賣點/特色條標籤 */}
           <div
             id="features-container"
-            className="mt-9 pt-7 border-t border-emerald-800/40 flex flex-wrap justify-center gap-2.5 md:gap-3.5 text-xs md:text-sm text-emerald-200"
+            className="mt-6 md:mt-9 pt-5 md:pt-7 border-t border-emerald-800/40 flex flex-wrap justify-center gap-2.5 md:gap-3.5 text-xs md:text-sm text-emerald-200"
           >
             {data.features && data.features.length > 0 ? (
               data.features.map((feat, idx) => (

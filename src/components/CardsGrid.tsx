@@ -53,15 +53,15 @@ function resolveCardLink(card: CardItem): { href: string; isModal: boolean; isEx
 
 export const CardsGrid: React.FC<CardsGridProps> = ({ sectionTitle, cards, onOpenModal }) => {
   return (
-    <section className="mb-12">
-      <div className="text-center mb-9">
-        <h2 id="section-title" className="text-2xl md:text-3xl font-extrabold text-white tracking-tight drop-shadow-sm">
+    <section className="mb-6 md:mb-12">
+      <div className="text-center mb-4 md:mb-9">
+        <h2 id="section-title" className="text-xl md:text-3xl font-extrabold text-white tracking-tight drop-shadow-sm">
           {sectionTitle}
         </h2>
-        <div className="w-12 h-1 bg-gradient-to-r from-emerald-500 to-[#00c853] mx-auto mt-3 rounded-full shadow-[0_0_8px_rgba(0,200,83,0.5)]"></div>
+        <div className="w-12 h-1 bg-gradient-to-r from-emerald-500 to-[#00c853] mx-auto mt-2 md:mt-3 rounded-full shadow-[0_0_8px_rgba(0,200,83,0.5)]"></div>
       </div>
 
-      <div id="cards-grid" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div id="cards-grid" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5">
         {cards.map((card) => {
           const { href, isModal, isExternal } = resolveCardLink(card);
 
@@ -79,23 +79,25 @@ export const CardsGrid: React.FC<CardsGridProps> = ({ sectionTitle, cards, onOpe
               }
               target={isExternal ? '_blank' : undefined}
               rel={isExternal ? 'noopener noreferrer' : undefined}
-              className="bg-[#0e2318]/85 hover:bg-[#122e20] p-6 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_35px_rgba(0,200,83,0.2)] border border-emerald-900/60 hover:border-emerald-500/60 flex flex-col items-center text-center card-hover group cursor-pointer relative overflow-hidden transition-all duration-300 backdrop-blur-md"
+              className="bg-[#0e2318]/85 hover:bg-[#122e20] p-3.5 md:p-6 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_35px_rgba(0,200,83,0.2)] border border-emerald-900/60 hover:border-emerald-500/60 flex flex-row md:flex-col items-center gap-3.5 md:gap-0 text-left md:text-center card-hover group cursor-pointer relative overflow-hidden transition-all duration-300 backdrop-blur-md"
               id={`card-link-${card.id}`}
               title={isExternal ? `開啟連結：${href}` : card.title}
             >
               <div className="absolute -top-10 -right-10 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl group-hover:bg-emerald-400/25 transition duration-300 pointer-events-none"></div>
 
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#0a2718] to-[#06190f] text-[#00e676] border border-emerald-700/50 flex items-center justify-center text-2xl mb-4 group-hover:from-[#00c853] group-hover:to-[#00963e] group-hover:text-white group-hover:shadow-[0_0_20px_rgba(0,200,83,0.45)] transition-all duration-300 shadow-sm">
+              <div className="w-11 h-11 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-[#0a2718] to-[#06190f] text-[#00e676] border border-emerald-700/50 shrink-0 flex items-center justify-center text-xl md:text-2xl mb-0 md:mb-4 group-hover:from-[#00c853] group-hover:to-[#00963e] group-hover:text-white group-hover:shadow-[0_0_20px_rgba(0,200,83,0.45)] transition-all duration-300 shadow-sm">
                 <DynamicIcon iconName={card.icon} className="w-6 h-6" />
               </div>
 
-              <h3 className="font-bold text-white text-base mb-2 group-hover:text-[#00e676] transition-colors duration-200">
-                {card.title}
-              </h3>
+              <div className="flex-1 min-w-0 md:flex md:flex-col md:flex-grow md:items-center">
+                <h3 className="font-bold text-white text-base mb-0.5 md:mb-2 group-hover:text-[#00e676] transition-colors duration-200">
+                  {card.title}
+                </h3>
 
-              <p className="text-xs text-emerald-100/70 group-hover:text-emerald-100/90 leading-relaxed flex-grow transition-colors">
-                {card.desc}
-              </p>
+                <p className="text-xs text-emerald-100/70 group-hover:text-emerald-100/90 leading-relaxed md:flex-grow transition-colors">
+                  {card.desc}
+                </p>
+              </div>
             </a>
           );
         })}

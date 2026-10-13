@@ -146,7 +146,7 @@ export default function App() {
       />
 
       {/* 主要內容區 Main Content */}
-      <main className="max-w-5xl mx-auto px-4 py-10 flex-grow w-full">
+      <main className="max-w-5xl mx-auto px-3 md:px-4 py-4 md:py-10 flex-grow w-full">
         {/* 板塊網格 (百岳與高山登山接駁) */}
         <CardsGrid
           sectionTitle={siteData.sectionTitle || "百岳與高山登山接駁"}
