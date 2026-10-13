@@ -32,7 +32,11 @@ export const PopularRoutesSection: React.FC = () => (
     <ul className="space-y-2.5 list-none">
       {ROUTES.map((route) => (
         <li key={route.name}>
-          <span className="font-semibold text-white">{route.name}</span>
+          {route.name.startsWith('合歡山') ? (
+            <a href="/hehuanshan/" className="font-semibold text-[#00e676] hover:text-white underline underline-offset-2">{route.name}</a>
+          ) : (
+            <span className="font-semibold text-white">{route.name}</span>
+          )}
           <span>：{route.description}</span>
         </li>
       ))}
