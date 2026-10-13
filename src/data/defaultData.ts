@@ -3,8 +3,8 @@ import { SiteData } from '../types';
 export const STORAGE_KEY = 'amazon_mount_data';
 
 export const DEFAULT_DATA: SiteData = {
-  phone: "0912345678",
-  lineUrl: "https://line.me",
+  phone: "0972573495",
+  lineUrl: "https://lin.ee/x8u0XAR",
   email: "amazonchiayi@gmail.com",
   siteTitle: "亞馬遜高山接駁",
   siteSubtitle: "安全 ‧ 舒適 ‧ 準時 | 專業百岳高山包車接駁",

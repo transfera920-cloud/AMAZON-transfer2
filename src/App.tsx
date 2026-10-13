@@ -73,20 +73,13 @@ export default function App() {
     setIsAdminOpen(false);
   };
 
-  // Sync document title and meta description dynamically
+  // 只同步 meta description；<title> 以 index.html 內的固定標題為準，避免 JS 執行後標題與原始 HTML 不一致
   useEffect(() => {
-    if (siteData.siteTitle) {
-      document.title = `${siteData.siteTitle} | 專業百岳包車接駁服務`;
-    }
-    const seoTitleElem = document.getElementById('seo-title');
-    if (seoTitleElem) {
-      seoTitleElem.innerText = `${siteData.siteTitle} | 專業百岳包車接駁服務`;
-    }
     const seoDescElem = document.getElementById('seo-desc');
     if (seoDescElem && siteData.seoDesc) {
       seoDescElem.setAttribute('content', siteData.seoDesc);
     }
-  }, [siteData.siteTitle, siteData.seoDesc]);
+  }, [siteData.seoDesc]);
 
   // Connect to Firestore and subscribe to live changes across all devices
   useEffect(() => {
