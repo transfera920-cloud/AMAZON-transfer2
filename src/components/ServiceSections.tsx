@@ -27,13 +27,23 @@ export const TrailheadCharterSection: React.FC = () => (
   </SectionShell>
 );
 
+const ROUTE_PAGES: [string, string][] = [
+  ['合歡山', 'hehuanshan'],
+  ['雪山', 'xueshan'],
+  ['玉山', 'yushan'],
+  ['嘉明湖', 'jiaminghu'],
+  ['奇萊南華', 'qilai-nanhua'],
+  ['大霸尖山', 'dabajianshan'],
+  ['郡大山', 'jundashan']
+];
+
 export const PopularRoutesSection: React.FC = () => (
   <SectionShell title="熱門百岳登山接駁路線">
     <ul className="space-y-2.5 list-none">
       {ROUTES.map((route) => (
         <li key={route.name}>
-          {route.name.startsWith('合歡山') ? (
-            <a href="/hehuanshan/" className="font-semibold text-[#00e676] hover:text-white underline underline-offset-2">{route.name}</a>
+          {ROUTE_PAGES.find(([k]) => route.name.startsWith(k)) ? (
+            <a href={`/${ROUTE_PAGES.find(([k]) => route.name.startsWith(k))![1]}/`} className="font-semibold text-[#00e676] hover:text-white underline underline-offset-2">{route.name}</a>
           ) : (
             <span className="font-semibold text-white">{route.name}</span>
           )}
@@ -63,6 +73,11 @@ const RELATED_TOOLS: RelatedTool[] = [
     name: '高山包車價格估算系統',
     url: 'https://re-use-your-stuff.lovable.app/',
     desc: '輸入登山口、車型與乘客人數，即可試算來回或單程包車費用。'
+  },
+  {
+    name: '郡大山專用價格估算系統',
+    url: 'https://yun-da-xi-luan-connect.lovable.app/',
+    desc: '郡大山（望鄉部落、郡大林道）專用的包車費用試算。'
   },
   {
     name: '登山口 D0 住宿查詢',

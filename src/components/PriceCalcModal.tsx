@@ -33,7 +33,7 @@ export const ROUTES: MountainRoute[] = [
       '高雄': 8500,
       '宜蘭': 7500
     },
-    description: '石門山、合歡主東峰、小奇萊登山口，車程高海拔需適應',
+    description: '石門山、合歡群峰、小奇萊登山口，車程高海拔需適應',
     estimatedHours: '台中約 2.5 小時 / 台北約 4 小時'
   },
   {
@@ -67,7 +67,7 @@ export const ROUTES: MountainRoute[] = [
       '高雄': 6500,
       '宜蘭': 9500
     },
-    description: '玉山主西北東前峰、麟趾山、鹿林山',
+    description: '玉山群峰、麟趾山、鹿林山',
     estimatedHours: '嘉義約 2.5 小時 / 台中約 3 小時 / 台北約 4.5 小時'
   },
   {
@@ -88,7 +88,7 @@ export const ROUTES: MountainRoute[] = [
     estimatedHours: '高雄約 3.5 小時 / 台北走花東約 6 小時'
   },
   {
-    name: '奇萊南華 / 屯原登山口（或天池山莊聯絡接駁）',
+    name: '奇萊南華 / 屯原登山口',
     category: '中央山脈',
     basePrices: {
       '台北/新北': 8000,
