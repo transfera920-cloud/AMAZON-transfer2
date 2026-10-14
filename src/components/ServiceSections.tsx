@@ -71,7 +71,7 @@ interface RelatedTool {
 const RELATED_TOOLS: RelatedTool[] = [
   {
     name: '高山包車價格估算系統',
-    url: 'https://re-use-your-stuff.lovable.app/',
+    url: 'https://price.amazon-hike.com/',
     desc: '輸入登山口、車型與乘客人數，即可試算來回或單程包車費用。'
   },
   {
@@ -81,12 +81,12 @@ const RELATED_TOOLS: RelatedTool[] = [
   },
   {
     name: '登山口 D0 住宿查詢',
-    url: 'https://google-trek-finder.lovable.app/trailhead-stays',
+    url: 'https://stays.amazon-hike.com/trailhead-stays',
     desc: '查詢各百岳登山口周邊民宿與山屋，安排入山前一晚住宿。'
   },
   {
     name: '下山慶功宴餐廳查詢',
-    url: 'https://summit-feast-finder.lovable.app/',
+    url: 'https://feast.amazon-hike.com/',
     desc: '精選完登下山後的在地合菜與美食餐廳推薦。'
   },
   {

@@ -28,21 +28,21 @@ export const DEFAULT_DATA: SiteData = {
       icon: "fa-calculator",
       title: "價格估算系統",
       desc: "透明化高山包車資估算，快速試算包車費用",
-      url: "https://re-use-your-stuff.lovable.app/"
+      url: "https://price.amazon-hike.com/"
     },
     {
       id: "card-2",
       icon: "fa-hotel",
       title: "D0 住宿查詢",
       desc: "登山口周邊優質民宿與接駁合作住宿推薦篇",
-      url: "https://google-trek-finder.lovable.app/trailhead-stays"
+      url: "https://stays.amazon-hike.com/trailhead-stays"
     },
     {
       id: "card-3",
       icon: "fa-utensils",
       title: "下山慶功宴查詢",
       desc: "精選完登下山補給合菜與在地美食餐廳",
-      url: "https://summit-feast-finder.lovable.app/"
+      url: "https://feast.amazon-hike.com/"
     },
     {
       id: "card-4",

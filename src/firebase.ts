@@ -92,6 +92,28 @@ export async function testConnection(): Promise<boolean> {
 }
 
 /**
+ * 後台資料庫裡存的卡片網址若是舊網址，自動換成目前的子網域網址
+ */
+const CARD_URL_REWRITES: Record<string, string> = {
+  'https://a28d92ab-amazon-control.yy661003.workers.dev': 'https://road.amazon-hike.com/',
+  'https://29e854ac-amazon-control.transfera920.workers.dev': 'https://road.amazon-hike.com/',
+  'https://route-amazon-hike-com.lovable.app': 'https://price.amazon-hike.com/',
+  'https://summit-route-advisor.lovable.app': 'https://price.amazon-hike.com/',
+  'https://re-use-your-stuff.lovable.app': 'https://price.amazon-hike.com/',
+  'https://google-trek-finder.lovable.app/trailhead-stays': 'https://stays.amazon-hike.com/trailhead-stays',
+  'https://summit-feast-finder.lovable.app': 'https://feast.amazon-hike.com/'
+};
+
+function normalizeCardUrl(c: any): any {
+  const url = typeof c?.url === 'string' ? c.url : '';
+  if (c?.id === 'card-1' && (url === '#calc' || !url)) {
+    return { ...c, url: 'https://price.amazon-hike.com/' };
+  }
+  const target = CARD_URL_REWRITES[url.replace(/\/+$/, '')];
+  return target ? { ...c, url: target } : c;
+}
+
+/**
  * Normalizes raw data into fully populated SiteData
  */
 export function sanitizeSiteData(raw: any): SiteData {
@@ -113,13 +135,7 @@ export function sanitizeSiteData(raw: any): SiteData {
     footerBannerTitle: typeof raw.footerBannerTitle === 'string' ? raw.footerBannerTitle : DEFAULT_DATA.footerBannerTitle,
     footerBannerSub: typeof raw.footerBannerSub === 'string' ? raw.footerBannerSub : DEFAULT_DATA.footerBannerSub,
     cards: Array.isArray(raw.cards) && raw.cards.length > 0
-      ? raw.cards.map((c: any) =>
-          c.url === 'https://a28d92ab-amazon-control.yy661003.workers.dev/' || c.url === 'https://29e854ac-amazon-control.transfera920.workers.dev/'
-            ? { ...c, url: 'https://road.amazon-hike.com/' }
-            : c.url === 'https://route-amazon-hike-com.lovable.app/' || c.url === 'https://summit-route-advisor.lovable.app/' || (c.id === 'card-1' && (c.url === '#calc' || !c.url))
-            ? { ...c, url: 'https://re-use-your-stuff.lovable.app/' }
-            : c
-        )
+      ? raw.cards.map(normalizeCardUrl)
       : DEFAULT_DATA.cards
   };
 }
