@@ -1,3 +1,9 @@
+export interface CardLink {
+  group: string; // 分類，例：國家公園（可留空）
+  label: string; // 顯示文字
+  url: string;   // 實際網址（前台不顯示）
+}
+
 export interface CardItem {
   id: string;
   icon: string;
@@ -5,13 +11,7 @@ export interface CardItem {
   desc: string;
   url: string;
   badge?: string;
-}
-
-export interface PopularRouteItem {
-  id: string;
-  name: string;
-  description: string;
-  url: string;
+  links?: CardLink[]; // 有填時，點卡片會彈出連結清單（不顯示網址）
 }
 
 export interface SiteData {
@@ -29,8 +29,6 @@ export interface SiteData {
   footerBannerTitle: string;
   footerBannerSub: string;
   cards: CardItem[];
-  popularRoutesTitle: string;
-  popularRoutes: PopularRouteItem[];
   lastUpdated?: string;
 }
 

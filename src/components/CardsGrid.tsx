@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { LinksModal } from './LinksModal';
 import { DynamicIcon } from './DynamicIcon';
 import { CardItem, ActiveModalType } from '../types';
 
@@ -52,6 +53,7 @@ function resolveCardLink(card: CardItem): { href: string; isModal: boolean; isEx
 }
 
 export const CardsGrid: React.FC<CardsGridProps> = ({ sectionTitle, cards, onOpenModal }) => {
+  const [linksCard, setLinksCard] = useState<CardItem | null>(null);
   return (
     <section className="mb-6 md:mb-12">
       <div className="text-center mb-4 md:mb-9">
@@ -63,14 +65,23 @@ export const CardsGrid: React.FC<CardsGridProps> = ({ sectionTitle, cards, onOpe
 
       <div id="cards-grid" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5">
         {cards.map((card) => {
-          const { href, isModal, isExternal } = resolveCardLink(card);
+          const hasLinks = !!card.links && card.links.some((l) => l.label?.trim() && l.url?.trim());
+          const resolved = resolveCardLink(card);
+          const href = hasLinks ? '#' : resolved.href;
+          const isModal = hasLinks ? true : resolved.isModal;
+          const isExternal = hasLinks ? false : resolved.isExternal;
 
           return (
             <a
               key={card.id}
               href={href}
               onClick={
-                isModal
+                hasLinks
+                  ? (e) => {
+                      e.preventDefault();
+                      setLinksCard(card);
+                    }
+                  : isModal
                   ? (e) => {
                       e.preventDefault();
                       onOpenModal(MODAL_KEYS[href]);
@@ -81,7 +92,7 @@ export const CardsGrid: React.FC<CardsGridProps> = ({ sectionTitle, cards, onOpe
               rel={isExternal ? 'noopener noreferrer' : undefined}
               className="bg-[#0e2318]/85 hover:bg-[#122e20] p-3.5 md:p-6 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_35px_rgba(0,200,83,0.2)] border border-emerald-900/60 hover:border-emerald-500/60 flex flex-row md:flex-col items-center gap-3.5 md:gap-0 text-left md:text-center card-hover group cursor-pointer relative overflow-hidden transition-all duration-300 backdrop-blur-md"
               id={`card-link-${card.id}`}
-              title={isExternal ? `開啟連結：${href}` : card.title}
+              title={card.title}
             >
               <div className="absolute -top-10 -right-10 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl group-hover:bg-emerald-400/25 transition duration-300 pointer-events-none"></div>
 
@@ -102,6 +113,7 @@ export const CardsGrid: React.FC<CardsGridProps> = ({ sectionTitle, cards, onOpe
           );
         })}
       </div>
+      <LinksModal card={linksCard} onClose={() => setLinksCard(null)} />
     </section>
   );
 };

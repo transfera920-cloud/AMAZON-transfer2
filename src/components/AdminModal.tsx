@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { SiteData, CardItem, PopularRouteItem } from '../types';
+import { SiteData, CardItem, CardLink } from '../types';
 import { DEFAULT_DATA } from '../data/defaultData';
 import {
   X,
@@ -108,6 +108,34 @@ export const AdminModal: React.FC<AdminModalProps> = ({
     });
   };
 
+  const updateCardLink = (cardIdx: number, linkIdx: number, field: keyof CardLink, value: string) => {
+    setFormData(prev => {
+      const newCards = [...prev.cards];
+      const links = [...(newCards[cardIdx].links || [])];
+      links[linkIdx] = { ...links[linkIdx], [field]: value };
+      newCards[cardIdx] = { ...newCards[cardIdx], links };
+      return { ...prev, cards: newCards };
+    });
+  };
+
+  const addCardLink = (cardIdx: number) => {
+    setFormData(prev => {
+      const newCards = [...prev.cards];
+      const links = [...(newCards[cardIdx].links || []), { group: '', label: '', url: '' }];
+      newCards[cardIdx] = { ...newCards[cardIdx], links };
+      return { ...prev, cards: newCards };
+    });
+  };
+
+  const removeCardLink = (cardIdx: number, linkIdx: number) => {
+    setFormData(prev => {
+      const newCards = [...prev.cards];
+      const links = (newCards[cardIdx].links || []).filter((_, i) => i !== linkIdx);
+      newCards[cardIdx] = { ...newCards[cardIdx], links };
+      return { ...prev, cards: newCards };
+    });
+  };
+
   const addNewCard = () => {
     const newCard: CardItem = {
       id: `card-${Date.now()}`,
@@ -141,43 +169,6 @@ export const AdminModal: React.FC<AdminModalProps> = ({
       newCards[index] = newCards[targetIdx];
       newCards[targetIdx] = temp;
       return { ...prev, cards: newCards };
-    });
-  };
-
-  // Popular routes (熱門百岳登山接駁路線)
-  const updateRoute = (index: number, field: keyof PopularRouteItem, value: string) => {
-    setFormData(prev => {
-      const next = [...prev.popularRoutes];
-      next[index] = { ...next[index], [field]: value };
-      return { ...prev, popularRoutes: next };
-    });
-  };
-
-  const addRoute = () => {
-    const newRoute: PopularRouteItem = {
-      id: `route-${Date.now()}`,
-      name: '新路線名稱',
-      description: '請輸入這條路線的簡短說明',
-      url: ''
-    };
-    setFormData(prev => ({ ...prev, popularRoutes: [...prev.popularRoutes, newRoute] }));
-    showToast('已新增一條路線，請在下方填寫內容');
-  };
-
-  const removeRoute = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      popularRoutes: prev.popularRoutes.filter((_, i) => i !== index)
-    }));
-  };
-
-  const moveRoute = (index: number, direction: 'up' | 'down') => {
-    const targetIdx = direction === 'up' ? index - 1 : index + 1;
-    if (targetIdx < 0 || targetIdx >= formData.popularRoutes.length) return;
-    setFormData(prev => {
-      const next = [...prev.popularRoutes];
-      [next[index], next[targetIdx]] = [next[targetIdx], next[index]];
-      return { ...prev, popularRoutes: next };
     });
   };
 
@@ -688,125 +679,54 @@ export const AdminModal: React.FC<AdminModalProps> = ({
                       className="w-full bg-white border border-gray-300 p-1.5 rounded text-xs focus:ring-1 focus:ring-emerald-500 focus:outline-none"
                     />
                   </div>
-                </div>
-              ))}
-            </div>
-          </div>
 
-          {/* 5.5 熱門百岳登山接駁路線 */}
-          <div className="bg-white p-4 md:p-5 rounded-xl border border-gray-200 shadow-xs">
-            <div className="flex flex-wrap justify-between items-center border-b border-gray-100 pb-3 mb-3 gap-2">
-              <div>
-                <h4 className="font-bold text-gray-800 text-base flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                  <span>熱門百岳登山接駁路線 (可新增 / 修改 / 刪除 / 調順序)</span>
-                </h4>
-                <p className="text-[11px] text-gray-500">
-                  對應前台「熱門百岳登山接駁路線」區塊；連結可填站內頁面（例：/yushan/）或完整網址（https://），不填則只顯示文字
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={addRoute}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 shadow-xs cursor-pointer"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>新增路線</span>
-              </button>
-            </div>
-
-            <div className="mb-4">
-              <label className="block text-xs font-semibold text-gray-700 mb-1">區塊標題</label>
-              <input
-                type="text"
-                value={formData.popularRoutesTitle}
-                onChange={(e) => handleTextChange('popularRoutesTitle', e.target.value)}
-                placeholder="熱門百岳登山接駁路線"
-                className="w-full border border-gray-300 p-2 rounded-lg text-xs font-bold focus:ring-2 focus:ring-emerald-600 focus:outline-none bg-slate-50 focus:bg-white"
-              />
-            </div>
-
-            <div className="space-y-3">
-              {formData.popularRoutes.length === 0 && (
-                <p className="text-xs text-gray-500 text-center py-3">目前沒有路線，點右上角「新增路線」。</p>
-              )}
-              {formData.popularRoutes.map((route, idx) => (
-                <div
-                  key={route.id || idx}
-                  className="bg-slate-50 p-3.5 rounded-xl border border-gray-300 space-y-2.5 transition hover:border-emerald-500"
-                >
-                  <div className="flex items-center justify-between gap-2 border-b border-gray-200 pb-2">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-xs">
-                        {idx + 1}
+                  {/* 彈窗連結清單：有填時，前台點卡片會跳出清單，只顯示文字不顯示網址 */}
+                  <div className="bg-white border border-emerald-200 rounded-lg p-2.5 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-bold text-emerald-800">
+                        彈窗連結清單（有填就會取代上方「連結」，前台只顯示文字、不顯示網址）
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => addCardLink(idx)}
+                        className="text-[11px] bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded flex items-center gap-1"
+                      >
+                        <Plus className="w-3 h-3" /> 新增連結
+                      </button>
+                    </div>
+                    {(card.links || []).map((lk, li) => (
+                      <div key={li} className="grid grid-cols-1 sm:grid-cols-[1fr_1.2fr_2fr_auto] gap-1.5 items-center">
+                        <input
+                          type="text"
+                          value={lk.group}
+                          onChange={(e) => updateCardLink(idx, li, 'group', e.target.value)}
+                          placeholder="分類（例：國家公園）"
+                          className="bg-white border border-gray-300 p-1.5 rounded text-xs focus:ring-1 focus:ring-emerald-500 focus:outline-none"
+                        />
+                        <input
+                          type="text"
+                          value={lk.label}
+                          onChange={(e) => updateCardLink(idx, li, 'label', e.target.value)}
+                          placeholder="顯示文字"
+                          className="bg-white border border-gray-300 p-1.5 rounded text-xs font-bold focus:ring-1 focus:ring-emerald-500 focus:outline-none"
+                        />
+                        <input
+                          type="text"
+                          value={lk.url}
+                          onChange={(e) => updateCardLink(idx, li, 'url', e.target.value)}
+                          placeholder="https://..."
+                          className="bg-white border border-gray-300 p-1.5 rounded text-xs font-mono focus:ring-1 focus:ring-emerald-500 focus:outline-none"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeCardLink(idx, li)}
+                          className="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50"
+                          title="刪除此連結"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
                       </div>
-                      <span className="font-bold text-gray-800 text-xs">{route.name || '路線'}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <button
-                        type="button"
-                        disabled={idx === 0}
-                        onClick={() => moveRoute(idx, 'up')}
-                        className="p-1 text-gray-500 hover:text-gray-800 disabled:opacity-30 rounded hover:bg-gray-200"
-                        title="往上移"
-                      >
-                        <ArrowUp className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        type="button"
-                        disabled={idx === formData.popularRoutes.length - 1}
-                        onClick={() => moveRoute(idx, 'down')}
-                        className="p-1 text-gray-500 hover:text-gray-800 disabled:opacity-30 rounded hover:bg-gray-200"
-                        title="往下移"
-                      >
-                        <ArrowDown className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (window.confirm(`確定刪除「${route.name || '此路線'}」？`)) removeRoute(idx);
-                        }}
-                        className="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50 transition text-xs flex items-center gap-1 ml-1"
-                        title="刪除此路線"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                        <span>刪除</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    <div>
-                      <label className="block text-[11px] font-medium text-gray-600 mb-0.5">路線名稱（藍綠色可點的文字）</label>
-                      <input
-                        type="text"
-                        value={route.name}
-                        onChange={(e) => updateRoute(idx, 'name', e.target.value)}
-                        placeholder="例：玉山登山口 / 塔塔加停車場"
-                        className="w-full bg-white border border-gray-300 p-1.5 rounded text-xs font-bold focus:ring-1 focus:ring-emerald-500 focus:outline-none"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[11px] font-medium text-gray-600 mb-0.5">連結（站內 /yushan/ 或 https://，可留空）</label>
-                      <input
-                        type="text"
-                        value={route.url}
-                        onChange={(e) => updateRoute(idx, 'url', e.target.value)}
-                        placeholder="/yushan/"
-                        className="w-full bg-white border border-gray-300 p-1.5 rounded text-xs focus:ring-1 focus:ring-emerald-500 focus:outline-none font-mono"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-[11px] font-medium text-gray-600 mb-0.5">說明文字（顯示在名稱後面）</label>
-                    <input
-                      type="text"
-                      value={route.description}
-                      onChange={(e) => updateRoute(idx, 'description', e.target.value)}
-                      placeholder="例：玉山群峰、麟趾山、鹿林山"
-                      className="w-full bg-white border border-gray-300 p-1.5 rounded text-xs focus:ring-1 focus:ring-emerald-500 focus:outline-none"
-                    />
+                    ))}
                   </div>
                 </div>
               ))}
