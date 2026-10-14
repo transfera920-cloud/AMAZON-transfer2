@@ -21,3 +21,14 @@
   }
 }
 
+
+/* 後台視窗為白底，表單文字需用深色（Tailwind 預設讓輸入框繼承頁面的淺色文字） */
+.admin-modal-root input,
+.admin-modal-root textarea,
+.admin-modal-root select {
+  color: #1e293b;
+}
+.admin-modal-root input::placeholder,
+.admin-modal-root textarea::placeholder {
+  color: #94a3b8;
+}

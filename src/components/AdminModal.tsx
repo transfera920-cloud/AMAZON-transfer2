@@ -205,7 +205,7 @@ export const AdminModal: React.FC<AdminModalProps> = ({
   return (
     <div
       id="admin-modal"
-      className="fixed inset-0 bg-black/65 backdrop-blur-sm z-50 flex items-center justify-center p-3 md:p-6 animate-fade-in"
+      className="admin-modal-root fixed inset-0 bg-black/65 backdrop-blur-sm z-50 flex items-center justify-center p-3 md:p-6 animate-fade-in"
     >
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden border border-slate-200">
         
