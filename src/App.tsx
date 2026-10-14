@@ -31,7 +31,6 @@ import {
   PopularRoutesSection,
   OneWayTripSection,
   ServiceProcessSection,
-  RelatedToolsSection,
   RoadStatusGuideSection
 } from './components/ServiceSections';
 
@@ -153,7 +152,6 @@ export default function App() {
         <PopularRoutesSection />
         <OneWayTripSection />
         <ServiceProcessSection />
-        <RelatedToolsSection />
         <RoadStatusGuideSection />
 
         {/* 關於我們區塊 */}

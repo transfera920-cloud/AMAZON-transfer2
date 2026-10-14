@@ -1,5 +1,5 @@
 import React from 'react';
-import { ROUTES, DEPARTURE_CITIES } from './PriceCalcModal';
+import { ROUTES } from './PriceCalcModal';
 
 interface SectionShellProps {
   title: string;
@@ -21,9 +21,20 @@ const SectionShell: React.FC<SectionShellProps> = ({ title, children }) => (
 export const TrailheadCharterSection: React.FC = () => (
   <SectionShell title="登山口接送與登山包車">
     <p>
-      提供由 {DEPARTURE_CITIES.join('、')} 出發的登山口包車接送。車型可選擇 9 人座商務車、7 人座休旅，或適合林道碎石路段的高底盤四驅車，並可依行程選擇來回包車或單程，也可選擇夜間或 D0 跨夜出發的時段。
+      提供北中南主要縣市與宜蘭出發的登山口包車接送。車型可選擇 9 人座商務車、7 人座休旅，或適合林道碎石路段的高底盤四驅車，並可依行程選擇來回包車或單程，也可選擇夜間或 D0 跨夜出發的時段。
     </p>
-    <p>可使用上方「價格估算系統」，先試算各路線的包車費用。</p>
+    <p>
+      可使用上方「價格估算系統」，先試算各路線的包車費用；前往郡大山（望鄉部落、郡大林道）請改用
+      <a
+        href="https://yun-da-xi-luan-connect.lovable.app/"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="font-semibold text-[#00e676] hover:text-white underline decoration-emerald-600/50 underline-offset-2 transition-colors"
+      >
+        郡大山專用價格估算系統
+      </a>
+      。
+    </p>
   </SectionShell>
 );
 
@@ -59,60 +70,6 @@ export const OneWayTripSection: React.FC = () => (
     <p>
       A進B出是指從一個登山口入山、由另一個登山口下山的行程（例如縱走），起點與終點不同。本站價格估算提供「來回包車」與「單程」兩種行程模式；若您的行程入山口與下山口不同，歡迎透過 LINE 說明入山口、下山口與日期。
     </p>
-  </SectionShell>
-);
-
-interface RelatedTool {
-  name: string;
-  url: string;
-  desc: string;
-}
-
-const RELATED_TOOLS: RelatedTool[] = [
-  {
-    name: '高山包車價格估算系統',
-    url: 'https://price.amazon-hike.com/',
-    desc: '輸入登山口、車型與乘客人數，即可試算來回或單程包車費用。'
-  },
-  {
-    name: '郡大山專用價格估算系統',
-    url: 'https://yun-da-xi-luan-connect.lovable.app/',
-    desc: '郡大山（望鄉部落、郡大林道）專用的包車費用試算。'
-  },
-  {
-    name: '登山口 D0 住宿查詢',
-    url: 'https://stays.amazon-hike.com/trailhead-stays',
-    desc: '查詢各百岳登山口周邊民宿與山屋，安排入山前一晚住宿。'
-  },
-  {
-    name: '下山慶功宴餐廳查詢',
-    url: 'https://feast.amazon-hike.com/',
-    desc: '精選完登下山後的在地合菜與美食餐廳推薦。'
-  },
-  {
-    name: '高山道路與林道管制查詢',
-    url: 'https://road.amazon-hike.com/',
-    desc: '即時掌握高山公路、林道封閉施工與管制時段。'
-  }
-];
-
-export const RelatedToolsSection: React.FC = () => (
-  <SectionShell title="相關工具與合作網站">
-    <ul className="space-y-3 list-none">
-      {RELATED_TOOLS.map((tool) => (
-        <li key={tool.url}>
-          <a
-            href={tool.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-semibold text-[#00e676] hover:text-white underline decoration-emerald-600/50 underline-offset-2 transition-colors"
-          >
-            {tool.name}
-          </a>
-          <span className="text-emerald-100/85">：{tool.desc}</span>
-        </li>
-      ))}
-    </ul>
   </SectionShell>
 );
 
