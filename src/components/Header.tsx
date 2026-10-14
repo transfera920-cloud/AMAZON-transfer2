@@ -66,16 +66,6 @@ export const Header: React.FC<HeaderProps> = ({ data, onOpenAdmin, isCloudConnec
             {data.siteSubtitle}
           </p>
 
-          {/* 資料最後更新時間 */}
-          <div className="flex justify-center mb-5 md:mb-7">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0a2718]/90 border border-emerald-600/50 text-emerald-200 text-xs md:text-sm shadow-md backdrop-blur-md">
-              <span className="w-2 h-2 rounded-full bg-[#00e676] animate-pulse"></span>
-              <span className="font-semibold text-white">資料最後更新時間：</span>
-              <span className="text-emerald-300 font-mono font-bold">{data.lastUpdated || "2026年10月1日"}</span>
-              <span className="text-emerald-400/80 text-xs hidden sm:inline">（每日定時更新高山路況與接駁資訊）</span>
-            </div>
-          </div>
-
           {/* 大 LINE 按鈕 */}
           <div className="flex justify-center">
             <a

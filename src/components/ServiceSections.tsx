@@ -91,7 +91,7 @@ const RELATED_TOOLS: RelatedTool[] = [
   },
   {
     name: '高山道路與林道管制查詢',
-    url: 'https://a28d92ab-amazon-control.yy661003.workers.dev/',
+    url: 'https://road.amazon-hike.com/',
     desc: '即時掌握高山公路、林道封閉施工與管制時段。'
   }
 ];
@@ -127,13 +127,9 @@ export const ServiceProcessSection: React.FC = () => (
   </SectionShell>
 );
 
-export const RoadStatusGuideSection: React.FC<{ lastUpdated?: string }> = ({ lastUpdated }) => (
+export const RoadStatusGuideSection: React.FC = () => (
   <SectionShell title="高山道路與林道管制即時指南">
     <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-emerald-900/60 text-xs text-emerald-200">
-      <div className="flex items-center gap-2">
-        <span className="w-2 h-2 rounded-full bg-[#00e676] animate-pulse"></span>
-        <span>資料最後更新時間：<strong className="text-white font-mono">{lastUpdated || "2026年10月1日"}</strong></span>
-      </div>
       <div className="flex items-center gap-2">
         <span>官方即時路況查詢：</span>
         <a

@@ -18,7 +18,10 @@ import { CardsGrid } from './components/CardsGrid';
 import { AboutSection } from './components/AboutSection';
 import { Footer } from './components/Footer';
 import { AdminModal } from './components/AdminModal';
-import { AdminLoginModal, ADMIN_AUTH_KEY } from './components/AdminLoginModal';
+import { AdminLoginModal } from './components/AdminLoginModal';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { auth } from './firebase';
+import { ADMIN_EMAIL } from './data/adminConfig';
 import { PriceCalcModal } from './components/PriceCalcModal';
 import { D0LodgingModal } from './components/D0LodgingModal';
 import { FeastModal } from './components/FeastModal';
@@ -39,13 +42,14 @@ export default function App() {
   const [activeModal, setActiveModal] = useState<ActiveModalType>(null);
   
   // Admin Login authentication state
-  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState<boolean>(() => {
-    try {
-      return sessionStorage.getItem(ADMIN_AUTH_KEY) === 'true';
-    } catch {
-      return false;
-    }
-  });
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState<boolean>(false);
+
+  // 以 Firebase Authentication 判斷登入狀態（真正的寫入權限由 Firestore 規則把關）
+  useEffect(() => {
+    return onAuthStateChanged(auth, (user) => {
+      setIsAdminLoggedIn(!!user && user.email === ADMIN_EMAIL);
+    });
+  }, []);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
 
@@ -64,22 +68,13 @@ export default function App() {
   };
 
   const handleLogout = () => {
-    try {
-      sessionStorage.removeItem(ADMIN_AUTH_KEY);
-    } catch (e) {
-      console.warn(e);
-    }
+    signOut(auth).catch((e) => console.warn(e));
     setIsAdminLoggedIn(false);
     setIsAdminOpen(false);
   };
 
-  // 只同步 meta description；<title> 以 index.html 內的固定標題為準，避免 JS 執行後標題與原始 HTML 不一致
-  useEffect(() => {
-    const seoDescElem = document.getElementById('seo-desc');
-    if (seoDescElem && siteData.seoDesc) {
-      seoDescElem.setAttribute('content', siteData.seoDesc);
-    }
-  }, [siteData.seoDesc]);
+  // <title> 與 meta description 皆以 index.html 內的固定內容為準，
+  // 避免 JS 執行後與原始 HTML 不一致（Googlebot 會同時看原始與渲染後版本）
 
   // Connect to Firestore and subscribe to live changes across all devices
   useEffect(() => {
@@ -159,7 +154,7 @@ export default function App() {
         <OneWayTripSection />
         <ServiceProcessSection />
         <RelatedToolsSection />
-        <RoadStatusGuideSection lastUpdated={siteData.lastUpdated} />
+        <RoadStatusGuideSection />
 
         {/* 關於我們區塊 */}
         <AboutSection
