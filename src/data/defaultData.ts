@@ -1,6 +1,16 @@
-import { SiteData } from '../types';
+import { SiteData, PopularRouteItem } from '../types';
 
 export const STORAGE_KEY = 'amazon_mount_data';
+
+export const DEFAULT_POPULAR_ROUTES: PopularRouteItem[] = [
+  { id: 'route-1', name: '合歡山群峰 / 武嶺 / 小奇萊', description: '石門山、合歡群峰、小奇萊登山口，車程高海拔需適應', url: '/hehuanshan/' },
+  { id: 'route-2', name: '雪山登山口 / 武陵農場', description: '雪山主東峰、武陵四秀（桃山、池有、品田、喀拉業）', url: '/xueshan/' },
+  { id: 'route-3', name: '玉山登山口 / 塔塔加停車場', description: '玉山群峰、麟趾山、鹿林山', url: '/yushan/' },
+  { id: 'route-4', name: '嘉明湖 / 向陽國家森林遊樂區', description: '天使的眼淚嘉明湖、向陽山、三叉山，南橫台20線接駁', url: '/jiaminghu/' },
+  { id: 'route-5', name: '奇萊南華 / 屯原登山口', description: '能高越嶺西段、奇萊南峰、南華山黃金大草原', url: '/qilai-nanhua/' },
+  { id: 'route-6', name: '大霸尖山 / 觀霧大鹿林道東線口', description: '世紀奇峰大霸群峰、觀霧遊憩區', url: '/dabajianshan/' },
+  { id: 'route-7', name: '郡大山 / 望鄉部落 (含林道接駁)', description: '八大秀、郡大林道 32K 搖晃專車直達登山口', url: '/jundashan/' }
+];
 
 export const DEFAULT_DATA: SiteData = {
   phone: "0972573495",
@@ -22,6 +32,8 @@ export const DEFAULT_DATA: SiteData = {
   aboutContent: `亞馬遜高山接駁（許多登山客也會搜尋「登山接駁」）提供全台灣熱門百岳與高山步道之專業接駁服務。無論您是要前往合歡山群峰、雪山主東峰、嘉明湖（向陽）、玉山登山口、奇萊南華，或是能高越嶺等路線，我們皆提供安全、優質的接駁車隊體驗。\n\n提供司機駕駛經驗豐富的高山接駁服務，協助登山客解決大眾運輸不便的問題。請善用本站提供的價格估算系統、D0住宿推薦、慶功宴餐廳資訊與即時道路管制動態，讓您的登山行程更安心順暢。`,
   footerBannerTitle: "高山登山接駁專屬預約",
   footerBannerSub: "合法租賃車輛 ‧ 行程彈性安排 ‧ 歡迎提早預約包車",
+  popularRoutesTitle: "熱門百岳登山接駁路線",
+  popularRoutes: DEFAULT_POPULAR_ROUTES,
   cards: [
     {
       id: "card-1",

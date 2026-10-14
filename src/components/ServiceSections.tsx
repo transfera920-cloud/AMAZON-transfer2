@@ -1,5 +1,5 @@
 import React from 'react';
-import { ROUTES } from './PriceCalcModal';
+import { PopularRouteItem } from '../types';
 
 interface SectionShellProps {
   title: string;
@@ -38,29 +38,34 @@ export const TrailheadCharterSection: React.FC = () => (
   </SectionShell>
 );
 
-const ROUTE_PAGES: [string, string][] = [
-  ['合歡山', 'hehuanshan'],
-  ['雪山', 'xueshan'],
-  ['玉山', 'yushan'],
-  ['嘉明湖', 'jiaminghu'],
-  ['奇萊南華', 'qilai-nanhua'],
-  ['大霸尖山', 'dabajianshan'],
-  ['郡大山', 'jundashan']
-];
+interface PopularRoutesSectionProps {
+  title: string;
+  routes: PopularRouteItem[];
+}
 
-export const PopularRoutesSection: React.FC = () => (
-  <SectionShell title="熱門百岳登山接駁路線">
+export const PopularRoutesSection: React.FC<PopularRoutesSectionProps> = ({ title, routes }) => (
+  <SectionShell title={title}>
     <ul className="space-y-2.5 list-none">
-      {ROUTES.map((route) => (
-        <li key={route.name}>
-          {ROUTE_PAGES.find(([k]) => route.name.startsWith(k)) ? (
-            <a href={`/${ROUTE_PAGES.find(([k]) => route.name.startsWith(k))![1]}/`} className="font-semibold text-[#00e676] hover:text-white underline underline-offset-2">{route.name}</a>
-          ) : (
-            <span className="font-semibold text-white">{route.name}</span>
-          )}
-          <span>：{route.description}</span>
-        </li>
-      ))}
+      {routes.filter((r) => r.name.trim() || r.description.trim()).map((route) => {
+        const url = route.url.trim();
+        const isExternal = /^https?:\/\//i.test(url);
+        return (
+          <li key={route.id}>
+            {url ? (
+              <a
+                href={url}
+                {...(isExternal ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                className="font-semibold text-[#00e676] hover:text-white underline underline-offset-2"
+              >
+                {route.name}
+              </a>
+            ) : (
+              <span className="font-semibold text-white">{route.name}</span>
+            )}
+            {route.description && <span>：{route.description}</span>}
+          </li>
+        );
+      })}
     </ul>
   </SectionShell>
 );

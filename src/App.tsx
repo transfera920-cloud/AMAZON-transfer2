@@ -149,7 +149,10 @@ export default function App() {
         />
 
         <TrailheadCharterSection />
-        <PopularRoutesSection />
+        <PopularRoutesSection
+          title={siteData.popularRoutesTitle || "熱門百岳登山接駁路線"}
+          routes={siteData.popularRoutes}
+        />
         <OneWayTripSection />
         <ServiceProcessSection />
         <RoadStatusGuideSection />

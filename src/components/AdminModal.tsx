@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { SiteData, CardItem } from '../types';
+import { SiteData, CardItem, PopularRouteItem } from '../types';
 import { DEFAULT_DATA } from '../data/defaultData';
 import {
   X,
@@ -141,6 +141,43 @@ export const AdminModal: React.FC<AdminModalProps> = ({
       newCards[index] = newCards[targetIdx];
       newCards[targetIdx] = temp;
       return { ...prev, cards: newCards };
+    });
+  };
+
+  // Popular routes (熱門百岳登山接駁路線)
+  const updateRoute = (index: number, field: keyof PopularRouteItem, value: string) => {
+    setFormData(prev => {
+      const next = [...prev.popularRoutes];
+      next[index] = { ...next[index], [field]: value };
+      return { ...prev, popularRoutes: next };
+    });
+  };
+
+  const addRoute = () => {
+    const newRoute: PopularRouteItem = {
+      id: `route-${Date.now()}`,
+      name: '新路線名稱',
+      description: '請輸入這條路線的簡短說明',
+      url: ''
+    };
+    setFormData(prev => ({ ...prev, popularRoutes: [...prev.popularRoutes, newRoute] }));
+    showToast('已新增一條路線，請在下方填寫內容');
+  };
+
+  const removeRoute = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      popularRoutes: prev.popularRoutes.filter((_, i) => i !== index)
+    }));
+  };
+
+  const moveRoute = (index: number, direction: 'up' | 'down') => {
+    const targetIdx = direction === 'up' ? index - 1 : index + 1;
+    if (targetIdx < 0 || targetIdx >= formData.popularRoutes.length) return;
+    setFormData(prev => {
+      const next = [...prev.popularRoutes];
+      [next[index], next[targetIdx]] = [next[targetIdx], next[index]];
+      return { ...prev, popularRoutes: next };
     });
   };
 
@@ -648,6 +685,126 @@ export const AdminModal: React.FC<AdminModalProps> = ({
                       value={card.desc}
                       onChange={(e) => updateCard(idx, 'desc', e.target.value)}
                       placeholder="描述文字"
+                      className="w-full bg-white border border-gray-300 p-1.5 rounded text-xs focus:ring-1 focus:ring-emerald-500 focus:outline-none"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* 5.5 熱門百岳登山接駁路線 */}
+          <div className="bg-white p-4 md:p-5 rounded-xl border border-gray-200 shadow-xs">
+            <div className="flex flex-wrap justify-between items-center border-b border-gray-100 pb-3 mb-3 gap-2">
+              <div>
+                <h4 className="font-bold text-gray-800 text-base flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                  <span>熱門百岳登山接駁路線 (可新增 / 修改 / 刪除 / 調順序)</span>
+                </h4>
+                <p className="text-[11px] text-gray-500">
+                  對應前台「熱門百岳登山接駁路線」區塊；連結可填站內頁面（例：/yushan/）或完整網址（https://），不填則只顯示文字
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={addRoute}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 shadow-xs cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>新增路線</span>
+              </button>
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-xs font-semibold text-gray-700 mb-1">區塊標題</label>
+              <input
+                type="text"
+                value={formData.popularRoutesTitle}
+                onChange={(e) => handleTextChange('popularRoutesTitle', e.target.value)}
+                placeholder="熱門百岳登山接駁路線"
+                className="w-full border border-gray-300 p-2 rounded-lg text-xs font-bold focus:ring-2 focus:ring-emerald-600 focus:outline-none bg-slate-50 focus:bg-white"
+              />
+            </div>
+
+            <div className="space-y-3">
+              {formData.popularRoutes.length === 0 && (
+                <p className="text-xs text-gray-500 text-center py-3">目前沒有路線，點右上角「新增路線」。</p>
+              )}
+              {formData.popularRoutes.map((route, idx) => (
+                <div
+                  key={route.id || idx}
+                  className="bg-slate-50 p-3.5 rounded-xl border border-gray-300 space-y-2.5 transition hover:border-emerald-500"
+                >
+                  <div className="flex items-center justify-between gap-2 border-b border-gray-200 pb-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-xs">
+                        {idx + 1}
+                      </div>
+                      <span className="font-bold text-gray-800 text-xs">{route.name || '路線'}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        disabled={idx === 0}
+                        onClick={() => moveRoute(idx, 'up')}
+                        className="p-1 text-gray-500 hover:text-gray-800 disabled:opacity-30 rounded hover:bg-gray-200"
+                        title="往上移"
+                      >
+                        <ArrowUp className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        disabled={idx === formData.popularRoutes.length - 1}
+                        onClick={() => moveRoute(idx, 'down')}
+                        className="p-1 text-gray-500 hover:text-gray-800 disabled:opacity-30 rounded hover:bg-gray-200"
+                        title="往下移"
+                      >
+                        <ArrowDown className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (window.confirm(`確定刪除「${route.name || '此路線'}」？`)) removeRoute(idx);
+                        }}
+                        className="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50 transition text-xs flex items-center gap-1 ml-1"
+                        title="刪除此路線"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>刪除</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-[11px] font-medium text-gray-600 mb-0.5">路線名稱（藍綠色可點的文字）</label>
+                      <input
+                        type="text"
+                        value={route.name}
+                        onChange={(e) => updateRoute(idx, 'name', e.target.value)}
+                        placeholder="例：玉山登山口 / 塔塔加停車場"
+                        className="w-full bg-white border border-gray-300 p-1.5 rounded text-xs font-bold focus:ring-1 focus:ring-emerald-500 focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-medium text-gray-600 mb-0.5">連結（站內 /yushan/ 或 https://，可留空）</label>
+                      <input
+                        type="text"
+                        value={route.url}
+                        onChange={(e) => updateRoute(idx, 'url', e.target.value)}
+                        placeholder="/yushan/"
+                        className="w-full bg-white border border-gray-300 p-1.5 rounded text-xs focus:ring-1 focus:ring-emerald-500 focus:outline-none font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-medium text-gray-600 mb-0.5">說明文字（顯示在名稱後面）</label>
+                    <input
+                      type="text"
+                      value={route.description}
+                      onChange={(e) => updateRoute(idx, 'description', e.target.value)}
+                      placeholder="例：玉山群峰、麟趾山、鹿林山"
                       className="w-full bg-white border border-gray-300 p-1.5 rounded text-xs focus:ring-1 focus:ring-emerald-500 focus:outline-none"
                     />
                   </div>

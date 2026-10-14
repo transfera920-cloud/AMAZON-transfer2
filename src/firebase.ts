@@ -136,7 +136,21 @@ export function sanitizeSiteData(raw: any): SiteData {
     footerBannerSub: typeof raw.footerBannerSub === 'string' ? raw.footerBannerSub : DEFAULT_DATA.footerBannerSub,
     cards: Array.isArray(raw.cards) && raw.cards.length > 0
       ? raw.cards.map(normalizeCardUrl)
-      : DEFAULT_DATA.cards
+      : DEFAULT_DATA.cards,
+    popularRoutesTitle: typeof raw.popularRoutesTitle === 'string' && raw.popularRoutesTitle.trim()
+      ? raw.popularRoutesTitle
+      : DEFAULT_DATA.popularRoutesTitle,
+    // 後台尚未儲存過這個欄位時用預設；已儲存過（即使刪光）則尊重後台內容
+    popularRoutes: Array.isArray(raw.popularRoutes)
+      ? raw.popularRoutes
+          .filter((r: any) => r && typeof r === 'object')
+          .map((r: any, i: number) => ({
+            id: typeof r.id === 'string' && r.id ? r.id : `route-${i + 1}`,
+            name: typeof r.name === 'string' ? r.name : '',
+            description: typeof r.description === 'string' ? r.description : '',
+            url: typeof r.url === 'string' ? r.url : ''
+          }))
+      : DEFAULT_DATA.popularRoutes
   };
 }
 

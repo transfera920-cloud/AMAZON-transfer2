@@ -7,6 +7,13 @@ export interface CardItem {
   badge?: string;
 }
 
+export interface PopularRouteItem {
+  id: string;
+  name: string;
+  description: string;
+  url: string;
+}
+
 export interface SiteData {
   phone: string;
   lineUrl: string;
@@ -22,6 +29,8 @@ export interface SiteData {
   footerBannerTitle: string;
   footerBannerSub: string;
   cards: CardItem[];
+  popularRoutesTitle: string;
+  popularRoutes: PopularRouteItem[];
   lastUpdated?: string;
 }
 
