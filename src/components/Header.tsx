@@ -19,22 +19,21 @@ export const Header: React.FC<HeaderProps> = ({ darkMode, onToggleDarkMode }) =>
             <div className="truncate">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-semibold tracking-wider text-emerald-400 uppercase">
-                  亞馬遜國家山岳協會
+                  亞馬遜高山接駁
                 </span>
                 <span className="hidden sm:inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-800/60 text-emerald-300 font-medium">
                   <ShieldCheck className="w-3 h-3 text-emerald-400" />
-                  官方列管 83 條
+                  600萬乘客險
                 </span>
               </div>
               <h1 className="text-lg sm:text-xl font-bold tracking-tight text-slate-100 truncate">
-                台灣林道通行狀況
+                登山接駁｜百岳、高山登山口接送
               </h1>
             </div>
           </div>
 
           {/* Right actions */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            {/* 方案 A: 查看林保署官方最新狀態 */}
             <a
               href="https://www.forest.gov.tw/0003286"
               target="_blank"
