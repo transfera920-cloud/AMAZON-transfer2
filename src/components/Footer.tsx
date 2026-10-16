@@ -1,28 +1,66 @@
 import React from 'react';
-import { Mountain, ShieldCheck } from 'lucide-react';
+import { SiteData } from '../types';
 
-export const Footer: React.FC = () => {
+interface FooterProps {
+  data: SiteData;
+}
+
+export const Footer: React.FC<FooterProps> = ({ data }) => {
+  const phoneHref = `tel:${data.phone || ''}`;
+  const emailHref = `mailto:${data.email || ''}`;
+
   return (
-    <footer className="mt-16 border-t border-slate-800/80 bg-slate-900/60 text-slate-400 py-8 text-xs transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <Mountain className="w-4 h-4 text-emerald-400" />
-            <span className="font-semibold text-slate-200">
-              亞馬遜國家山岳協會 Amazon National Mountain Association
-            </span>
-          </div>
-          <div className="flex items-center gap-2 text-[11px] text-slate-500">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-            <span>資料範疇：農業部林業及自然保育署 83 條官方列管林道</span>
-          </div>
-        </div>
-
-        <div className="border-t border-slate-800/60 pt-4 text-center sm:text-left text-slate-500 leading-relaxed text-[11px] space-y-1">
-          <p>
-            聲明：本工具純粹作為林道清冊與通報狀態檢視，嚴格遵循不臆測路況與不製造未證實資訊原則。目前所有林道路況通報指標均列為「未確認」或「—」，請登山夥伴出發前密切關注林業及自然保育署與各分署即時公告。
+    <footer className="bg-[#040e08] text-white py-5 px-6 mt-auto border-t border-emerald-900/80 shadow-[0_-8px_30px_rgba(0,0,0,0.5)]">
+      <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-center items-center gap-6 md:gap-10">
+        <div className="text-center md:text-left flex-shrink-0">
+          <h4 id="footer-banner-title" className="font-bold text-lg text-white drop-shadow-xs">
+            {data.footerBannerTitle || "高山登山接駁專屬預約"}
+          </h4>
+          <p id="footer-banner-sub" className="text-xs text-emerald-200/90 mt-0.5">
+            {data.footerBannerSub || "合法租賃車輛 ‧ 行程彈性安排 ‧ 歡迎提早預約包車"}
           </p>
         </div>
+
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          {/* 來電諮詢 */}
+          <a
+            id="footer-phone-link"
+            href={phoneHref}
+            className="bg-[#0e271a] hover:bg-[#133725] text-emerald-100 border border-emerald-700/60 font-bold px-4 py-2 rounded-lg text-sm flex items-center transition shadow-xs cursor-pointer"
+            title={`撥打電話：${data.phone}`}
+          >
+            <i className="fa-solid fa-phone text-[#00e676] mr-2" aria-hidden="true"></i>
+            <span>來電諮詢</span>
+          </a>
+
+          {/* Email 聯絡 */}
+          <a
+            id="footer-email-link"
+            href={emailHref}
+            className="bg-[#091f14] hover:bg-[#0f2e1e] text-emerald-200 border border-emerald-800/60 font-bold px-4 py-2 rounded-lg text-sm flex items-center transition shadow-xs cursor-pointer"
+            title={`發送電子郵件：${data.email}`}
+          >
+            <i className="fa-solid fa-envelope text-emerald-400 mr-2" aria-hidden="true"></i>
+            <span>Email 聯絡</span>
+          </a>
+
+          {/* LINE 立即預約 */}
+          <a
+            id="footer-line-link"
+            href={data.lineUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-gradient-to-r from-[#00c853] to-[#00b248] hover:from-[#00e676] hover:to-[#00c853] text-white font-bold px-5 py-2 rounded-lg text-sm flex items-center transition shadow-[0_0_20px_rgba(0,200,83,0.35)] cursor-pointer"
+            title="開啟 LINE 官方帳號"
+          >
+            <i className="fa-brands fa-line text-lg mr-2" aria-hidden="true"></i>
+            <span>LINE 立即預約</span>
+          </a>
+        </div>
+      </div>
+
+      <div className="max-w-5xl mx-auto mt-4 pt-3 border-t border-emerald-950/80 text-center text-xs text-emerald-200/60 flex flex-col sm:flex-row items-center justify-between gap-2">
+        <span>© 亞馬遜高山接駁 ‧ 專業百岳高山包車接送</span>
       </div>
     </footer>
   );
