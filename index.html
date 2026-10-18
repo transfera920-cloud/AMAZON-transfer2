@@ -25,17 +25,24 @@
 
     <!-- Schema.org 結構化資料 (JSON-LD) -->
     <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
     {
-      "@context": "https://schema.org",
       "@type": "LocalBusiness",
       "@id": "https://transfer.amazon-hike.com/#org",
       "name": "亞馬遜高山接駁",
-      "alternateName": ["高山接駁", "登山接駁", "Amazon Hike Transfer"],
+      "alternateName": [
+        "高山接駁",
+        "登山接駁",
+        "Amazon Hike Transfer"
+      ],
       "description": "亞馬遜高山接駁提供全台灣熱門百岳與高山步道之專業接駁服務。合法租賃營業車、職業駕照司機、600萬乘客平安險，讓您的登山行程更安心順暢。",
       "url": "https://transfer.amazon-hike.com/",
       "sameAs": [
         "https://amazon-hike.com/",
-        "https://lin.ee/x8u0XAR"
+        "https://lin.ee/x8u0XAR",
+        "https://www.facebook.com/groups/518840791872080"
       ],
       "telephone": "+886972573495",
       "email": "amazonchiayi@gmail.com",
@@ -50,8 +57,189 @@
         "百岳登山口包車",
         "高山道路與林道管制查詢",
         "登山口接送服務"
+      ],
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "百岳登山口包車接駁路線",
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "合歡山登山口包車接駁",
+              "url": "https://transfer.amazon-hike.com/hehuanshan/",
+              "provider": {
+                "@id": "https://transfer.amazon-hike.com/#org"
+              }
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "雪山登山口包車接駁",
+              "url": "https://transfer.amazon-hike.com/xueshan/",
+              "provider": {
+                "@id": "https://transfer.amazon-hike.com/#org"
+              }
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "玉山登山口包車接駁",
+              "url": "https://transfer.amazon-hike.com/yushan/",
+              "provider": {
+                "@id": "https://transfer.amazon-hike.com/#org"
+              }
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "嘉明湖登山口包車接駁",
+              "url": "https://transfer.amazon-hike.com/jiaminghu/",
+              "provider": {
+                "@id": "https://transfer.amazon-hike.com/#org"
+              }
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "奇萊南華登山口包車接駁",
+              "url": "https://transfer.amazon-hike.com/qilai-nanhua/",
+              "provider": {
+                "@id": "https://transfer.amazon-hike.com/#org"
+              }
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "大霸尖山登山口包車接駁",
+              "url": "https://transfer.amazon-hike.com/dabajianshan/",
+              "provider": {
+                "@id": "https://transfer.amazon-hike.com/#org"
+              }
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "郡大山登山口包車接駁",
+              "url": "https://transfer.amazon-hike.com/jundashan/",
+              "provider": {
+                "@id": "https://transfer.amazon-hike.com/#org"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://transfer.amazon-hike.com/#website",
+      "url": "https://transfer.amazon-hike.com/",
+      "name": "亞馬遜高山接駁",
+      "alternateName": [
+        "高山接駁",
+        "登山接駁"
+      ],
+      "inLanguage": "zh-TW",
+      "publisher": {
+        "@id": "https://transfer.amazon-hike.com/#org"
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://transfer.amazon-hike.com/#faq",
+      "url": "https://transfer.amazon-hike.com/",
+      "isPartOf": {
+        "@id": "https://transfer.amazon-hike.com/#website"
+      },
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "亞馬遜高山接駁提供什麼服務？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "亞馬遜高山接駁提供全台灣熱門百岳與高山步道的登山口包車接送（許多登山客也會搜尋「登山接駁」）。車型可選 9 人座商務車、7 人座休旅車，或適合林道碎石路段的高底盤四驅車，並可選擇來回包車、單程，也可安排夜間或 D0 跨夜出發的時段。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "可以從哪些地方出發？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "北中南主要縣市與宜蘭都可以出發。實際車程建議用 Google 地圖查詢，其他細節歡迎透過 LINE 詢問。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "高山接駁有哪些車型？哪些路線需要四驅車？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "車型有 9 人座商務車、7 人座休旅車與高底盤四驅車。郡大林道（檢查哨至 32K 登山口）路面崎嶇、多坑洞碎石，限高底盤四驅車進入，一般轎車切勿進入；本站提供專用高底盤 4WD 四驅越野車與經驗司機帶路。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "登山接駁的費用怎麼算？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "可先使用本站的價格估算系統試算各路線的包車費用，依序選擇出發城市、車型、行程模式（來回或單程）、乘客人數，以及是否夜間出發。前往郡大山（望鄉部落、郡大林道）請改用郡大山專用價格估算系統。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "怎麼預約高山接駁？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "先用價格估算系統試算費用，再點選「帶入報價加 LINE 預約」，系統會複製行程摘要並開啟 LINE，貼上訊息即可詢問預約日期是否有車趟；也可以直接來電 0972573495。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "可以只搭單程，或是 A進B出嗎？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "可以。A進B出是指從一個登山口入山、由另一個登山口下山的行程（例如縱走），起點與終點不同。價格估算提供「來回包車」與「單程」兩種行程模式；若入山口與下山口不同，請透過 LINE 說明入山口、下山口與日期。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "搭乘亞馬遜高山接駁有什麼安全保障？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "使用合法租賃營業車，由職業駕照司機駕駛，並投保 600 萬乘客平安險。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "目前提供哪些百岳的登山接駁？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "熱門路線包含合歡山群峰、雪山、玉山、嘉明湖、奇萊南華、大霸尖山與郡大山，各路線頁有車程、路況與預約說明。其他路線歡迎透過 LINE 詢問。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "建議前一晚出發，還是凌晨直接起登？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "建議安排交通日（D0）：下班後先出發，前一晚住在登山口附近，隔天再從容起登。凌晨直接起登容易睡眠不足、增加司機疲勞駕駛的風險，也少了適應高度的時間，凌晨集合也比較容易睡過頭。"
+          }
+        }
       ]
     }
+  ]
+}
     </script>
 
     <!-- FontAwesome 圖示庫 -->
@@ -229,6 +417,49 @@
               <h3 class="font-bold text-white text-sm mb-1">郡大林道（檢查哨至 32K 登山口）</h3>
               <p class="text-amber-200/90 font-medium mb-1">開放時間 06:00 ~ 17:00（夜間關閉）；限高底盤四驅車進入</p>
               <p>路面崎嶇不平且多坑洞碎石，一般轎車切勿進入。亞馬遜高山接駁提供專用高底盤 4WD 四驅越野車與經驗司機帶路。</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- 常見問題（文字須與 src/data/homeFaq.ts 及上方 FAQPage 結構化資料一致） -->
+        <section class="bg-[#0e2318]/85 border border-emerald-900/60 rounded-2xl p-6 md:p-8 mb-12">
+          <h2 class="text-lg md:text-xl font-bold text-white mb-4">常見問題</h2>
+          <div class="text-emerald-100/85 leading-relaxed text-sm md:text-base space-y-4">
+            <div>
+              <h3 class="font-bold text-white text-sm md:text-base mb-1">亞馬遜高山接駁提供什麼服務？</h3>
+              <p>亞馬遜高山接駁提供全台灣熱門百岳與高山步道的登山口包車接送（許多登山客也會搜尋「登山接駁」）。車型可選 9 人座商務車、7 人座休旅車，或適合林道碎石路段的高底盤四驅車，並可選擇來回包車、單程，也可安排夜間或 D0 跨夜出發的時段。</p>
+            </div>
+            <div>
+              <h3 class="font-bold text-white text-sm md:text-base mb-1">可以從哪些地方出發？</h3>
+              <p>北中南主要縣市與宜蘭都可以出發。實際車程建議用 Google 地圖查詢，其他細節歡迎透過 LINE 詢問。</p>
+            </div>
+            <div>
+              <h3 class="font-bold text-white text-sm md:text-base mb-1">高山接駁有哪些車型？哪些路線需要四驅車？</h3>
+              <p>車型有 9 人座商務車、7 人座休旅車與高底盤四驅車。郡大林道（檢查哨至 32K 登山口）路面崎嶇、多坑洞碎石，限高底盤四驅車進入，一般轎車切勿進入；本站提供專用高底盤 4WD 四驅越野車與經驗司機帶路。</p>
+            </div>
+            <div>
+              <h3 class="font-bold text-white text-sm md:text-base mb-1">登山接駁的費用怎麼算？</h3>
+              <p>可先使用本站的<a href="https://price.amazon-hike.com/" target="_blank" rel="noopener noreferrer" class="font-semibold text-[#00e676] hover:text-white underline decoration-emerald-600/50 underline-offset-2 transition-colors">價格估算系統</a>試算各路線的包車費用，依序選擇出發城市、車型、行程模式（來回或單程）、乘客人數，以及是否夜間出發。前往郡大山（望鄉部落、郡大林道）請改用<a href="https://yun-da-xi-luan-connect.lovable.app/" target="_blank" rel="noopener noreferrer" class="font-semibold text-[#00e676] hover:text-white underline decoration-emerald-600/50 underline-offset-2 transition-colors">郡大山專用價格估算系統</a>。</p>
+            </div>
+            <div>
+              <h3 class="font-bold text-white text-sm md:text-base mb-1">怎麼預約高山接駁？</h3>
+              <p>先用價格估算系統試算費用，再點選「帶入報價加 LINE 預約」，系統會複製行程摘要並開啟 LINE，貼上訊息即可詢問預約日期是否有車趟；也可以直接來電 0972573495。</p>
+            </div>
+            <div>
+              <h3 class="font-bold text-white text-sm md:text-base mb-1">可以只搭單程，或是 A進B出嗎？</h3>
+              <p>可以。A進B出是指從一個登山口入山、由另一個登山口下山的行程（例如縱走），起點與終點不同。價格估算提供「來回包車」與「單程」兩種行程模式；若入山口與下山口不同，請透過 LINE 說明入山口、下山口與日期。</p>
+            </div>
+            <div>
+              <h3 class="font-bold text-white text-sm md:text-base mb-1">搭乘亞馬遜高山接駁有什麼安全保障？</h3>
+              <p>使用合法租賃營業車，由職業駕照司機駕駛，並投保 600 萬乘客平安險。</p>
+            </div>
+            <div>
+              <h3 class="font-bold text-white text-sm md:text-base mb-1">目前提供哪些百岳的登山接駁？</h3>
+              <p>熱門路線包含<a href="/hehuanshan/" class="font-semibold text-[#00e676] hover:text-white underline decoration-emerald-600/50 underline-offset-2 transition-colors">合歡山群峰</a>、<a href="/xueshan/" class="font-semibold text-[#00e676] hover:text-white underline decoration-emerald-600/50 underline-offset-2 transition-colors">雪山</a>、<a href="/yushan/" class="font-semibold text-[#00e676] hover:text-white underline decoration-emerald-600/50 underline-offset-2 transition-colors">玉山</a>、<a href="/jiaminghu/" class="font-semibold text-[#00e676] hover:text-white underline decoration-emerald-600/50 underline-offset-2 transition-colors">嘉明湖</a>、<a href="/qilai-nanhua/" class="font-semibold text-[#00e676] hover:text-white underline decoration-emerald-600/50 underline-offset-2 transition-colors">奇萊南華</a>、<a href="/dabajianshan/" class="font-semibold text-[#00e676] hover:text-white underline decoration-emerald-600/50 underline-offset-2 transition-colors">大霸尖山</a>與<a href="/jundashan/" class="font-semibold text-[#00e676] hover:text-white underline decoration-emerald-600/50 underline-offset-2 transition-colors">郡大山</a>，各路線頁有車程、路況與預約說明。其他路線歡迎透過 LINE 詢問。</p>
+            </div>
+            <div>
+              <h3 class="font-bold text-white text-sm md:text-base mb-1">建議前一晚出發，還是凌晨直接起登？</h3>
+              <p>建議安排交通日（D0）：下班後先出發，前一晚住在登山口附近，隔天再從容起登。凌晨直接起登容易睡眠不足、增加司機疲勞駕駛的風險，也少了適應高度的時間，凌晨集合也比較容易睡過頭。</p>
             </div>
           </div>
         </section>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { PopularRouteItem } from '../types';
+import { HOME_FAQ } from '../data/homeFaq';
 
 interface SectionShellProps {
   title: string;
@@ -162,6 +163,37 @@ export const RoadStatusGuideSection: React.FC = () => (
           路面崎嶇不平且多坑洞碎石，一般轎車切勿進入。亞馬遜高山接駁提供專用高底盤 4WD 四驅越野車與經驗司機帶路，確保全隊安全抵達。
         </p>
       </div>
+    </div>
+  </SectionShell>
+);
+
+const FAQ_LINK_CLASS =
+  'font-semibold text-[#00e676] hover:text-white underline decoration-emerald-600/50 underline-offset-2 transition-colors';
+
+export const HomeFaqSection: React.FC = () => (
+  <SectionShell title="常見問題">
+    <div className="space-y-4">
+      {HOME_FAQ.map((item) => (
+        <div key={item.question}>
+          <h3 className="font-bold text-white text-sm md:text-base mb-1">{item.question}</h3>
+          <p>
+            {item.answer.map((part, i) => {
+              if (typeof part === 'string') return <React.Fragment key={i}>{part}</React.Fragment>;
+              const external = /^https?:\/\//i.test(part.href);
+              return (
+                <a
+                  key={i}
+                  href={part.href}
+                  {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                  className={FAQ_LINK_CLASS}
+                >
+                  {part.text}
+                </a>
+              );
+            })}
+          </p>
+        </div>
+      ))}
     </div>
   </SectionShell>
 );
