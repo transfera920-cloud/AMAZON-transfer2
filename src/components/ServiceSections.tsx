@@ -117,11 +117,8 @@ export const RoadStatusGuideSection: React.FC = () => (
 
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
       <div className="bg-[#071a10]/80 p-4 rounded-xl border border-emerald-800/40">
-        <div className="flex items-center justify-between mb-2">
-          <span className="bg-emerald-800 text-white text-xs font-bold px-2 py-0.5 rounded">台21線</span>
-          <span className="text-xs text-amber-300 font-semibold">夜間常態管制</span>
-        </div>
-        <h3 className="font-bold text-white text-sm mb-1">新中橫公路（草坪頭至塔塔加段）</h3>
+        <div className="mb-2"><span className="text-xs text-amber-300 font-semibold">夜間常態管制</span></div>
+        <h3 className="font-bold text-white text-sm mb-1">台21線 新中橫公路（草坪頭至塔塔加段）</h3>
         <p className="text-xs text-amber-200/90 font-medium mb-1.5">每日 17:30 至隔日 07:00 實施常態夜間預警性封閉管制</p>
         <p className="text-xs text-emerald-100/70 leading-relaxed">
           影響百岳：玉山主峰、排雲山莊、鹿林麟趾山。登山接駁若欲一早起登，需在 07:00 後通過或提前於前一日 17:30 前抵達東埔山莊 D0。
@@ -129,11 +126,8 @@ export const RoadStatusGuideSection: React.FC = () => (
       </div>
 
       <div className="bg-[#071a10]/80 p-4 rounded-xl border border-emerald-800/40">
-        <div className="flex items-center justify-between mb-2">
-          <span className="bg-emerald-800 text-white text-xs font-bold px-2 py-0.5 rounded">台14甲線</span>
-          <span className="text-xs text-blue-300 font-semibold">雪季／天候管制</span>
-        </div>
-        <h3 className="font-bold text-white text-sm mb-1">合歡山景觀公路（翠峰至大禹嶺段）</h3>
+        <div className="mb-2"><span className="text-xs text-blue-300 font-semibold">雪季／天候管制</span></div>
+        <h3 className="font-bold text-white text-sm mb-1">台14甲線 合歡山景觀公路（翠峰至大禹嶺段）</h3>
         <p className="text-xs text-blue-200/90 font-medium mb-1.5">視降雪與路面結冰彈性啟動雪季管制，夜間常態預警封閉</p>
         <p className="text-xs text-emerald-100/70 leading-relaxed">
           影響百岳：合歡主東石門、合歡北西峰、奇萊主北。冬季低溫結冰期翠峰至大禹嶺需加掛雪鍊，亞馬遜高山接駁車隊備有專業雪鍊裝備與經驗駕駛。
@@ -141,11 +135,8 @@ export const RoadStatusGuideSection: React.FC = () => (
       </div>
 
       <div className="bg-[#071a10]/80 p-4 rounded-xl border border-emerald-800/40">
-        <div className="flex items-center justify-between mb-2">
-          <span className="bg-emerald-800 text-white text-xs font-bold px-2 py-0.5 rounded">台20線</span>
-          <span className="text-xs text-red-300 font-semibold">每週二四全日封閉</span>
-        </div>
-        <h3 className="font-bold text-white text-sm mb-1">南橫公路（梅山口至向陽登山口）</h3>
+        <div className="mb-2"><span className="text-xs text-red-300 font-semibold">每週二四全日封閉</span></div>
+        <h3 className="font-bold text-white text-sm mb-1">台20線 南橫公路（梅山口至向陽登山口）</h3>
         <p className="text-xs text-red-200/90 font-medium mb-1.5">每週二、週四不開放；開放日 07:00~14:00 放行，17:00 前淨空</p>
         <p className="text-xs text-emerald-100/70 leading-relaxed">
           影響百岳：嘉明湖（向陽）、戒茂斯、南橫三星。欲攀登向陽嘉明湖請務必避開二、四道路維護日，亞馬遜高山接駁依通行規定彈性調度車趟。
@@ -153,11 +144,8 @@ export const RoadStatusGuideSection: React.FC = () => (
       </div>
 
       <div className="bg-[#071a10]/80 p-4 rounded-xl border border-emerald-800/40">
-        <div className="flex items-center justify-between mb-2">
-          <span className="bg-emerald-800 text-white text-xs font-bold px-2 py-0.5 rounded">郡大林道</span>
-          <span className="text-xs text-amber-300 font-semibold">四驅專用／日間開放</span>
-        </div>
-        <h3 className="font-bold text-white text-sm mb-1">郡大山林道（檢查哨至 32K 登山口）</h3>
+        <div className="mb-2"><span className="text-xs text-amber-300 font-semibold">四驅專用／日間開放</span></div>
+        <h3 className="font-bold text-white text-sm mb-1">郡大林道（檢查哨至 32K 登山口）</h3>
         <p className="text-xs text-amber-200/90 font-medium mb-1.5">開放時間 06:00 ~ 17:00（夜間關閉）；限高底盤四驅車進入</p>
         <p className="text-xs text-emerald-100/70 leading-relaxed">
           路面崎嶇不平且多坑洞碎石，一般轎車切勿進入。亞馬遜高山接駁提供專用高底盤 4WD 四驅越野車與經驗司機帶路，確保全隊安全抵達。
