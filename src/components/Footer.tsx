@@ -67,7 +67,7 @@ export const Footer: React.FC<FooterProps> = ({ data }) => {
           rel="noopener"
           className="hover:text-emerald-200 hover:underline transition-colors"
         >
-          相關組織：亞馬遜國家山岳協會（登山教學與百岳介紹）
+          相關組織：亞馬遜國家山岳協會（與本站為同一經營者的獨立單位，提供登山教學與百岳介紹）
         </a>
       </div>
     </footer>
