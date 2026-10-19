@@ -29,6 +29,7 @@ import { RoadStatusModal } from './components/RoadStatusModal';
 import {
   TrailheadCharterSection,
   PopularRoutesSection,
+  MoreRoutesSection,
   OneWayTripSection,
   ServiceProcessSection,
   RoadStatusGuideSection,
@@ -154,6 +155,7 @@ export default function App() {
           title={siteData.popularRoutesTitle || "熱門百岳登山接駁路線"}
           routes={siteData.popularRoutes}
         />
+        <MoreRoutesSection />
         <OneWayTripSection />
         <ServiceProcessSection />
         <RoadStatusGuideSection />

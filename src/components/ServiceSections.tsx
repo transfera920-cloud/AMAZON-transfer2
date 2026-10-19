@@ -1,6 +1,7 @@
 import React from 'react';
 import { PopularRouteItem } from '../types';
 import { HOME_FAQ } from '../data/homeFaq';
+import { MORE_ROUTE_GROUPS } from '../data/moreRoutes';
 
 interface SectionShellProps {
   title: string;
@@ -69,6 +70,33 @@ export const PopularRoutesSection: React.FC<PopularRoutesSectionProps> = ({ titl
       })}
     </ul>
   </SectionShell>
+);
+
+export const MoreRoutesSection: React.FC = () => (
+  <>
+    {MORE_ROUTE_GROUPS.map((group) => (
+      <SectionShell key={group.id} title={group.title}>
+        <details>
+          <summary className="cursor-pointer font-semibold text-[#00e676]">
+            展開查看 {group.routes.length} 條路線
+          </summary>
+          <ul className="space-y-2.5 list-none mt-4">
+            {group.routes.map((route) => (
+              <li key={route.id}>
+                <a
+                  href={route.url}
+                  className="font-semibold text-[#00e676] hover:text-white underline underline-offset-2"
+                >
+                  {route.name}
+                </a>
+                {route.description && <span>：{route.description}</span>}
+              </li>
+            ))}
+          </ul>
+        </details>
+      </SectionShell>
+    ))}
+  </>
 );
 
 export const OneWayTripSection: React.FC = () => (
