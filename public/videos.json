@@ -1,0 +1,12 @@
+{
+  "_說明": "每條路線一筆，key 是路線資料夾名稱（例如 yushan）。youtubeId 留空 = 不顯示影片。逐字稿放 subtitles/<key>.zh-TW.srt 即可自動帶入。",
+  "yushan": {
+    "youtubeId": "",
+    "title": "玉山登山口（塔塔加）接駁怎麼搭？路線與注意事項",
+    "description": "介紹亞馬遜高山接駁的玉山塔塔加登山口包車流程、車程、台21線夜間管制與預約方式。",
+    "uploadDate": "2026-10-20",
+    "duration": "PT5M30S",
+    "heading": "玉山接駁路線影片",
+    "summary": ["重點一", "重點二", "重點三"]
+  }
+}
