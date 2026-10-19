@@ -33,11 +33,11 @@ export const ROUTES: MountainRoute[] = [
       '高雄': 8500,
       '宜蘭': 7500
     },
-    description: '石門山、合歡群峰、小奇萊登山口，車程高海拔需適應',
+    description: '石門山、合歡群峰、小奇萊登山口',
     estimatedHours: '台中約 2.5 小時 / 台北約 4 小時'
   },
   {
-    name: '雪山登山口 / 武陵農場',
+    name: '雪山登山口服務站',
     category: '雪山山脈',
     basePrices: {
       '台北/新北': 7500,
@@ -50,7 +50,24 @@ export const ROUTES: MountainRoute[] = [
       '高雄': 10500,
       '宜蘭': 5500
     },
-    description: '雪山主東峰、武陵四秀（桃山、池有、品田、喀拉業）',
+    description: '雪山主東峰',
+    estimatedHours: '台北/宜蘭約 3~3.5 小時 / 台中約 4 小時'
+  },
+  {
+    name: '武陵山莊',
+    category: '雪山山脈',
+    basePrices: {
+      '台北/新北': 7500,
+      '桃園': 7500,
+      '新竹': 7500,
+      '台中': 7000,
+      '彰化': 7500,
+      '嘉義': 8500,
+      '台南': 9500,
+      '高雄': 10500,
+      '宜蘭': 5500
+    },
+    description: '武陵四秀（桃山、池有、品田、喀拉業）',
     estimatedHours: '台北/宜蘭約 3~3.5 小時 / 台中約 4 小時'
   },
   {

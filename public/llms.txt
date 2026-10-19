@@ -9,7 +9,8 @@
 
 ## 路線頁
 - [合歡山群峰 / 武嶺 / 小奇萊](https://transfer.amazon-hike.com/hehuanshan/)
-- [雪山 / 武陵農場](https://transfer.amazon-hike.com/xueshan/)
+- [雪山登山口服務站 / 雪山主東峰](https://transfer.amazon-hike.com/xueshan/)
+- [武陵山莊 / 武陵四秀](https://transfer.amazon-hike.com/wulingshanzhuang/)
 - [玉山 / 塔塔加](https://transfer.amazon-hike.com/yushan/)
 - [嘉明湖 / 向陽](https://transfer.amazon-hike.com/jiaminghu/)
 - [奇萊南華 / 屯原](https://transfer.amazon-hike.com/qilai-nanhua/)
@@ -23,7 +24,8 @@
 - [白姑大山 / 紅香部落／最後農家](https://transfer.amazon-hike.com/baigu/)
 - [閂山鈴鳴山 / 730 林道接駁 11.7K](https://transfer.amazon-hike.com/shuanshan/)
 - [畢羊縱走 / 820 林道起點／慈恩隧道口](https://transfer.amazon-hike.com/biyang/)
-- [能高安東軍・干卓萬 / 奧萬大森林遊樂區、萬大林道／武界林道](https://transfer.amazon-hike.com/wanda/)
+- [能高安東軍 / 屯原雲天宮、奧萬大森林遊樂區](https://transfer.amazon-hike.com/nenggao-andongjun/)
+- [干卓萬 / 萬大林道、武界林道](https://transfer.amazon-hike.com/wanda/)
 - [八通關 / 八通關登山口](https://transfer.amazon-hike.com/batongguan/)
 - [南橫三星 / 南橫登山口／特生中心](https://transfer.amazon-hike.com/nanhengsanxing/)
 - [北大武山 / 北大武登山口](https://transfer.amazon-hike.com/beidawu/)

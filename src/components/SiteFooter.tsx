@@ -40,6 +40,7 @@ export function SiteFooter() {
             {[
               ["合歡山接駁", "hehuanshan"],
               ["雪山接駁", "xueshan"],
+              ["武陵山莊接駁", "wulingshanzhuang"],
               ["玉山接駁", "yushan"],
               ["嘉明湖接駁", "jiaminghu"],
               ["奇萊南華接駁", "qilai-nanhua"],

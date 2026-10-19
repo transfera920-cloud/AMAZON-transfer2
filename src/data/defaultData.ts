@@ -3,8 +3,9 @@ import { SiteData, PopularRouteItem } from '../types';
 export const STORAGE_KEY = 'amazon_mount_data';
 
 export const DEFAULT_POPULAR_ROUTES: PopularRouteItem[] = [
-  { id: 'route-1', name: '合歡山群峰 / 武嶺 / 小奇萊', description: '石門山、合歡群峰、小奇萊登山口，車程高海拔需適應', url: '/hehuanshan/' },
-  { id: 'route-2', name: '雪山登山口 / 武陵農場', description: '雪山主東峰、武陵四秀（桃山、池有、品田、喀拉業）', url: '/xueshan/' },
+  { id: 'route-1', name: '合歡山群峰 / 武嶺 / 小奇萊', description: '石門山、合歡群峰、小奇萊登山口', url: '/hehuanshan/' },
+  { id: 'route-2', name: '雪山登山口服務站', description: '雪山主東峰', url: '/xueshan/' },
+  { id: 'route-2b', name: '武陵山莊', description: '武陵四秀（桃山、池有、品田、喀拉業）', url: '/wulingshanzhuang/' },
   { id: 'route-3', name: '玉山登山口 / 塔塔加停車場', description: '玉山群峰、麟趾山、鹿林山', url: '/yushan/' },
   { id: 'route-4', name: '嘉明湖 / 向陽國家森林遊樂區', description: '天使的眼淚嘉明湖、向陽山、三叉山，南橫台20線接駁', url: '/jiaminghu/' },
   { id: 'route-5', name: '奇萊南華 / 屯原登山口', description: '能高越嶺西段、奇萊南峰、南華山黃金大草原', url: '/qilai-nanhua/' },

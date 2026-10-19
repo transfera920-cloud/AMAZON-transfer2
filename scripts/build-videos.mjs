@@ -111,7 +111,7 @@ ${B_END}
       '@id': `${SITE}/${slug}/#video`,
       name: title,
       description: v.description,
-      thumbnailUrl: [`https://i.ytimg.com/vi/${id}/maxresdefault.jpg`],
+      thumbnailUrl: [v.thumbnailUrl || `https://i.ytimg.com/vi/${id}/hqdefault.jpg`],
       uploadDate: v.uploadDate,
       embedUrl: `https://www.youtube.com/embed/${id}`,
       inLanguage: 'zh-TW',
