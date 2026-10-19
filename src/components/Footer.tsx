@@ -61,6 +61,14 @@ export const Footer: React.FC<FooterProps> = ({ data }) => {
 
       <div className="max-w-5xl mx-auto mt-4 pt-3 border-t border-emerald-950/80 text-center text-xs text-emerald-200/60 flex flex-col sm:flex-row items-center justify-between gap-2">
         <span>© 亞馬遜高山接駁 ‧ 專業百岳高山包車接送</span>
+        <a
+          href="https://amazon-hike.com/"
+          target="_blank"
+          rel="noopener"
+          className="hover:text-emerald-200 hover:underline transition-colors"
+        >
+          相關組織：亞馬遜國家山岳協會（登山教學與百岳介紹）
+        </a>
       </div>
     </footer>
   );
