@@ -65,6 +65,9 @@ export function SiteFooter() {
             >
               登山口住宿查詢
             </a>
+            <a className="text-primary hover:underline" href="https://shuttle.amazon-hike.com/">
+              郡大山・西巒大山接駁
+            </a>
             <a className="text-primary hover:underline" href="https://feast.amazon-hike.com/">
               下山慶功宴餐廳
             </a>
