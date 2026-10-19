@@ -20,7 +20,7 @@ export const DEPARTURE_CITIES = ['台北/新北', '桃園', '新竹', '台中', 
 
 export const ROUTES: MountainRoute[] = [
   {
-    name: '合歡山群峰 / 武嶺 / 小奇萊',
+    name: '合歡山群峰｜武嶺｜小奇萊',
     category: '合歡山系',
     basePrices: {
       '台北/新北': 8000,
@@ -71,7 +71,7 @@ export const ROUTES: MountainRoute[] = [
     estimatedHours: '台北/宜蘭約 3~3.5 小時 / 台中約 4 小時'
   },
   {
-    name: '玉山登山口 / 塔塔加停車場',
+    name: '玉山登山口｜塔塔加停車場',
     category: '玉山山脈',
     basePrices: {
       '台北/新北': 9000,
@@ -88,7 +88,7 @@ export const ROUTES: MountainRoute[] = [
     estimatedHours: '嘉義約 2.5 小時 / 台中約 3 小時 / 台北約 4.5 小時'
   },
   {
-    name: '嘉明湖 / 向陽國家森林遊樂區',
+    name: '嘉明湖｜向陽國家森林遊樂區',
     category: '南二段',
     basePrices: {
       '台北/新北': 12000,
@@ -105,7 +105,7 @@ export const ROUTES: MountainRoute[] = [
     estimatedHours: '高雄約 3.5 小時 / 台北走花東約 6 小時'
   },
   {
-    name: '奇萊南華 / 屯原登山口',
+    name: '奇萊南華｜屯原登山口',
     category: '中央山脈',
     basePrices: {
       '台北/新北': 8000,
@@ -122,7 +122,7 @@ export const ROUTES: MountainRoute[] = [
     estimatedHours: '台中約 2.5 小時 / 台北約 4 小時'
   },
   {
-    name: '大霸尖山 / 觀霧大鹿林道東線口',
+    name: '大霸尖山｜觀霧大鹿林道東線口',
     category: '雪山山脈',
     basePrices: {
       '台北/新北': 7500,
@@ -139,7 +139,7 @@ export const ROUTES: MountainRoute[] = [
     estimatedHours: '新竹約 2.5 小時 / 台北約 3.5 小時'
   },
   {
-    name: '郡大山 / 望鄉部落 (含林道接駁)',
+    name: '郡大山｜望鄉部落 (含林道接駁)',
     category: '玉山山脈',
     basePrices: {
       '台北/新北': 9500,
