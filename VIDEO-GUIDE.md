@@ -10,3 +10,11 @@
 5. youtubeId 留空 = 該頁不顯示影片（已注入的內容會在下次建置時移除）。
 
 注意：若 Cloudflare 的建置指令不是 `npm run build`，請改成 `npm run build`，或在原指令前加上 `node scripts/build-videos.mjs &&`。
+
+---
+
+# 路線攻略文章連結（public/articles.json）
+
+- 每條路線一個陣列，每篇 `{ "title": "...", "url": "https://...", "show": true }`。
+- 文章還沒做好：`show` 設 `false`（或整筆先不放），頁面不會出現。做好後改成 `true`、commit 即可。
+- 建置時由 `scripts/build-articles.mjs` 自動寫進 `public/<路線>/index.html`，連結直接在 HTML 裡，爬蟲讀得到。
