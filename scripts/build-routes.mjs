@@ -11,6 +11,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { decodeFirestore } from './permit-render.mjs';
 import { renderRoutePage, esc, SITE } from '../shared/renderRoutePage.mjs';
+import { resolveHomeContent, routeCategories, cleanGroupId, resolveGroup } from '../shared/homeContent.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PUB = path.join(ROOT, 'public');
@@ -49,6 +50,7 @@ async function fetchContact() {
     const j = await getJson(`${BASE}/settings/general?key=${cfg.apiKey}`);
     const d = decodeFirestore({ mapValue: { fields: j.fields || {} } });
     const c = {};
+    c.categories = routeCategories(resolveHomeContent(d).blocks); // 路線分類（id、標題），用於 llms.txt 與路線頁底部的導向文字
     if (typeof d.lineUrl === 'string' && /^https?:\/\//.test(d.lineUrl)) c.lineUrl = d.lineUrl;
     if (typeof d.phone === 'string' && /^[0-9+\-\s]{6,}$/.test(d.phone.trim())) c.phone = d.phone.trim();
     return c;
@@ -67,7 +69,7 @@ function normalize(r) {
   return {
     ...r,
     published: r.published !== false,
-    group: r.group === 'more' ? 'more' : 'popular',
+    group: cleanGroupId(r.group) || 'popular',
     order: Number(r.order) || 0,
     sections: arr(r.sections),
     faq: arr(r.faq),
@@ -101,6 +103,13 @@ routes.sort((a, b) => a.order - b.order);
 console.log(`[routes] 資料來源：${source}；共 ${routes.length} 條路線`);
 
 const contact = await fetchContact();
+const haveCategories = !!(contact.categories && contact.categories.length); // 讀不到後台設定時，不要把自訂分類的路線誤歸到「更多」
+const categories = haveCategories ? contact.categories : routeCategories(resolveHomeContent({}).blocks);
+const categoryTitles = Object.fromEntries(categories.map((c) => [c.id, c.title]));
+const groupIds = new Set(categories.map((c) => c.id));
+delete contact.categories;
+// 路線的分類被刪除（代號不在分類清單）時，與首頁一樣歸到「更多」
+if (haveCategories) for (const r of routes) r.group = resolveGroup(r.group, groupIds);
 const SLUG_RE = /^[a-z0-9-]+$/;
 const published = [];
 let written = 0;
@@ -118,7 +127,7 @@ for (const r of routes) {
   published.push(r);
 }
 for (const r of published) {
-  const html = renderRoutePage(r, { routes: published, contact });
+  const html = renderRoutePage(r, { routes: published, contact, categoryTitles });
   const dir = path.join(PUB, r.slug);
   fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(path.join(dir, 'index.html'), html);
@@ -140,14 +149,23 @@ fs.writeFileSync(
 const llmsPath = path.join(PUB, 'llms.txt');
 if (fs.existsSync(llmsPath)) {
   let t = fs.readFileSync(llmsPath, 'utf8');
-  const list = (g) => published.filter((r) => r.group === g).map((r) => `- [${r.listName || r.name}](${SITE}/${r.slug}/)`).join('\n');
+  const line = (r) => `- [${r.listName || r.name}](${SITE}/${r.slug}/)`;
+  const inGroup = (g) => published.filter((r) => resolveGroup(r.group, groupIds) === g);
   const swap = (heading, body) => {
     const re = new RegExp(`(## ${heading}\\n)[\\s\\S]*?(?=\\n## |$)`);
-    if (!re.test(t)) { console.warn(`[routes] llms.txt 找不到「## ${heading}」，略過`); return; }
+    if (!re.test(t)) { console.warn(`[routes] llms.txt 找不到「## ${heading}」，略過`); return false; }
     t = t.replace(re, (_, h) => `${h}${body}\n`);
+    return true;
   };
-  swap('路線頁', list('popular'));
-  swap('更多百岳路線', list('more'));
+  swap('路線頁', inGroup('popular').map(line).join('\n'));
+  swap('更多百岳路線', inGroup('more').map(line).join('\n'));
+  // 後台新增的分類：在「更多百岳路線」後面各自輸出一個 ## 分類標題 段落（先清掉上次產生的，再重寫）
+  t = t.replace(/\n## [^\n]*\n<!--CATEGORY:[^>]*-->[\s\S]*?(?=\n## |$)/g, '');
+  const extra = categories
+    .filter((c) => c.id !== 'popular' && c.id !== 'more' && inGroup(c.id).length)
+    .map((c) => `\n## ${c.title}\n<!--CATEGORY:${c.id}-->\n${inGroup(c.id).map(line).join('\n')}\n`)
+    .join('');
+  if (extra) t = t.replace(/(## 更多百岳路線\n[\s\S]*?\n)(?=\n## |$)/, (m) => `${m}${extra}`);
   fs.writeFileSync(llmsPath, t);
 }
 console.log('[routes] 完成');

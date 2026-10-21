@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, writeBatch } from 'firebase/firestore';
 import { Save, Plus, Trash2, ArrowUp, ArrowDown, Loader2, RotateCcw, AlertTriangle } from 'lucide-react';
 import { db } from '../firebase';
 import {
@@ -8,6 +8,7 @@ import {
   DEFAULT_PERMIT_FAQ,
 } from '../../shared/homeContent.mjs';
 import type { HomeBlock, HomeContent, HomeFaqEntry, RoadItem } from '../../shared/homeContent.mjs';
+import type { RouteData } from '../types';
 
 /**
  * 後台「首頁內容」分頁：編輯首頁各區塊（順序、標題、文字）、首頁常見問題、入園入山申請頁常見問題。
@@ -40,7 +41,7 @@ const moveItem = <T,>(arr: T[], i: number, dir: -1 | 1): T[] => {
 
 const KIND_LABEL: Record<HomeBlock['kind'], string> = {
   text: '文字區塊',
-  routes: '路線清單',
+  routes: '路線分類',
   roadguide: '道路管制卡片',
   faq: '常見問題',
 };
@@ -74,14 +75,20 @@ const FaqEditor: React.FC<{ items: HomeFaqEntry[]; onChange: (v: HomeFaqEntry[])
   </>
 );
 
+/** 內建分類：路線頁導覽與 llms.txt 會用到「熱門」「更多」，所以只能改名、不能刪除 */
+const BUILTIN_GROUPS = ['popular', 'more'];
+
+type RouteLite = Pick<RouteData, 'slug' | 'name' | 'group' | 'published'>;
+
 interface Props {
   initial: HomeContent;
+  routes: RouteLite[];
   onSaved: (msg: string) => void;
   onError: (msg: string) => void;
   onDirtyChange: (dirty: boolean) => void;
 }
 
-export const AdminHomePanel: React.FC<Props> = ({ initial, onSaved, onError, onDirtyChange }) => {
+export const AdminHomePanel: React.FC<Props> = ({ initial, routes, onSaved, onError, onDirtyChange }) => {
   const [blocks, setBlocks] = useState<HomeBlock[]>(initial.blocks);
   const [faq, setFaq] = useState<HomeFaqEntry[]>(initial.faq);
   const [permitFaq, setPermitFaq] = useState<HomeFaqEntry[]>(initial.permitFaq);
@@ -107,6 +114,29 @@ export const AdminHomePanel: React.FC<Props> = ({ initial, onSaved, onError, onD
   const setFaqD = mark(setFaq);
   const setPermitFaqD = mark(setPermitFaq);
 
+  // 目前已存在資料庫的分類代號（用來判斷這次儲存刪掉了哪些分類）
+  const savedGroups = useMemo(
+    () => initial.blocks.filter((b) => b.kind === 'routes').map((b) => (b as Extract<HomeBlock, { kind: 'routes' }>).group),
+    [initial]
+  );
+
+  const addCategory = () => {
+    const code = `c${Date.now().toString(36)}`;
+    const nb: HomeBlock = { id: code, kind: 'routes', group: code, title: '新的路線分類', collapsed: false };
+    // 放在最後一個路線分類之後
+    let at = -1;
+    blocks.forEach((b, i) => { if (b.kind === 'routes') at = i; });
+    setBlocksD(at < 0 ? [...blocks, nb] : [...blocks.slice(0, at + 1), nb, ...blocks.slice(at + 1)]);
+  };
+
+  const removeCategory = (i: number) => {
+    const b = blocks[i];
+    if (b.kind !== 'routes') return;
+    const n = routes.filter((r) => r.group === b.group).length;
+    const msg = `刪除路線分類「${b.title || '(未命名)'}」？` + (n ? `\n\n裡面的 ${n} 條路線不會被刪除，按「儲存首頁內容」後會改放到「更多」分類。` : '');
+    if (window.confirm(msg)) setBlocksD(blocks.filter((_, k) => k !== i));
+  };
+
   const updBlock = (i: number, patch: Record<string, unknown>) =>
     setBlocksD(blocks.map((b, k) => (k === i ? ({ ...b, ...patch } as HomeBlock) : b)));
 
@@ -118,12 +148,15 @@ export const AdminHomePanel: React.FC<Props> = ({ initial, onSaved, onError, onD
         if (!b.body.trim()) w.push(`區塊「${b.title || '(未命名)'}」沒有內容`);
         w.push(...linkWarnings(`區塊「${b.title}」`, b.body));
       }
+      if (b.kind === 'routes' && !routes.some((r) => r.group === b.group && r.published)) {
+        w.push(`路線分類「${b.title || '(未命名)'}」目前沒有已發布的路線，首頁不會顯示這個分類`);
+      }
     });
     faq.forEach((f, i) => w.push(...linkWarnings(`首頁 FAQ 第 ${i + 1} 題`, f.a)));
     permitFaq.forEach((f, i) => w.push(...linkWarnings(`申請頁 FAQ 第 ${i + 1} 題`, f.a)));
     if (faq.filter((f) => f.q.trim() && f.a.trim()).length < 3) w.push('首頁常見問題少於 3 題');
     return w;
-  }, [blocks, faq, permitFaq]);
+  }, [blocks, faq, permitFaq, routes]);
 
   const save = async () => {
     setSaving(true);
@@ -139,9 +172,22 @@ export const AdminHomePanel: React.FC<Props> = ({ initial, onSaved, onError, onD
       );
       // merge：只更新這三個欄位，不動首頁其他設定
       await setDoc(doc(db, 'settings', 'general'), payload, { merge: true });
+
+      // 被刪除的分類：裡面的路線改放「更多」（沒有「更多」就放第一個分類），不然這些路線會從首頁清單消失
+      const nowGroups = blocks.filter((b) => b.kind === 'routes').map((b) => (b as Extract<HomeBlock, { kind: 'routes' }>).group);
+      const removed = savedGroups.filter((g) => !nowGroups.includes(g));
+      const fallback = nowGroups.includes('more') ? 'more' : nowGroups[0];
+      const moved = fallback ? routes.filter((r) => removed.includes(r.group)) : [];
+      if (moved.length) {
+        const batch = writeBatch(db);
+        const now = Date.now();
+        moved.forEach((r) => batch.update(doc(db, 'routes', r.slug), { group: fallback, updatedAtMs: now }));
+        await batch.commit();
+      }
+
       dirtyRef.current = false;
       setDirty(false);
-      onSaved('已儲存首頁內容。要讓網站更新，請按「發布到網站」');
+      onSaved(`已儲存首頁內容${moved.length ? `（${moved.length} 條路線已移到「${blocks.find((b) => b.kind === 'routes' && b.group === fallback)?.title || '更多'}」）` : ''}。要讓網站更新，請按「發布到網站」`);
     } catch (e: any) {
       onError(`儲存首頁內容失敗：${e?.message || e}`);
     }
@@ -191,22 +237,25 @@ export const AdminHomePanel: React.FC<Props> = ({ initial, onSaved, onError, onD
       <Card
         title={`首頁區塊（由上到下，共 ${blocks.length} 個）`}
         aside={
-          <button
-            className={btnGhost}
-            onClick={() => {
-              // 新增在「常見問題」之前（最後一個區塊通常是 FAQ）
-              const at = blocks.findIndex((b) => b.kind === 'faq');
-              const nb: HomeBlock = { id: `t${Date.now()}`, kind: 'text', title: '', body: '' };
-              setBlocksD(at < 0 ? [...blocks, nb] : [...blocks.slice(0, at), nb, ...blocks.slice(at)]);
-            }}
-          >
-            <Plus className="w-3.5 h-3.5" />新增文字區塊
-          </button>
+          <div className="flex items-center gap-2">
+            <button className={btnGhost} onClick={addCategory}><Plus className="w-3.5 h-3.5" />新增路線分類</button>
+            <button
+              className={btnGhost}
+              onClick={() => {
+                // 新增在「常見問題」之前（最後一個區塊通常是 FAQ）
+                const at = blocks.findIndex((b) => b.kind === 'faq');
+                const nb: HomeBlock = { id: `t${Date.now()}`, kind: 'text', title: '', body: '' };
+                setBlocksD(at < 0 ? [...blocks, nb] : [...blocks.slice(0, at), nb, ...blocks.slice(at)]);
+              }}
+            >
+              <Plus className="w-3.5 h-3.5" />新增文字區塊
+            </button>
+          </div>
         }
       >
         <p className="text-[11px] text-gray-500 leading-relaxed">
           內文寫法：空白行分段；每行開頭「- 」＝條列；「1. 」＝編號清單；連結 <code>[文字](https://網址)</code>，站內連結 <code>[文字](/permit/)</code>。
-          路線清單、道路管制卡片、常見問題這三種區塊可以調整順序與標題，但不能刪除。
+          「路線分類」就是首頁的一個路線清單：可新增、改名（改標題）、調整順序、刪除（內建的「熱門」「更多」只能改名，不能刪）。道路管制卡片與常見問題可以調整順序與標題，但不能刪除。
         </p>
         {blocks.map((b, i) => (
           <div key={b.id} className="border border-gray-200 rounded-lg p-3 space-y-2 bg-slate-50/50">
@@ -218,6 +267,14 @@ export const AdminHomePanel: React.FC<Props> = ({ initial, onSaved, onError, onD
               {b.kind === 'text' && (
                 <button className={`${btnGhost} text-red-600`} onClick={() => { if (window.confirm(`刪除區塊「${b.title || '(未命名)'}」？`)) setBlocksD(blocks.filter((_, k) => k !== i)); }}><Trash2 className="w-3.5 h-3.5" /></button>
               )}
+              {b.kind === 'routes' && (
+                <button
+                  className={`${btnGhost} text-red-600`}
+                  disabled={BUILTIN_GROUPS.includes(b.group)}
+                  title={BUILTIN_GROUPS.includes(b.group) ? '內建分類不能刪除，只能改名' : '刪除這個分類'}
+                  onClick={() => removeCategory(i)}
+                ><Trash2 className="w-3.5 h-3.5" /></button>
+              )}
             </div>
 
             {b.kind === 'text' && (
@@ -227,7 +284,11 @@ export const AdminHomePanel: React.FC<Props> = ({ initial, onSaved, onError, onD
             {b.kind === 'routes' && (
               <div className="text-[11px] text-gray-600 space-y-1.5">
                 <p>
-                  顯示「{b.group === 'popular' ? '熱門' : '更多'}」分組的已發布路線（到「路線」分頁調整每條路線的分組、順序、首頁顯示名稱與說明）。
+                  {(() => {
+                    const inCat = routes.filter((r) => r.group === b.group);
+                    return `目前 ${inCat.length} 條路線（已發布 ${inCat.filter((r) => r.published).length} 條）${BUILTIN_GROUPS.includes(b.group) ? '，內建分類' : ''}。`;
+                  })()}
+                  要把路線放進這個分類，或修改首頁上的路線名稱與說明，請到「路線」分頁（在清單上直接改）。
                 </p>
                 <label className="flex items-center gap-1.5 cursor-pointer text-xs text-gray-700">
                   <input type="checkbox" checked={b.collapsed} onChange={(e) => updBlock(i, { collapsed: e.target.checked })} />

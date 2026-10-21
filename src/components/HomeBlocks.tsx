@@ -99,7 +99,7 @@ export const HomeBlocks: React.FC<{ content: HomeContent; routes: HomeRoutes }> 
         case 'text':
           return <SectionShell key={block.id} title={block.title}><RichBody body={block.body} /></SectionShell>;
         case 'routes':
-          return <RoutesBlock key={block.id} block={block} routes={routes[block.group]} />;
+          return <RoutesBlock key={block.id} block={block} routes={routes[block.group] || []} />;
         case 'roadguide':
           return <RoadGuideBlock key={block.id} block={block} />;
         case 'faq':

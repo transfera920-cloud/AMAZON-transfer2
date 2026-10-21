@@ -243,9 +243,31 @@ function cleanFaq(list, fallback) {
     .filter((x) => x.q && x.a);
 }
 
+/** 路線分類代號：只接受英數、底線、連字號（最多 64 字）；內建分類是 popular（熱門）與 more（更多） */
+export function cleanGroupId(v) {
+  const g = typeof v === 'string' ? v.trim() : '';
+  return /^[a-zA-Z0-9_-]{1,64}$/.test(g) ? g : '';
+}
+
+/** 首頁區塊 → 路線分類清單 [{ id, title, collapsed }]（順序 = 首頁由上到下的順序） */
+export function routeCategories(blocks) {
+  return (blocks || [])
+    .filter((b) => b && b.kind === 'routes')
+    .map((b) => ({ id: b.group, title: b.title || b.group, collapsed: !!b.collapsed }));
+}
+
+/** 路線的分類代號不在分類清單裡（例如分類被刪除）時，改放進「更多」（沒有「更多」就放第一個分類） */
+export function resolveGroup(group, groupIds) {
+  const ids = groupIds instanceof Set ? groupIds : new Set(groupIds || []);
+  if (ids.has(group)) return group;
+  if (ids.has('more')) return 'more';
+  return ids.values().next().value || 'popular';
+}
+
 function cleanBlocks(list, popularTitle) {
   if (!Array.isArray(list) || !list.length) return defaultHomeBlocks(popularTitle);
   const seen = new Set();
+  const seenGroups = new Set();
   const out = [];
   list.forEach((b, i) => {
     if (!b || typeof b !== 'object') return;
@@ -256,7 +278,13 @@ function cleanBlocks(list, popularTitle) {
     seen.add(id);
     const base = { id, kind, title: str(b.title, 200) };
     if (kind === 'text') out.push({ ...base, body: str(b.body, 8000) });
-    else if (kind === 'routes') out.push({ ...base, group: b.group === 'more' ? 'more' : 'popular', collapsed: !!b.collapsed });
+    else if (kind === 'routes') {
+      // 分類代號：內建 popular / more，後台新增的分類用自己的代號；同一個代號只留第一個區塊
+      const group = cleanGroupId(b.group) || 'popular';
+      if (seenGroups.has(group)) return;
+      seenGroups.add(group);
+      out.push({ ...base, group, collapsed: !!b.collapsed });
+    }
     else if (kind === 'roadguide') {
       const items = (Array.isArray(b.items) ? b.items : [])
         .filter((x) => x && typeof x === 'object')
@@ -285,8 +313,12 @@ export function resolveHomeContent(raw) {
   };
 }
 
-/** 路線資料 → 首頁清單 { popular: [{slug,url,name,desc}], more: [...] }（只含已發布，依 order 排序） */
-export function buildHomeRoutes(routes) {
+/**
+ * 路線資料 → 首頁清單 { [分類代號]: [{slug,url,name,desc,navName}] }（只含已發布，依 order 排序）。
+ * groupIds：目前有的分類代號；路線的分類不在裡面時改放「更多」。沒傳就照路線自己的分類。
+ * popular / more 兩個鍵一定存在（舊程式與申請頁導覽會用到）。
+ */
+export function buildHomeRoutes(routes, groupIds) {
   const list = (routes || [])
     .filter((r) => r && typeof r.slug === 'string' && r.published !== false)
     .slice()
@@ -297,10 +329,14 @@ export function buildHomeRoutes(routes) {
     const desc = typeof r.homeDesc === 'string' ? r.homeDesc : d.desc || '';
     return { slug: r.slug, url: `/${r.slug}/`, name, desc, navName: r.navName || r.name || name };
   };
-  return {
-    popular: list.filter((r) => r.group !== 'more').map(item),
-    more: list.filter((r) => r.group === 'more').map(item),
-  };
+  const ids = groupIds ? new Set(groupIds) : null;
+  const out = { popular: [], more: [] };
+  for (const r of list) {
+    let g = cleanGroupId(r.group) || 'popular';
+    if (ids) g = resolveGroup(g, ids);
+    (out[g] || (out[g] = [])).push(item(r));
+  }
+  return out;
 }
 
 /* ------------------------------------------------------------------ */

@@ -7,7 +7,8 @@ import { db } from '../firebase';
 import { RouteData, RouteSection } from '../types';
 import seedRoutesRaw from '../data/routes.seed.json';
 import { AdminHomePanel } from './AdminHomePanel';
-import { resolveHomeContent, DEFAULT_HOME_ROUTE_TEXT } from '../../shared/homeContent.mjs';
+import { resolveHomeContent, routeCategories, DEFAULT_HOME_ROUTE_TEXT } from '../../shared/homeContent.mjs';
+import type { RouteCategory } from '../../shared/homeContent.mjs';
 import { renderRoutePage, checkRoute, makeRouteTemplate } from '../../shared/renderRoutePage.mjs';
 
 const seedRoutes = seedRoutesRaw as unknown as RouteData[];
@@ -65,6 +66,69 @@ const Counter: React.FC<{ value: string; max: number }> = ({ value, max }) => {
   return <span className={`text-[11px] ${n > max ? 'text-red-600 font-bold' : 'text-gray-400'}`}>{n}/{max}</span>;
 };
 
+/** 路線清單的一列：可直接改「分類」「首頁顯示名稱」「首頁說明」（離開欄位時自動儲存） */
+const RouteRow: React.FC<{
+  r: RouteData;
+  categories: RouteCategory[];
+  canUp: boolean;
+  canDown: boolean;
+  onMove: (dir: -1 | 1) => void;
+  onTogglePublished: () => void;
+  onEdit: () => void;
+  onSaveHome: (patch: { homeName: string; homeDesc: string }) => void;
+  onChangeGroup: (group: string) => void;
+}> = ({ r, categories, canUp, canDown, onMove, onTogglePublished, onEdit, onSaveHome, onChangeGroup }) => {
+  const [name, setName] = useState(r.homeName || '');
+  const [desc, setDesc] = useState(r.homeDesc || '');
+  useEffect(() => { setName(r.homeName || ''); setDesc(r.homeDesc || ''); }, [r.homeName, r.homeDesc]);
+
+  const commit = () => {
+    if (name === (r.homeName || '') && desc === (r.homeDesc || '')) return;
+    onSaveHome({ homeName: name.trim(), homeDesc: desc.trim() });
+  };
+  const onEnter = (e: React.KeyboardEvent<HTMLInputElement>) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); };
+  const known = categories.some((c) => c.id === r.group);
+
+  return (
+    <div className="py-3 space-y-2">
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-col">
+          <button className="p-0.5 text-gray-400 hover:text-gray-800 disabled:opacity-20 cursor-pointer" disabled={!canUp} onClick={() => onMove(-1)}><ArrowUp className="w-3.5 h-3.5" /></button>
+          <button className="p-0.5 text-gray-400 hover:text-gray-800 disabled:opacity-20 cursor-pointer" disabled={!canDown} onClick={() => onMove(1)}><ArrowDown className="w-3.5 h-3.5" /></button>
+        </div>
+        <div className="flex-1 min-w-[180px]">
+          <div className="font-semibold text-gray-900">{r.name}
+            {!r.published && <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200">未發布</span>}
+          </div>
+          <div className="text-[11px] text-gray-500">/{r.slug}/　{r.metaTitle}</div>
+        </div>
+        <select
+          className="text-xs border border-gray-300 rounded-lg px-2 py-1.5 bg-white cursor-pointer max-w-[180px]"
+          value={r.group}
+          title="這條路線放在首頁哪個分類"
+          onChange={(e) => onChangeGroup(e.target.value)}
+        >
+          {categories.map((c) => <option key={c.id} value={c.id}>{c.title}</option>)}
+          {!known && <option value={r.group}>（分類已刪除，會顯示在「更多」）</option>}
+        </select>
+        <a className={btnGhost} href={`${SITE}/${r.slug}/`} target="_blank" rel="noopener noreferrer">看線上頁</a>
+        <button className={btnGhost} onClick={onTogglePublished}>{r.published ? <><EyeOff className="w-3.5 h-3.5" />停用</> : <><Eye className="w-3.5 h-3.5" />發布</>}</button>
+        <button className="text-xs px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white cursor-pointer" onClick={onEdit}>編輯內容</button>
+      </div>
+      <div className="grid md:grid-cols-2 gap-2 pl-6">
+        <label className="block">
+          <span className="block text-[11px] text-gray-500 mb-0.5">首頁顯示名稱</span>
+          <input className={inputCls} value={name} onChange={(e) => setName(e.target.value)} onBlur={commit} onKeyDown={onEnter} placeholder="首頁清單上的連結文字" />
+        </label>
+        <label className="block">
+          <span className="block text-[11px] text-gray-500 mb-0.5">首頁說明（接在名稱後面，可留空）</span>
+          <input className={inputCls} value={desc} onChange={(e) => setDesc(e.target.value)} onBlur={commit} onKeyDown={onEnter} placeholder="例：玉山群峰、麟趾山、鹿林山" />
+        </label>
+      </div>
+    </div>
+  );
+};
+
 interface Props {
   isOpen: boolean;
   onClose: () => void;
@@ -81,6 +145,7 @@ export const AdminRoutesPanel: React.FC<Props> = ({ isOpen, onClose }) => {
   const [preview, setPreview] = useState(false);
   const [newSlug, setNewSlug] = useState('');
   const [newName, setNewName] = useState('');
+  const [newGroup, setNewGroup] = useState('more');
   const [tab, setTab] = useState<'routes' | 'home'>('routes');
   const [siteRaw, setSiteRaw] = useState<any>(null);
   const [contentUpdatedAtMs, setContentUpdatedAtMs] = useState(0);
@@ -126,6 +191,9 @@ export const AdminRoutesPanel: React.FC<Props> = ({ isOpen, onClose }) => {
 
   // 一定要 memo：AdminHomePanel 以它的 identity 判斷「後台資料更新了」，每次 render 都產生新物件會洗掉正在編輯的內容
   const homeInitial = useMemo(() => resolveHomeContent(siteRaw), [siteRaw]);
+  // 路線分類 = 首頁的路線清單區塊（在「首頁內容」分頁新增、改名、刪除）
+  const categories = useMemo(() => routeCategories(homeInitial.blocks), [homeInitial]);
+  const categoryTitles = useMemo(() => Object.fromEntries(categories.map((c) => [c.id, c.title])), [categories]);
 
   const missingSeeds = useMemo(
     () => seedRoutes.filter((s) => !routes.some((r) => r.slug === s.slug)),
@@ -153,9 +221,12 @@ export const AdminRoutesPanel: React.FC<Props> = ({ isOpen, onClose }) => {
     }
   };
 
-  const move = async (idx: number, dir: -1 | 1) => {
-    const a = routes[idx];
-    const b = routes[idx + dir];
+  // 只和「同一個分類」裡的上一條／下一條交換順序（清單就是依首頁顯示的樣子分組）
+  const move = async (r: RouteData, dir: -1 | 1) => {
+    const sameGroup = routes.filter((x) => x.group === r.group);
+    const idx = sameGroup.findIndex((x) => x.slug === r.slug);
+    const a = sameGroup[idx];
+    const b = sameGroup[idx + dir];
     if (!a || !b) return;
     try {
       const now = Date.now();
@@ -165,6 +236,16 @@ export const AdminRoutesPanel: React.FC<Props> = ({ isOpen, onClose }) => {
       await batch.commit();
       await load();
     } catch (e: any) { setError(`調整順序失敗：${e?.message || e}`); }
+  };
+
+  /** 清單上直接改：首頁顯示名稱／說明、分類。只寫入這幾個欄位，並更新本機畫面（不重新讀取整份清單） */
+  const patchRoute = async (slug: string, patch: Partial<RouteData>, okMsg: string) => {
+    try {
+      const now = Date.now();
+      await updateDoc(doc(db, 'routes', slug), { ...patch, updatedAtMs: now });
+      setRoutes((prev) => prev.map((x) => (x.slug === slug ? { ...x, ...patch, updatedAtMs: now } : x)));
+      say(okMsg);
+    } catch (e: any) { setError(`儲存失敗：${e?.message || e}`); }
   };
 
   const togglePublished = async (r: RouteData) => {
@@ -183,6 +264,7 @@ export const AdminRoutesPanel: React.FC<Props> = ({ isOpen, onClose }) => {
     if (!newName.trim()) { setError('請輸入路線名稱'); return; }
     const maxOrder = routes.reduce((m, r) => Math.max(m, r.order || 0), 0);
     const t = clean(makeRouteTemplate(slug, newName.trim(), maxOrder + 10) as RouteData);
+    t.group = categories.some((c) => c.id === newGroup) ? newGroup : 'more';
     t.updatedAt = taipeiToday();
     t.updatedAtMs = Date.now();
     try {
@@ -252,11 +334,11 @@ export const AdminRoutesPanel: React.FC<Props> = ({ isOpen, onClose }) => {
     if (!preview || !draft) return '';
     const others = routes.filter((r) => r.slug !== draft.slug && r.published !== false);
     try {
-      return renderRoutePage({ ...clean(draft), updatedAt: taipeiToday() }, { routes: [...others, { ...draft, published: true }] });
+      return renderRoutePage({ ...clean(draft), updatedAt: taipeiToday() }, { routes: [...others, { ...draft, published: true }], categoryTitles });
     } catch (e: any) {
       return `<p>預覽失敗：${e?.message || e}</p>`;
     }
-  }, [preview, draft, routes]);
+  }, [preview, draft, routes, categoryTitles]);
 
   const warnings = useMemo(() => (draft ? checkRoute(draft) : []), [draft]);
 
@@ -354,37 +436,59 @@ export const AdminRoutesPanel: React.FC<Props> = ({ isOpen, onClose }) => {
                 </div>
               )}
 
-              <Card title={`路線清單（${routes.length}）`}>
-                <div className="divide-y divide-gray-100">
-                  {routes.map((r, i) => (
-                    <div key={r.slug} className="py-2.5 flex flex-wrap items-center gap-2">
-                      <div className="flex flex-col">
-                        <button className="p-0.5 text-gray-400 hover:text-gray-800 disabled:opacity-20 cursor-pointer" disabled={i === 0} onClick={() => move(i, -1)}><ArrowUp className="w-3.5 h-3.5" /></button>
-                        <button className="p-0.5 text-gray-400 hover:text-gray-800 disabled:opacity-20 cursor-pointer" disabled={i === routes.length - 1} onClick={() => move(i, 1)}><ArrowDown className="w-3.5 h-3.5" /></button>
+              <Card
+                title={`路線清單（${routes.length}）`}
+                aside={<button className={btnGhost} onClick={() => setTab('home')}>管理路線分類</button>}
+              >
+                <p className="text-[11px] text-gray-500 leading-relaxed">
+                  清單依首頁的分類分組。每條路線可直接改「分類」「首頁顯示名稱」「首頁說明」（離開欄位就會儲存）；上下箭頭調整該分類內的順序。
+                  新增、改名、刪除分類請到「首頁內容」分頁。改完記得按上方「發布到網站」。
+                </p>
+                {[
+                  ...categories.map((c) => ({ id: c.id, title: c.title, collapsed: c.collapsed, list: routes.filter((r) => r.group === c.id) })),
+                  { id: '__orphan', title: '分類已被刪除（首頁會顯示在「更多」）', collapsed: false, list: routes.filter((r) => !categories.some((c) => c.id === r.group)) },
+                ]
+                  .filter((g) => g.id !== '__orphan' || g.list.length > 0)
+                  .map((g) => (
+                    <div key={g.id} className="border border-gray-200 rounded-lg overflow-hidden">
+                      <div className="bg-slate-100 px-3 py-1.5 text-xs font-bold text-gray-700 flex items-center gap-2">
+                        {g.title}
+                        <span className="font-normal text-gray-500">{g.list.length} 條{g.collapsed ? '・首頁預設收合' : ''}</span>
                       </div>
-                      <div className="flex-1 min-w-[180px]">
-                        <div className="font-semibold text-gray-900">{r.name}
-                          <span className={`ml-2 text-[10px] px-1.5 py-0.5 rounded-full border ${r.group === 'popular' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-100 text-slate-600 border-slate-200'}`}>{r.group === 'popular' ? '熱門' : '更多'}</span>
-                          {!r.published && <span className="ml-1 text-[10px] px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200">未發布</span>}
-                        </div>
-                        <div className="text-[11px] text-gray-500">/{r.slug}/　{r.metaTitle}</div>
+                      <div className="divide-y divide-gray-100 px-3">
+                        {g.list.map((r, i) => (
+                          <RouteRow
+                            key={r.slug}
+                            r={r}
+                            categories={categories}
+                            canUp={i > 0}
+                            canDown={i < g.list.length - 1}
+                            onMove={(dir) => move(r, dir)}
+                            onTogglePublished={() => togglePublished(r)}
+                            onEdit={() => { setDraft(clean(r)); setDirty(false); }}
+                            onSaveHome={(patch) => patchRoute(r.slug, patch, '已儲存首頁顯示文字。要讓網站更新，請按「發布到網站」')}
+                            onChangeGroup={(group) => patchRoute(r.slug, { group }, '已更換分類。要讓網站更新，請按「發布到網站」')}
+                          />
+                        ))}
+                        {!g.list.length && <div className="text-xs text-gray-400 py-3">這個分類還沒有路線（在其他路線的「分類」下拉選這個分類，就會移進來）。</div>}
                       </div>
-                      <a className={btnGhost} href={`${SITE}/${r.slug}/`} target="_blank" rel="noopener noreferrer">看線上頁</a>
-                      <button className={btnGhost} onClick={() => togglePublished(r)}>{r.published ? <><EyeOff className="w-3.5 h-3.5" />停用</> : <><Eye className="w-3.5 h-3.5" />發布</>}</button>
-                      <button className="text-xs px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white cursor-pointer" onClick={() => { setDraft(clean(r)); setDirty(false); }}>編輯內容</button>
                     </div>
                   ))}
-                  {!routes.length && !loading && <div className="text-xs text-gray-500 py-3">目前沒有路線。</div>}
-                </div>
+                {!routes.length && !loading && <div className="text-xs text-gray-500 py-3">目前沒有路線。</div>}
               </Card>
 
               <Card title="新增路線">
-                <div className="grid md:grid-cols-3 gap-2 items-end">
+                <div className="grid md:grid-cols-4 gap-2 items-end">
                   <Field label="路線名稱" hint="例：玉山北峰、北大武山">
                     <input className={inputCls} value={newName} onChange={(e) => setNewName(e.target.value)} />
                   </Field>
                   <Field label="網址代稱（slug）" hint="小寫英文、數字、連字號；建立後不可更改。例：yushan-north">
                     <input className={inputCls} value={newSlug} onChange={(e) => setNewSlug(e.target.value)} placeholder="yushan-north" />
+                  </Field>
+                  <Field label="分類" hint="之後可在清單上更換">
+                    <select className={inputCls} value={newGroup} onChange={(e) => setNewGroup(e.target.value)}>
+                      {categories.map((c) => <option key={c.id} value={c.id}>{c.title}</option>)}
+                    </select>
                   </Field>
                   <button className="inline-flex items-center justify-center gap-1.5 text-xs px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold cursor-pointer" onClick={createRoute}>
                     <Plus className="w-4 h-4" />建立草稿
@@ -401,6 +505,7 @@ export const AdminRoutesPanel: React.FC<Props> = ({ isOpen, onClose }) => {
           <div className={!draft && tab === 'home' ? '' : 'hidden'}>
             <AdminHomePanel
               initial={homeInitial}
+              routes={routes}
               onSaved={(m) => { say(m); load(); }}
               onError={(m) => setError(m)}
               onDirtyChange={setHomeDirty}
@@ -427,10 +532,10 @@ export const AdminRoutesPanel: React.FC<Props> = ({ isOpen, onClose }) => {
                   <Field label="首頁清單說明" hint="接在名稱後面，例：玉山群峰、麟趾山、鹿林山（可留空）">
                     <input className={inputCls} value={draft.homeDesc || ''} onChange={(e) => set('homeDesc', e.target.value)} />
                   </Field>
-                  <Field label="分組" hint="熱門＝首頁「熱門」清單，且出現在各頁「其他登山接駁路線」導覽；更多＝首頁「更多」收合清單，頁尾導向首頁">
-                    <select className={inputCls} value={draft.group} onChange={(e) => set('group', e.target.value as 'popular' | 'more')}>
-                      <option value="popular">熱門路線</option>
-                      <option value="more">更多路線</option>
+                  <Field label="分類" hint="決定路線出現在首頁哪個清單。「熱門」分類的路線也會出現在各頁「其他登山接駁路線」導覽；其他分類的頁尾會導向首頁。分類在「首頁內容」分頁管理">
+                    <select className={inputCls} value={draft.group} onChange={(e) => set('group', e.target.value)}>
+                      {categories.map((c) => <option key={c.id} value={c.id}>{c.title}</option>)}
+                      {!categories.some((c) => c.id === draft.group) && <option value={draft.group}>（分類已刪除，會顯示在「更多」）</option>}
                     </select>
                   </Field>
                   <Field label="發布狀態">

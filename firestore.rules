@@ -32,7 +32,7 @@ service cloud.firestore {
         && data.intro is string && data.intro.size() <= 5000
         && data.sections is list && data.sections.size() <= 40
         && data.faq is list && data.faq.size() <= 60
-        && data.group in ['popular', 'more']
+        && data.group is string && data.group.matches('^[a-zA-Z0-9_\\-]{1,64}$')
         && data.published is bool;
     }
 

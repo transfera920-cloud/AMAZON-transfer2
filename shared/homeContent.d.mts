@@ -7,12 +7,13 @@ export interface HomeFaqEntry { q: string; a: string }
 export interface RoadItem { tone: 'amber' | 'blue' | 'red'; tag: string; title: string; highlight: string; desc: string }
 export type HomeBlock =
   | { id: string; kind: 'text'; title: string; body: string }
-  | { id: string; kind: 'routes'; title: string; group: 'popular' | 'more'; collapsed: boolean }
+  | { id: string; kind: 'routes'; title: string; group: string; collapsed: boolean }
   | { id: string; kind: 'roadguide'; title: string; items: RoadItem[] }
   | { id: string; kind: 'faq'; title: string };
 export interface HomeContent { blocks: HomeBlock[]; faq: HomeFaqEntry[]; permitFaq: HomeFaqEntry[] }
 export interface HomeRouteItem { slug: string; url: string; name: string; desc: string; navName: string }
-export interface HomeRoutes { popular: HomeRouteItem[]; more: HomeRouteItem[] }
+export type HomeRoutes = { popular: HomeRouteItem[]; more: HomeRouteItem[] } & Record<string, HomeRouteItem[]>;
+export interface RouteCategory { id: string; title: string; collapsed: boolean }
 
 export const DEFAULT_HOME_ROUTE_TEXT: Record<string, { name: string; desc: string }>;
 export const DEFAULT_ROAD_ITEMS: RoadItem[];
@@ -25,7 +26,10 @@ export function parseInline(md?: string): InlinePart[];
 export function parseBlocks(body?: string): { type: 'p' | 'ul' | 'ol'; items: InlinePart[][] }[];
 export function plainText(md?: string): string;
 export function resolveHomeContent(raw: any): HomeContent;
-export function buildHomeRoutes(routes: any[]): HomeRoutes;
+export function buildHomeRoutes(routes: any[], groupIds?: Iterable<string>): HomeRoutes;
+export function cleanGroupId(v: unknown): string;
+export function routeCategories(blocks: HomeBlock[]): RouteCategory[];
+export function resolveGroup(group: string, groupIds: Iterable<string>): string;
 export function bodyHtml(body: string): string;
 export function renderBlockHtml(block: HomeBlock, ctx: { routes: HomeRoutes; faq: HomeFaqEntry[] }): string;
 export function renderHomeBlocksHtml(content: HomeContent, routes: HomeRoutes): string;

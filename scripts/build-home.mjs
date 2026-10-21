@@ -13,7 +13,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { decodeFirestore } from './permit-render.mjs';
-import { resolveHomeContent, buildHomeRoutes, applyHomeToIndexHtml } from '../shared/homeContent.mjs';
+import { resolveHomeContent, buildHomeRoutes, applyHomeToIndexHtml, routeCategories } from '../shared/homeContent.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const cfg = JSON.parse(fs.readFileSync(path.join(ROOT, 'firebase-applet-config.json'), 'utf8'));
@@ -83,8 +83,9 @@ try {
 }
 
 routes = routes.filter((r) => r && typeof r.slug === 'string' && /^[a-z0-9-]+$/.test(r.slug));
-const homeRoutes = buildHomeRoutes(routes);
 const content = resolveHomeContent(settings);
+const categories = routeCategories(content.blocks); // 路線分類 = 首頁的「路線清單」區塊（後台「首頁內容」分頁新增、改名、刪除）
+const homeRoutes = buildHomeRoutes(routes, categories.map((c) => c.id));
 const allPublished = routes
   .filter((r) => r.published !== false && r.h1 && r.metaTitle && r.metaDescription) // 與 build-routes.mjs 的上線條件一致
   .sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
@@ -92,7 +93,7 @@ const allPublished = routes
 // 只列出真的會有頁面的路線（缺 H1 / SEO 欄位的路線 build-routes 不會輸出頁面）
 const live = new Set(allPublished.map((r) => r.slug));
 const keepLive = (list) => list.filter((r) => live.has(r.slug));
-const finalRoutes = { popular: keepLive(homeRoutes.popular), more: keepLive(homeRoutes.more) };
+const finalRoutes = Object.fromEntries(Object.entries(homeRoutes).map(([g, list]) => [g, keepLive(list)]));
 
 const indexPath = path.join(ROOT, 'index.html');
 const html = fs.readFileSync(indexPath, 'utf8');
@@ -104,4 +105,5 @@ fs.writeFileSync(
   JSON.stringify({ _說明: '由 scripts/build-home.mjs 在建置時自動產生，請勿手動修改。', routes: finalRoutes }, null, 2) + '\n'
 );
 
-console.log(`[home] 資料來源：${source}；熱門 ${finalRoutes.popular.length} 條、更多 ${finalRoutes.more.length} 條、區塊 ${content.blocks.length} 個、FAQ ${content.faq.length} 題`);
+const catSummary = categories.map((c) => `${c.title}（${c.id}）${(finalRoutes[c.id] || []).length} 條`).join('、');
+console.log(`[home] 資料來源：${source}；路線分類 ${categories.length} 個：${catSummary}；區塊 ${content.blocks.length} 個、FAQ ${content.faq.length} 題`);

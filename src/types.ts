@@ -69,7 +69,7 @@ export interface RouteData {
   name: string;
   navName: string;
   listName: string;
-  group: 'popular' | 'more';
+  group: string;       // 路線分類代號：內建 popular（熱門）、more（更多），或後台新增的分類
   order: number;
   published: boolean;
   h1: string;
