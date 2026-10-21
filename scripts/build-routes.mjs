@@ -23,7 +23,12 @@ async function getJson(url) {
   const timer = setTimeout(() => ctl.abort(), 20000);
   try {
     const res = await fetch(url, { signal: ctl.signal });
-    if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
+    if (!res.ok) {
+      // 把 Google 回的原因一起印出來（只取訊息，不含網址與金鑰），方便判斷是規則、金鑰限制還是其他問題
+      let why = '';
+      try { const j = await res.json(); why = ` — ${j.error?.status || ''} ${j.error?.message || ''}`.trimEnd(); } catch { /* 沒有內容 */ }
+      throw new Error(`HTTP ${res.status} ${res.statusText}${why}`);
+    }
     return await res.json();
   } finally { clearTimeout(timer); }
 }
