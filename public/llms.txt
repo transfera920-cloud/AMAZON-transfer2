@@ -33,27 +33,16 @@
 - [南橫三星｜南橫登山口｜特生中心](https://transfer.amazon-hike.com/nanhengsanxing/)
 - [北大武山｜北大武登山口](https://transfer.amazon-hike.com/beidawu/)
 
-## 相關工具
-- [價格估算系統](https://price.amazon-hike.com/)
-- [郡大山・西巒大山接駁與共乘專站](https://shuttle.amazon-hike.com/)
-- [D0 住宿查詢](https://stays.amazon-hike.com/trailhead-stays)
-- [下山慶功宴查詢](https://feast.amazon-hike.com/)
-- [道路路線管制查詢](https://road.amazon-hike.com/)
+## 亞馬遜網站群（互相連結）
+- [亞馬遜國家山岳協會](https://amazon-hike.com/)：登山入門教學、百岳介紹、活動行事曆
+- [登山接駁費用試算](https://price.amazon-hike.com/)：輸入起點與登山口試算預估包車費用
+- [郡大山・西巒大山接駁與共乘](https://shuttle.amazon-hike.com/)：郡大林道四驅接駁、單日共乘、整車費用
+- [D0 登山口住宿查詢](https://stays.amazon-hike.com/trailhead-stays)：以 Google 地圖查詢登山口附近住宿與駕車時間
+- [下山慶功宴查詢](https://feast.amazon-hike.com/)：登山口附近餐廳與補給搜尋
+- [登山路況與道路管制查詢](https://road.amazon-hike.com/)：省道、林道、國家公園官方路況入口整理
+- [台灣林道通行狀況查詢](https://forestroad.amazon-hike.com/)：林業及自然保育署列管 83 條林道通報整理
+- [登山出團氣象確認清單](https://weather.amazon-hike.com/)：出團前特報、預報、雷達與降雨檢查清單
 
-## 相關組織
-- [亞馬遜國家山岳協會](https://amazon-hike.com/)：登山入門教學、百岳介紹、活動行事曆與花絮。亞馬遜高山接駁與協會是同一位經營者營運的兩個獨立單位，接駁並非協會旗下服務。
-
-## 關於本站與相關網站
-- 亞馬遜高山接駁（transfer.amazon-hike.com）是亞馬遜國家山岳協會旗下的登山口包車接送服務網站。
-- [亞馬遜國家山岳協會（主站）](https://amazon-hike.com/)：活動行事曆、登山入門教學、登山工具與活動花絮。
-- [價格估算系統](https://price.amazon-hike.com/)：試算各登山口的包車費用。
-- [D0 住宿查詢](https://stays.amazon-hike.com/trailhead-stays)、[下山慶功宴查詢](https://feast.amazon-hike.com/)、[道路路線管制查詢](https://road.amazon-hike.com/)。
-
-## 常見問答
-- 怎麼預約？先用價格估算系統試算費用，再透過 LINE（https://lin.ee/TJJLV36）或電話 0972573495 詢問日期是否有車趟。
-- 可以只搭單程嗎？可以。A進B出（入山口與下山口不同）請在詢問時說明兩個登山口與日期。
-- 建議凌晨直接起登嗎？建議安排交通日（D0）：下班後先出發、前一晚住登山口附近，睡眠與行車安全都比較好。
-- 入園入山要申請嗎？依路線而定，請見[入園入山申請入口整理](https://transfer.amazon-hike.com/permit/)，並以各管理機關公告為準。
-- 路況與管制時間以官方公告為準，出發前請再確認。
-
-最後更新：2026-10-21
+## 營運說明
+亞馬遜高山接駁與亞馬遜國家山岳協會由同一位經營者營運，是兩個獨立單位；接駁、價格、住宿、餐廳與路況工具歸屬亞馬遜高山接駁網站群，登山教學與百岳介紹歸屬亞馬遜國家山岳協會。
+各站資訊為整理與估算，實際路況、管制、價格與房況以官方公告或 LINE 專人回覆為準。
