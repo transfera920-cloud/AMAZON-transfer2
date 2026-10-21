@@ -118,13 +118,100 @@ export const AdminModal: React.FC<AdminModalProps> = ({
     });
   };
 
-  const addCardLink = (cardIdx: number) => {
-    setFormData(prev => {
+  // ---- 彈窗連結清單：依「分類」分成區塊（依第一次出現的順序），可調整區塊與區塊內連結順序 ----
+  const groupLinks = (links: CardLink[]) => {
+    const groups: { name: string; items: { link: CardLink; idx: number }[] }[] = [];
+    links.forEach((link, idx) => {
+      const name = (link.group || '').trim();
+      const g = groups.find((x) => x.name === name);
+      if (g) g.items.push({ link, idx });
+      else groups.push({ name, items: [{ link, idx }] });
+    });
+    return groups;
+  };
+
+  const flattenGroups = (groups: { items: { link: CardLink }[] }[]): CardLink[] =>
+    groups.flatMap((g) => g.items.map((i) => i.link));
+
+  const updateLinks = (cardIdx: number, fn: (links: CardLink[]) => CardLink[]) => {
+    setFormData((prev) => {
       const newCards = [...prev.cards];
-      const links = [...(newCards[cardIdx].links || []), { group: '', label: '', url: '' }];
-      newCards[cardIdx] = { ...newCards[cardIdx], links };
+      newCards[cardIdx] = { ...newCards[cardIdx], links: fn(newCards[cardIdx].links || []) };
       return { ...prev, cards: newCards };
     });
+  };
+
+  const addLinkToGroup = (cardIdx: number, groupName: string) => {
+    updateLinks(cardIdx, (links) => {
+      const groups = groupLinks(links);
+      const g = groups.find((x) => x.name === groupName);
+      const newLink: CardLink = { group: groupName, label: '', url: '' };
+      if (g) g.items.push({ link: newLink, idx: -1 });
+      else groups.push({ name: groupName, items: [{ link: newLink, idx: -1 }] });
+      return flattenGroups(groups);
+    });
+  };
+
+  const addLinkGroup = (cardIdx: number) => {
+    updateLinks(cardIdx, (links) => {
+      const names = new Set(links.map((l) => (l.group || '').trim()));
+      let name = '新分類';
+      let n = 2;
+      while (names.has(name)) name = `新分類${n++}`;
+      return [...links, { group: name, label: '', url: '' }];
+    });
+  };
+
+  const renameLinkGroup = (cardIdx: number, oldName: string, newName: string) => {
+    updateLinks(cardIdx, (links) =>
+      flattenGroups(
+        groupLinks(
+          links.map((l) => ((l.group || '').trim() === oldName ? { ...l, group: newName } : l))
+        )
+      )
+    );
+  };
+
+  const removeLinkGroup = (cardIdx: number, groupName: string) => {
+    const label = groupName || '未分類';
+    if (!window.confirm(`確定要刪除「${label}」整個區塊（含區塊內所有連結）嗎？`)) return;
+    updateLinks(cardIdx, (links) => links.filter((l) => (l.group || '').trim() !== groupName));
+  };
+
+  const moveLinkGroup = (cardIdx: number, groupIdx: number, direction: 'up' | 'down') => {
+    updateLinks(cardIdx, (links) => {
+      const groups = groupLinks(links);
+      const t = direction === 'up' ? groupIdx - 1 : groupIdx + 1;
+      if (t < 0 || t >= groups.length) return links;
+      [groups[groupIdx], groups[t]] = [groups[t], groups[groupIdx]];
+      return flattenGroups(groups);
+    });
+  };
+
+  const moveLinkInGroup = (
+    cardIdx: number,
+    groupName: string,
+    pos: number,
+    direction: 'up' | 'down'
+  ) => {
+    updateLinks(cardIdx, (links) => {
+      const groups = groupLinks(links);
+      const g = groups.find((x) => x.name === groupName);
+      if (!g) return links;
+      const t = direction === 'up' ? pos - 1 : pos + 1;
+      if (t < 0 || t >= g.items.length) return links;
+      [g.items[pos], g.items[t]] = [g.items[t], g.items[pos]];
+      return flattenGroups(groups);
+    });
+  };
+
+  // 把某筆連結移到另一個區塊（放在該區塊最後）
+  const moveLinkToGroup = (cardIdx: number, linkIdx: number, targetGroup: string) => {
+    updateLinks(cardIdx, (links) =>
+      flattenGroups(
+        groupLinks(links.map((l, i) => (i === linkIdx ? { ...l, group: targetGroup } : l)))
+      )
+    );
   };
 
   const removeCardLink = (cardIdx: number, linkIdx: number) => {
@@ -680,51 +767,134 @@ export const AdminModal: React.FC<AdminModalProps> = ({
                     />
                   </div>
 
-                  {/* 彈窗連結清單：有填時，前台點卡片會跳出清單，只顯示文字不顯示網址 */}
+                  {/* 彈窗連結清單：有填時，前台點卡片會跳出清單，只顯示文字不顯示網址；可調整區塊與連結順序 */}
                   <div className="bg-white border border-emerald-200 rounded-lg p-2.5 space-y-2">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-wrap items-center justify-between gap-1.5">
                       <span className="text-[11px] font-bold text-emerald-800">
-                        彈窗連結清單（有填就會取代上方「連結」，前台只顯示文字、不顯示網址）
+                        彈窗連結清單（有填就會取代上方「連結」，前台只顯示文字、不顯示網址；可用 ↑↓ 調整區塊與連結順序）
                       </span>
                       <button
                         type="button"
-                        onClick={() => addCardLink(idx)}
+                        onClick={() => addLinkGroup(idx)}
                         className="text-[11px] bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded flex items-center gap-1"
                       >
-                        <Plus className="w-3 h-3" /> 新增連結
+                        <Plus className="w-3 h-3" /> 新增分類區塊
                       </button>
                     </div>
-                    {(card.links || []).map((lk, li) => (
-                      <div key={li} className="grid grid-cols-1 sm:grid-cols-[1fr_1.2fr_2fr_auto] gap-1.5 items-center">
-                        <input
-                          type="text"
-                          value={lk.group}
-                          onChange={(e) => updateCardLink(idx, li, 'group', e.target.value)}
-                          placeholder="分類（例：國家公園）"
-                          className="bg-white border border-gray-300 p-1.5 rounded text-xs focus:ring-1 focus:ring-emerald-500 focus:outline-none"
-                        />
-                        <input
-                          type="text"
-                          value={lk.label}
-                          onChange={(e) => updateCardLink(idx, li, 'label', e.target.value)}
-                          placeholder="顯示文字"
-                          className="bg-white border border-gray-300 p-1.5 rounded text-xs font-bold focus:ring-1 focus:ring-emerald-500 focus:outline-none"
-                        />
-                        <input
-                          type="text"
-                          value={lk.url}
-                          onChange={(e) => updateCardLink(idx, li, 'url', e.target.value)}
-                          placeholder="https://..."
-                          className="bg-white border border-gray-300 p-1.5 rounded text-xs font-mono focus:ring-1 focus:ring-emerald-500 focus:outline-none"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeCardLink(idx, li)}
-                          className="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50"
-                          title="刪除此連結"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
+
+                    {groupLinks(card.links || []).map((g, gi, groupArr) => (
+                      <div
+                        key={`${card.id}-g-${g.items[0].idx}`}
+                        className="border border-emerald-300 rounded-lg bg-emerald-50/50 p-2 space-y-1.5"
+                      >
+                        {/* 區塊標題列：改名 / 調整區塊順序 / 新增連結 / 刪除區塊 */}
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <div className="w-5 h-5 rounded bg-emerald-200 text-emerald-900 flex items-center justify-center font-bold text-[10px] shrink-0">
+                            {gi + 1}
+                          </div>
+                          <input
+                            type="text"
+                            value={g.name}
+                            onChange={(e) => renameLinkGroup(idx, g.name, e.target.value)}
+                            placeholder="區塊名稱（可留空＝未分類）"
+                            className="flex-1 min-w-[140px] bg-white border border-emerald-300 p-1.5 rounded text-xs font-bold text-emerald-900 focus:ring-1 focus:ring-emerald-500 focus:outline-none"
+                          />
+                          <button
+                            type="button"
+                            disabled={gi === 0}
+                            onClick={() => moveLinkGroup(idx, gi, 'up')}
+                            className="p-1 text-gray-600 hover:text-gray-900 disabled:opacity-30 rounded hover:bg-emerald-100"
+                            title="整個區塊往上移"
+                          >
+                            <ArrowUp className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            disabled={gi === groupArr.length - 1}
+                            onClick={() => moveLinkGroup(idx, gi, 'down')}
+                            className="p-1 text-gray-600 hover:text-gray-900 disabled:opacity-30 rounded hover:bg-emerald-100"
+                            title="整個區塊往下移"
+                          >
+                            <ArrowDown className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => addLinkToGroup(idx, g.name)}
+                            className="text-[11px] bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded flex items-center gap-1"
+                          >
+                            <Plus className="w-3 h-3" /> 新增連結
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => removeLinkGroup(idx, g.name)}
+                            className="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50"
+                            title="刪除整個區塊"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+
+                        {/* 區塊內連結 */}
+                        {g.items.map(({ link: lk, idx: li }, pi) => (
+                          <div key={li} className="flex flex-wrap sm:flex-nowrap items-center gap-1.5">
+                            <div className="flex items-center shrink-0">
+                              <button
+                                type="button"
+                                disabled={pi === 0}
+                                onClick={() => moveLinkInGroup(idx, g.name, pi, 'up')}
+                                className="p-1 text-gray-500 hover:text-gray-800 disabled:opacity-30 rounded hover:bg-gray-200"
+                                title="往上移"
+                              >
+                                <ArrowUp className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                type="button"
+                                disabled={pi === g.items.length - 1}
+                                onClick={() => moveLinkInGroup(idx, g.name, pi, 'down')}
+                                className="p-1 text-gray-500 hover:text-gray-800 disabled:opacity-30 rounded hover:bg-gray-200"
+                                title="往下移"
+                              >
+                                <ArrowDown className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                            <input
+                              type="text"
+                              value={lk.label}
+                              onChange={(e) => updateCardLink(idx, li, 'label', e.target.value)}
+                              placeholder="顯示文字"
+                              className="flex-1 min-w-[110px] bg-white border border-gray-300 p-1.5 rounded text-xs font-bold focus:ring-1 focus:ring-emerald-500 focus:outline-none"
+                            />
+                            <input
+                              type="text"
+                              value={lk.url}
+                              onChange={(e) => updateCardLink(idx, li, 'url', e.target.value)}
+                              placeholder="https://..."
+                              className="flex-[2] min-w-[140px] bg-white border border-gray-300 p-1.5 rounded text-xs font-mono focus:ring-1 focus:ring-emerald-500 focus:outline-none"
+                            />
+                            {groupArr.length > 1 && (
+                              <select
+                                value={g.name}
+                                onChange={(e) => moveLinkToGroup(idx, li, e.target.value)}
+                                className="bg-white border border-gray-300 p-1.5 rounded text-[11px] max-w-[110px] focus:ring-1 focus:ring-emerald-500 focus:outline-none"
+                                title="移到其他區塊"
+                              >
+                                {groupArr.map((og, oi) => (
+                                  <option key={oi} value={og.name}>
+                                    {og.name || '（未分類）'}
+                                  </option>
+                                ))}
+                              </select>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => removeCardLink(idx, li)}
+                              className="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50"
+                              title="刪除此連結"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        ))}
                       </div>
                     ))}
                   </div>

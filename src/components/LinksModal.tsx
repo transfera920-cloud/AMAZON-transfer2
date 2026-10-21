@@ -75,6 +75,14 @@ export const LinksModal: React.FC<LinksModalProps> = ({ card, onClose }) => {
               </div>
             </div>
           ))}
+          {/入園|入山/.test(card.title || '') && (
+            <a
+              href="/permit/"
+              className="block text-center text-xs font-semibold text-emerald-700 hover:text-emerald-900 underline underline-offset-2 pt-1"
+            >
+              查看入園入山申請說明
+            </a>
+          )}
         </div>
       </div>
     </div>

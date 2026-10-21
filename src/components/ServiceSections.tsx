@@ -186,6 +186,19 @@ export const RoadStatusGuideSection: React.FC = () => (
 const FAQ_LINK_CLASS =
   'font-semibold text-[#00e676] hover:text-white underline decoration-emerald-600/50 underline-offset-2 transition-colors';
 
+export const PermitGuideSection: React.FC = () => (
+  <SectionShell title="入園入山申請">
+    <p>
+      登山前的入園、入山與山屋營地申請，分屬不同的管理機關。我們把國家公園、林業及自然保育署、警政署等官方申請入口整理在同一頁，並說明申請與接駁預約的安排順序，出發前可以逐項對照確認。
+    </p>
+    <p>
+      <a href="/permit/" className={FAQ_LINK_CLASS}>
+        查看入園入山申請入口整理
+      </a>
+    </p>
+  </SectionShell>
+);
+
 export const HomeFaqSection: React.FC = () => (
   <SectionShell title="常見問題">
     <div className="space-y-4">
