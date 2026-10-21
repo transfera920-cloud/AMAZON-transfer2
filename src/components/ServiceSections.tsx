@@ -28,7 +28,7 @@ export const TrailheadCharterSection: React.FC = () => (
     <p>
       可使用上方「價格估算系統」，先試算各路線的包車費用；前往郡大山（望鄉部落、郡大林道）請改用
       <a
-        href="https://yun-da-xi-luan-connect.lovable.app/"
+        href="https://shuttle.amazon-hike.com/"
         target="_blank"
         rel="noopener noreferrer"
         className="font-semibold text-[#00e676] hover:text-white underline decoration-emerald-600/50 underline-offset-2 transition-colors"

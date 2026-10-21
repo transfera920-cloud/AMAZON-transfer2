@@ -101,7 +101,9 @@ const CARD_URL_REWRITES: Record<string, string> = {
   'https://summit-route-advisor.lovable.app': 'https://price.amazon-hike.com/',
   'https://re-use-your-stuff.lovable.app': 'https://price.amazon-hike.com/',
   'https://google-trek-finder.lovable.app/trailhead-stays': 'https://stays.amazon-hike.com/trailhead-stays',
-  'https://summit-feast-finder.lovable.app': 'https://feast.amazon-hike.com/'
+  'https://summit-feast-finder.lovable.app': 'https://feast.amazon-hike.com/',
+  'https://yun-da-xi-luan-connect.lovable.app': 'https://shuttle.amazon-hike.com/',
+  'https://mountain-vigil.lovable.app': 'https://weather.amazon-hike.com/'
 };
 
 function normalizeCardUrl(c: any): any {

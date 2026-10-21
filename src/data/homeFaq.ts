@@ -36,7 +36,7 @@ export const HOME_FAQ: HomeFaqItem[] = [
       "可先使用本站的",
       { text: "價格估算系統", href: "https://price.amazon-hike.com/" },
       "試算各路線的包車費用，依序選擇出發城市、車型、行程模式（來回或單程）、乘客人數，以及是否夜間出發。前往郡大山（望鄉部落、郡大林道）請改用",
-      { text: "郡大山專用價格估算系統", href: "https://yun-da-xi-luan-connect.lovable.app/" },
+      { text: "郡大山專用價格估算系統", href: "https://shuttle.amazon-hike.com/" },
       "。",
     ],
   },
