@@ -16,6 +16,12 @@ const MODAL_KEYS: Record<string, Exclude<ActiveModalType, null | 'admin'>> = {
   '#road': 'road',
 };
 
+const PERMIT_PAGE_PATH = '/permit/';
+
+function isPermitGuideCard(card: CardItem): boolean {
+  return /入園|入山/.test(card.title || '');
+}
+
 function resolveCardLink(card: CardItem): { href: string; isModal: boolean; isExternal: boolean } {
   const rawUrl = (card.url || '').trim();
 
@@ -65,8 +71,12 @@ export const CardsGrid: React.FC<CardsGridProps> = ({ sectionTitle, cards, onOpe
 
       <div id="cards-grid" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5">
         {cards.map((card) => {
-          const hasLinks = !!card.links && card.links.some((l) => l.label?.trim() && l.url?.trim());
-          const resolved = resolveCardLink(card);
+          // 「入園入山申請系統」改為站內獨立頁面（/permit/），內容與順序仍由後台這張卡片的連結清單決定
+          const isPermitCard = isPermitGuideCard(card);
+          const hasLinks = !isPermitCard && !!card.links && card.links.some((l) => l.label?.trim() && l.url?.trim());
+          const resolved = isPermitCard
+            ? { href: PERMIT_PAGE_PATH, isModal: false, isExternal: false }
+            : resolveCardLink(card);
           const href = hasLinks ? '#' : resolved.href;
           const isModal = hasLinks ? true : resolved.isModal;
           const isExternal = hasLinks ? false : resolved.isExternal;
