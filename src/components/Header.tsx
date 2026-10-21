@@ -41,7 +41,7 @@ export const Header: React.FC<HeaderProps> = ({ data, onOpenAdmin, isCloudConnec
               id="site-brand"
               href="https://amazon-hike.com/"
               target="_blank"
-              rel="noopener noreferrer"
+              rel="noopener"
               className="inline-flex items-center gap-1.5 text-emerald-300 hover:text-white transition-colors text-sm md:text-base tracking-widest font-semibold py-1 px-3.5 rounded-full hover:bg-emerald-900/40 border border-emerald-700/30 hover:border-emerald-500/60 group"
               title="前往 亞馬遜高山接駁 官方主網站 (amazon-hike.com)"
             >

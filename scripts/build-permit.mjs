@@ -132,8 +132,13 @@ if(el)el.innerHTML=renderGroups(groups,descs);
 <meta property="og:description" content="${esc(desc)}" />
 <meta property="og:url" content="${url}" />
 <meta property="og:type" content="website" />
+<meta property="og:locale" content="zh_TW" />
 <meta property="og:site_name" content="亞馬遜高山接駁" />
 <meta property="og:image" content="${SITE}/images/og-cover.jpg" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="${esc(h1)}" />
+<meta name="twitter:description" content="${esc(desc)}" />
+<meta name="twitter:image" content="${SITE}/images/og-cover.jpg" />
 <script type="application/ld+json">${JSON.stringify(ld)}</script>
 <style>
 :root{color-scheme:dark}
@@ -200,6 +205,7 @@ ${FAQ.map((f) => `<h3>${esc(f.q)}</h3>\n<p>${esc(f.a)}</p>`).join('\n')}
 
 <h2>其他登山接駁路線</h2>
 <p><a href="/hehuanshan/">合歡山</a> ｜ <a href="/xueshan/">雪山</a> ｜ <a href="/wulingshanzhuang/">武陵四秀</a> ｜ <a href="/yushan/">玉山</a> ｜ <a href="/jiaminghu/">嘉明湖</a> ｜ <a href="/qilai-nanhua/">奇萊南華</a> ｜ <a href="/dabajianshan/">大霸尖山</a> ｜ <a href="/jundashan/">郡大山</a></p>
+<p>延伸閱讀：<a href="https://amazon-hike.com/" target="_blank" rel="noopener">亞馬遜國家山岳協會</a>提供登山入門教學與百岳介紹，行前功課可一併參考。</p>
 <p style="margin-top:40px"><a href="/">← 回到亞馬遜高山接駁首頁</a></p>
 </main>
 <script>${clientScript}</script>
