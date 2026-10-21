@@ -21,14 +21,16 @@ import { AdminModal } from './components/AdminModal';
 import { AdminLoginModal } from './components/AdminLoginModal';
 import { AdminRoutesPanel } from './components/AdminRoutesPanel';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { auth } from './firebase';
+import { auth, db } from './firebase';
 import { ADMIN_EMAIL } from './data/adminConfig';
 import { PriceCalcModal } from './components/PriceCalcModal';
 import { D0LodgingModal } from './components/D0LodgingModal';
 import { FeastModal } from './components/FeastModal';
 import { RoadStatusModal } from './components/RoadStatusModal';
 import { HomeBlocks } from './components/HomeBlocks';
-import { resolveHomeContent } from '../shared/homeContent.mjs';
+import { resolveHomeContent, routeCategories, buildHomeRoutes } from '../shared/homeContent.mjs';
+import type { HomeRoutes } from '../shared/homeContent.mjs';
+import { collection, onSnapshot } from 'firebase/firestore';
 import homeGenerated from './data/home.generated.json';
 
 export default function App() {
@@ -55,6 +57,24 @@ export default function App() {
     () => resolveHomeContent({ popularRoutesTitle: siteData.popularRoutesTitle, homeBlocks: siteData.homeBlocks, homeFaq: siteData.homeFaq }),
     [siteData.popularRoutesTitle, siteData.homeBlocks, siteData.homeFaq]
   );
+
+  // 首頁路線清單：先用建置時產生的資料（立刻有畫面），再改讀資料庫的路線資料，
+  // 這樣後台改的名稱、說明、分類、順序，以及新增的路線，儲存後首頁馬上更新，不必等「發布到網站」。
+  const [liveRoutes, setLiveRoutes] = useState<any[] | null>(null);
+  useEffect(() => {
+    return onSnapshot(
+      collection(db, 'routes'),
+      (snap) => setLiveRoutes(snap.docs.map((d) => d.data())),
+      (err) => console.warn('路線即時資料讀取失敗，使用建置時的清單：', err)
+    );
+  }, []);
+  const homeRoutes = useMemo<HomeRoutes>(() => {
+    if (!liveRoutes || !liveRoutes.length) return homeGenerated.routes as HomeRoutes;
+    // 與 build-home.mjs 相同的上線條件：已發布且 H1／SEO 欄位齊全
+    const live = liveRoutes.filter((r) => r && typeof r.slug === 'string' && r.h1 && r.metaTitle && r.metaDescription);
+    const ids = routeCategories(homeContent.blocks).map((c) => c.id);
+    return buildHomeRoutes(live, ids);
+  }, [liveRoutes, homeContent]);
 
   const handleOpenAdmin = () => {
     if (isAdminLoggedIn) {
@@ -153,7 +173,7 @@ export default function App() {
           onOpenModal={(modalType) => setActiveModal(modalType)}
         />
 
-        <HomeBlocks content={homeContent} routes={homeGenerated.routes} />
+        <HomeBlocks content={homeContent} routes={homeRoutes} />
 
         {/* 關於我們區塊 */}
         <AboutSection

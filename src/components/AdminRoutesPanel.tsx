@@ -506,6 +506,9 @@ export const AdminRoutesPanel: React.FC<Props> = ({ isOpen, onClose }) => {
             <AdminHomePanel
               initial={homeInitial}
               routes={routes}
+              missingSeedCount={missingSeeds.length}
+              onImportSeeds={importSeeds}
+              onPatchRoute={patchRoute}
               onSaved={(m) => { say(m); load(); }}
               onError={(m) => setError(m)}
               onDirtyChange={setHomeDirty}

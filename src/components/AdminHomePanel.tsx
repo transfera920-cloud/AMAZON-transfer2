@@ -78,17 +78,47 @@ const FaqEditor: React.FC<{ items: HomeFaqEntry[]; onChange: (v: HomeFaqEntry[])
 /** 內建分類：路線頁導覽與 llms.txt 會用到「熱門」「更多」，所以只能改名、不能刪除 */
 const BUILTIN_GROUPS = ['popular', 'more'];
 
-type RouteLite = Pick<RouteData, 'slug' | 'name' | 'group' | 'published'>;
+type RouteLite = Pick<RouteData, 'slug' | 'name' | 'group' | 'published' | 'order' | 'homeName' | 'homeDesc'>;
+
+/** 分類底下的一條路線：直接改首頁顯示名稱、說明、所屬分類（離開欄位就儲存），和首頁清單上看到的一樣 */
+const HomeRouteEditRow: React.FC<{
+  r: RouteLite;
+  categories: { id: string; title: string }[];
+  onPatch: (slug: string, patch: Partial<RouteData>, msg: string) => void;
+}> = ({ r, categories, onPatch }) => {
+  const [name, setName] = useState(r.homeName || '');
+  const [desc, setDesc] = useState(r.homeDesc || '');
+  useEffect(() => { setName(r.homeName || ''); setDesc(r.homeDesc || ''); }, [r.homeName, r.homeDesc]);
+  const commit = () => {
+    if (name === (r.homeName || '') && desc === (r.homeDesc || '')) return;
+    onPatch(r.slug, { homeName: name.trim(), homeDesc: desc.trim() }, '已儲存首頁顯示文字');
+  };
+  const enter = (e: React.KeyboardEvent<HTMLInputElement>) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); };
+  return (
+    <div className="flex flex-wrap items-center gap-2 py-1.5">
+      <input className={`${inputCls} flex-1 min-w-[200px] font-semibold`} value={name} onChange={(e) => setName(e.target.value)} onBlur={commit} onKeyDown={enter} placeholder="首頁顯示名稱" />
+      <input className={`${inputCls} flex-[2] min-w-[200px]`} value={desc} onChange={(e) => setDesc(e.target.value)} onBlur={commit} onKeyDown={enter} placeholder="說明（可留空）" />
+      <select className="text-xs border border-gray-300 rounded-lg px-2 py-1.5 bg-white cursor-pointer max-w-[160px]" value={r.group} onChange={(e) => onPatch(r.slug, { group: e.target.value }, '已更換分類')}>
+        {categories.map((c) => <option key={c.id} value={c.id}>{c.title}</option>)}
+        {!categories.some((c) => c.id === r.group) && <option value={r.group}>（分類已刪除）</option>}
+      </select>
+      {!r.published && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200">未發布</span>}
+    </div>
+  );
+};
 
 interface Props {
   initial: HomeContent;
   routes: RouteLite[];
+  missingSeedCount: number;
+  onImportSeeds: () => void;
+  onPatchRoute: (slug: string, patch: Partial<RouteData>, msg: string) => void;
   onSaved: (msg: string) => void;
   onError: (msg: string) => void;
   onDirtyChange: (dirty: boolean) => void;
 }
 
-export const AdminHomePanel: React.FC<Props> = ({ initial, routes, onSaved, onError, onDirtyChange }) => {
+export const AdminHomePanel: React.FC<Props> = ({ initial, routes, missingSeedCount, onImportSeeds, onPatchRoute, onSaved, onError, onDirtyChange }) => {
   const [blocks, setBlocks] = useState<HomeBlock[]>(initial.blocks);
   const [faq, setFaq] = useState<HomeFaqEntry[]>(initial.faq);
   const [permitFaq, setPermitFaq] = useState<HomeFaqEntry[]>(initial.permitFaq);
@@ -117,6 +147,11 @@ export const AdminHomePanel: React.FC<Props> = ({ initial, routes, onSaved, onEr
   // 目前已存在資料庫的分類代號（用來判斷這次儲存刪掉了哪些分類）
   const savedGroups = useMemo(
     () => initial.blocks.filter((b) => b.kind === 'routes').map((b) => (b as Extract<HomeBlock, { kind: 'routes' }>).group),
+    [initial]
+  );
+
+  const savedCategories = useMemo(
+    () => initial.blocks.filter((b) => b.kind === 'routes').map((b) => ({ id: (b as Extract<HomeBlock, { kind: 'routes' }>).group, title: b.title || (b as Extract<HomeBlock, { kind: 'routes' }>).group })),
     [initial]
   );
 
@@ -227,6 +262,13 @@ export const AdminHomePanel: React.FC<Props> = ({ initial, routes, onSaved, onEr
         </div>
       </div>
 
+      {missingSeedCount > 0 && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex flex-wrap items-center justify-between gap-2 text-xs text-amber-900">
+          <span>首頁原本的路線（{missingSeedCount} 條）還沒放進後台，所以下面看不到、也改不了。按右邊的按鈕匯入後就能編輯。</span>
+          <button className="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold cursor-pointer" onClick={onImportSeeds}>匯入預設路線</button>
+        </div>
+      )}
+
       {warnings.length > 0 && (
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-900 space-y-1">
           <div className="font-bold flex items-center gap-1.5"><AlertTriangle className="w-4 h-4" />提醒（不影響儲存）</div>
@@ -283,13 +325,18 @@ export const AdminHomePanel: React.FC<Props> = ({ initial, routes, onSaved, onEr
 
             {b.kind === 'routes' && (
               <div className="text-[11px] text-gray-600 space-y-1.5">
-                <p>
-                  {(() => {
-                    const inCat = routes.filter((r) => r.group === b.group);
-                    return `目前 ${inCat.length} 條路線（已發布 ${inCat.filter((r) => r.published).length} 條）${BUILTIN_GROUPS.includes(b.group) ? '，內建分類' : ''}。`;
-                  })()}
-                  要把路線放進這個分類，或修改首頁上的路線名稱與說明，請到「路線」分頁（在清單上直接改）。
-                </p>
+                {(() => {
+                  const inCat = routes.filter((r) => r.group === b.group).sort((x, y) => (x.order || 0) - (y.order || 0));
+                  return (
+                    <>
+                      <p>目前 {inCat.length} 條路線（已發布 {inCat.filter((r) => r.published).length} 條）。下面就是首頁這個清單的內容：直接改名稱、說明，或換到別的分類（離開欄位就儲存；順序請到「路線」分頁調整）。</p>
+                      <div className="bg-white border border-gray-200 rounded-lg px-2.5 divide-y divide-gray-100">
+                        {inCat.map((r) => <HomeRouteEditRow key={r.slug} r={r} categories={savedCategories} onPatch={onPatchRoute} />)}
+                        {!inCat.length && <p className="py-2 text-gray-400">這個分類還沒有路線。</p>}
+                      </div>
+                    </>
+                  );
+                })()}
                 <label className="flex items-center gap-1.5 cursor-pointer text-xs text-gray-700">
                   <input type="checkbox" checked={b.collapsed} onChange={(e) => updBlock(i, { collapsed: e.target.checked })} />
                   預設收合（顯示「展開查看 N 條路線」）
