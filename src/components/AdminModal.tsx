@@ -17,7 +17,8 @@ import {
   Link as LinkIcon,
   Cloud,
   Loader2,
-  LogOut
+  LogOut,
+  FileText
 } from 'lucide-react';
 import { DynamicIcon } from './DynamicIcon';
 
@@ -28,6 +29,7 @@ interface AdminModalProps {
   onSave: (newData: SiteData) => Promise<void> | void;
   isCloudConnected?: boolean;
   onLogout?: () => void;
+  onOpenRoutes?: () => void;
 }
 
 const COMMON_ICONS = [
@@ -48,7 +50,8 @@ export const AdminModal: React.FC<AdminModalProps> = ({
   data,
   onSave,
   isCloudConnected = false,
-  onLogout
+  onLogout,
+  onOpenRoutes
 }) => {
   const [formData, setFormData] = useState<SiteData>(data);
   const [newFeatureText, setNewFeatureText] = useState('');
@@ -352,6 +355,22 @@ export const AdminModal: React.FC<AdminModalProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
+            {onOpenRoutes && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (JSON.stringify(formData) !== JSON.stringify(data) && !window.confirm('首頁設定有尚未儲存的修改，切換後會捨棄，確定嗎？')) return;
+                  onOpenRoutes();
+                }}
+                disabled={isSaving}
+                className="text-xs bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white px-3 py-1.5 rounded-lg flex items-center gap-1 transition cursor-pointer"
+                title="編輯各路線頁與首頁內容"
+              >
+                <FileText className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">內容管理</span>
+              </button>
+            )}
+
             <button
               onClick={handleResetToDefault}
               disabled={isSaving}

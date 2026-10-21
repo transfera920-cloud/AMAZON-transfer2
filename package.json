@@ -10,8 +10,9 @@
   },
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
-    "videos": "node scripts/build-permit.mjs && node scripts/build-videos.mjs && node scripts/build-articles.mjs",
-    "build": "node scripts/build-permit.mjs && node scripts/build-videos.mjs && node scripts/build-articles.mjs && vite build",
+    "routes": "node scripts/build-routes.mjs && node scripts/build-home.mjs && node scripts/build-permit.mjs",
+    "build": "node scripts/build-routes.mjs && node scripts/build-home.mjs && node scripts/build-permit.mjs && vite build",
+    "routes:offline": "ROUTES_ALLOW_SEED=1 node scripts/build-routes.mjs && ROUTES_ALLOW_SEED=1 node scripts/build-home.mjs",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit"

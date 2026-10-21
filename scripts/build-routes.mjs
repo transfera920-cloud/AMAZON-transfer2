@@ -1,0 +1,148 @@
+// 建置時：讀取後台（Firestore routes 集合）→ 產生 public/<slug>/index.html、sitemap.xml、llms.txt。
+//
+// 資料來源規則（重要）：
+//   1. 讀得到 Firestore 且有資料        → 用 Firestore（後台編輯的內容）。
+//   2. 讀得到 Firestore 但集合是空的    → 用 src/data/routes.seed.json（第一次部署，尚未在後台匯入）。
+//   3. 讀取失敗（網路、權限、HTTP 錯誤）→ 建置直接失敗（exit 1），Cloudflare 會保留上一版網站，
+//      不會用舊內容悄悄蓋掉後台的新內容。
+//      本機離線測試可設環境變數 ROUTES_ALLOW_SEED=1，改用 seed 繼續。
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { decodeFirestore } from './permit-render.mjs';
+import { renderRoutePage, esc, SITE } from '../shared/renderRoutePage.mjs';
+
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const PUB = path.join(ROOT, 'public');
+const cfg = JSON.parse(fs.readFileSync(path.join(ROOT, 'firebase-applet-config.json'), 'utf8'));
+const BASE = process.env.FIRESTORE_BASE_URL || `https://firestore.googleapis.com/v1/projects/${cfg.projectId}/databases/${cfg.firestoreDatabaseId}/documents`; // FIRESTORE_BASE_URL 僅供本機測試
+const ALLOW_SEED = process.env.ROUTES_ALLOW_SEED === '1';
+
+async function getJson(url) {
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), 20000);
+  try {
+    const res = await fetch(url, { signal: ctl.signal });
+    if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
+    return await res.json();
+  } finally { clearTimeout(timer); }
+}
+
+async function fetchRoutes() {
+  const out = [];
+  let token = '';
+  do {
+    const j = await getJson(`${BASE}/routes?pageSize=100&key=${cfg.apiKey}${token ? `&pageToken=${encodeURIComponent(token)}` : ''}`);
+    for (const d of j.documents || []) out.push(decodeFirestore({ mapValue: { fields: d.fields || {} } }));
+    token = j.nextPageToken || '';
+  } while (token);
+  return out;
+}
+
+async function fetchContact() {
+  try {
+    const j = await getJson(`${BASE}/settings/general?key=${cfg.apiKey}`);
+    const d = decodeFirestore({ mapValue: { fields: j.fields || {} } });
+    const c = {};
+    if (typeof d.lineUrl === 'string' && /^https?:\/\//.test(d.lineUrl)) c.lineUrl = d.lineUrl;
+    if (typeof d.phone === 'string' && /^[0-9+\-\s]{6,}$/.test(d.phone.trim())) c.phone = d.phone.trim();
+    return c;
+  } catch (e) {
+    console.warn(`[routes] 讀取聯絡資料失敗，使用預設值：${e.message}`);
+    return {};
+  }
+}
+
+function loadSeed() {
+  return JSON.parse(fs.readFileSync(path.join(ROOT, 'src', 'data', 'routes.seed.json'), 'utf8'));
+}
+
+function normalize(r) {
+  const arr = (v) => (Array.isArray(v) ? v : []);
+  return {
+    ...r,
+    published: r.published !== false,
+    group: r.group === 'more' ? 'more' : 'popular',
+    order: Number(r.order) || 0,
+    sections: arr(r.sections),
+    faq: arr(r.faq),
+    articles: arr(r.articles),
+    video: r.video && typeof r.video === 'object' ? { ...r.video, summary: arr(r.video.summary) } : {},
+    prep: r.prep && typeof r.prep === 'object' ? r.prep : { heading: '', body: '' },
+    updatedAt: /^\d{4}-\d{2}-\d{2}$/.test(r.updatedAt || '') ? r.updatedAt : new Date().toISOString().slice(0, 10),
+  };
+}
+
+// ---------- 取得資料 ----------
+let routes;
+let source;
+try {
+  routes = await fetchRoutes();
+  if (routes.length) source = 'Firestore';
+  else { routes = loadSeed(); source = 'seed（Firestore routes 集合是空的，請到後台「路線內容管理」匯入預設路線）'; }
+} catch (e) {
+  if (ALLOW_SEED) {
+    console.warn(`[routes] 讀取 Firestore 失敗（${e.message}），ROUTES_ALLOW_SEED=1，改用 seed`);
+    routes = loadSeed();
+    source = 'seed（離線）';
+  } else {
+    console.error(`[routes] ✗ 讀取 Firestore 失敗：${e.message}`);
+    console.error('[routes]   為避免用舊內容覆蓋網站，建置中止。請稍後重試；本機離線測試可設 ROUTES_ALLOW_SEED=1。');
+    process.exit(1);
+  }
+}
+routes = routes.filter((r) => r && typeof r.slug === 'string').map(normalize);
+routes.sort((a, b) => a.order - b.order);
+console.log(`[routes] 資料來源：${source}；共 ${routes.length} 條路線`);
+
+const contact = await fetchContact();
+const SLUG_RE = /^[a-z0-9-]+$/;
+const published = [];
+let written = 0;
+
+for (const r of routes) {
+  if (!SLUG_RE.test(r.slug) || r.slug === 'permit') { console.warn(`[routes] 略過不合法的 slug：${r.slug}`); continue; }
+  const dir = path.join(PUB, r.slug);
+  const file = path.join(dir, 'index.html');
+  if (!r.published) {
+    if (fs.existsSync(file)) { fs.rmSync(file); try { fs.rmdirSync(dir); } catch { /* 目錄不空就保留 */ } }
+    console.log(`[routes] ${r.slug}: 未發布，不輸出頁面`);
+    continue;
+  }
+  if (!r.h1 || !r.metaTitle || !r.metaDescription) { console.warn(`[routes] ${r.slug}: H1／SEO 標題／SEO 描述缺漏，略過（保留原檔）`); continue; }
+  published.push(r);
+}
+for (const r of published) {
+  const html = renderRoutePage(r, { routes: published, contact });
+  const dir = path.join(PUB, r.slug);
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, 'index.html'), html);
+  written++;
+}
+console.log(`[routes] 已輸出 ${written} 個路線頁`);
+
+// ---------- sitemap.xml ----------
+const maxDate = published.reduce((m, r) => (r.updatedAt > m ? r.updatedAt : m), '0000-00-00');
+const urls = [{ loc: `${SITE}/`, lastmod: maxDate }, ...published.map((r) => ({ loc: `${SITE}/${r.slug}/`, lastmod: r.updatedAt })), { loc: `${SITE}/permit/`, lastmod: maxDate }];
+fs.writeFileSync(
+  path.join(PUB, 'sitemap.xml'),
+  `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
+    urls.map((u) => `  <url>\n    <loc>${esc(u.loc)}</loc>\n    <lastmod>${u.lastmod}</lastmod>\n  </url>`).join('\n') +
+    `\n</urlset>\n`
+);
+
+// ---------- llms.txt（只換兩個路線清單，其餘手寫文字保留） ----------
+const llmsPath = path.join(PUB, 'llms.txt');
+if (fs.existsSync(llmsPath)) {
+  let t = fs.readFileSync(llmsPath, 'utf8');
+  const list = (g) => published.filter((r) => r.group === g).map((r) => `- [${r.listName || r.name}](${SITE}/${r.slug}/)`).join('\n');
+  const swap = (heading, body) => {
+    const re = new RegExp(`(## ${heading}\\n)[\\s\\S]*?(?=\\n## |$)`);
+    if (!re.test(t)) { console.warn(`[routes] llms.txt 找不到「## ${heading}」，略過`); return; }
+    t = t.replace(re, (_, h) => `${h}${body}\n`);
+  };
+  swap('路線頁', list('popular'));
+  swap('更多百岳路線', list('more'));
+  fs.writeFileSync(llmsPath, t);
+}
+console.log('[routes] 完成');

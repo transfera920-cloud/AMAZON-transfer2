@@ -1,3 +1,5 @@
+// ⚠ 舊流程（已不在 npm run build 內）：影片現在在後台「路線內容管理」編輯，由 build-routes.mjs 輸出。
+// 此檔與 public/videos.json、subtitles/ 僅保留作為歷史資料，不要再手動執行。
 // 讀取 public/videos.json，把 YouTube 影片區塊 + 逐字稿 + VideoObject JSON-LD
 // 注入 public/<slug>/index.html。可重複執行（以標記取代，不會重複插入）。
 // 在 Cloudflare 建置時由 `npm run build` 自動執行；缺資料只會警告，不會讓建置失敗。

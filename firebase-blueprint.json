@@ -5,28 +5,173 @@
       "description": "Global website configuration and content for Amazon High Mountain Transfer",
       "type": "object",
       "properties": {
-        "phone": { "type": "string", "maxLength": 50 },
-        "lineUrl": { "type": "string", "maxLength": 500 },
-        "email": { "type": "string", "maxLength": 150 },
-        "siteTitle": { "type": "string", "maxLength": 100 },
-        "siteSubtitle": { "type": "string", "maxLength": 200 },
-        "heroLineText": { "type": "string", "maxLength": 100 },
-        "sectionTitle": { "type": "string", "maxLength": 100 },
-        "seoDesc": { "type": "string", "maxLength": 1000 },
-        "features": { "type": "array" },
-        "aboutTitle": { "type": "string", "maxLength": 100 },
-        "aboutContent": { "type": "string", "maxLength": 5000 },
-        "footerBannerTitle": { "type": "string", "maxLength": 100 },
-        "footerBannerSub": { "type": "string", "maxLength": 200 },
-        "cards": { "type": "array" }
+        "phone": {
+          "type": "string",
+          "maxLength": 50
+        },
+        "lineUrl": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "email": {
+          "type": "string",
+          "maxLength": 150
+        },
+        "siteTitle": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "siteSubtitle": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "heroLineText": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "sectionTitle": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "seoDesc": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "features": {
+          "type": "array"
+        },
+        "aboutTitle": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "aboutContent": {
+          "type": "string",
+          "maxLength": 5000
+        },
+        "footerBannerTitle": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "footerBannerSub": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "cards": {
+          "type": "array"
+        }
       },
-      "required": ["siteTitle", "phone", "lineUrl"]
+      "required": [
+        "siteTitle",
+        "phone",
+        "lineUrl"
+      ]
+    },
+    "Route": {
+      "title": "Route",
+      "description": "單一登山接駁路線頁的內容（建置時產生 /<slug>/ 靜態頁）",
+      "type": "object",
+      "properties": {
+        "slug": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "name": {
+          "type": "string"
+        },
+        "navName": {
+          "type": "string"
+        },
+        "listName": {
+          "type": "string"
+        },
+        "group": {
+          "type": "string",
+          "enum": [
+            "popular",
+            "more"
+          ]
+        },
+        "order": {
+          "type": "number"
+        },
+        "published": {
+          "type": "boolean"
+        },
+        "h1": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "metaTitle": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "metaDescription": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "breadcrumbName": {
+          "type": "string"
+        },
+        "serviceName": {
+          "type": "string"
+        },
+        "intro": {
+          "type": "string",
+          "maxLength": 5000
+        },
+        "sections": {
+          "type": "array"
+        },
+        "faq": {
+          "type": "array"
+        },
+        "prep": {
+          "type": "object"
+        },
+        "video": {
+          "type": "object"
+        },
+        "articles": {
+          "type": "array"
+        },
+        "ctaPrice": {
+          "type": "object"
+        },
+        "closing": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "slug",
+        "h1",
+        "metaTitle",
+        "metaDescription",
+        "intro",
+        "sections",
+        "faq",
+        "group",
+        "published"
+      ]
     }
   },
   "firestore": {
     "/settings/{settingId}": {
-      "schema": { "$ref": "#/entities/SiteSettings" },
+      "schema": {
+        "$ref": "#/entities/SiteSettings"
+      },
       "description": "Public site content and configuration documents"
+    },
+    "/routes/{slug}": {
+      "schema": {
+        "$ref": "#/entities/Route"
+      },
+      "description": "路線頁內容，公開可讀、僅管理員可寫"
+    },
+    "/private/{docId}": {
+      "description": "管理員專用（Deploy Hook 網址等），僅管理員可讀寫"
     }
   }
 }

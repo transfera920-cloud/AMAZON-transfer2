@@ -23,6 +23,31 @@ service cloud.firestore {
         && request.auth.token.email == 'amazonchiayi@gmail.com';
     }
 
+    // 路線頁內容（後台「路線內容管理」編輯）：任何人可讀（建置腳本與前台需要），僅管理員可寫、不可刪除。
+    function isValidRoute(data, slug) {
+      return data.slug == slug
+        && data.h1 is string && data.h1.size() <= 200
+        && data.metaTitle is string && data.metaTitle.size() <= 200
+        && data.metaDescription is string && data.metaDescription.size() <= 500
+        && data.intro is string && data.intro.size() <= 5000
+        && data.sections is list && data.sections.size() <= 40
+        && data.faq is list && data.faq.size() <= 60
+        && data.group in ['popular', 'more']
+        && data.published is bool;
+    }
+
+    match /routes/{slug} {
+      allow get, list: if true;
+      allow create, update: if isAdmin() && slug.matches('^[a-z0-9-]+$') && slug.size() <= 64 && isValidRoute(request.resource.data, slug);
+      allow delete: if false;
+    }
+
+    // 管理員專用設定（例如 Cloudflare 發布 Deploy Hook 網址）：絕不可公開讀取
+    match /private/{docId} {
+      allow get, list, create, update: if isAdmin();
+      allow delete: if false;
+    }
+
     match /settings/{settingId} {
       allow get: if isValidId(settingId);
       allow list: if true;

@@ -1,17 +1,6 @@
-import { SiteData, PopularRouteItem } from '../types';
+import { SiteData } from '../types';
 
 export const STORAGE_KEY = 'amazon_mount_data';
-
-export const DEFAULT_POPULAR_ROUTES: PopularRouteItem[] = [
-  { id: 'route-1', name: '合歡山群峰｜武嶺｜小奇萊', description: '石門山、合歡群峰、小奇萊登山口', url: '/hehuanshan/' },
-  { id: 'route-2', name: '雪山登山口服務站', description: '雪山主東峰', url: '/xueshan/' },
-  { id: 'route-2b', name: '武陵山莊', description: '武陵四秀（桃山、池有、品田、喀拉業）', url: '/wulingshanzhuang/' },
-  { id: 'route-3', name: '玉山登山口｜塔塔加停車場', description: '玉山群峰、麟趾山、鹿林山', url: '/yushan/' },
-  { id: 'route-4', name: '嘉明湖｜向陽國家森林遊樂區', description: '天使的眼淚嘉明湖、向陽山、三叉山，南橫台20線接駁', url: '/jiaminghu/' },
-  { id: 'route-5', name: '奇萊南華｜屯原登山口', description: '能高越嶺西段、奇萊南峰、南華山黃金大草原', url: '/qilai-nanhua/' },
-  { id: 'route-6', name: '大霸尖山｜觀霧大鹿林道東線口', description: '世紀奇峰大霸群峰、觀霧遊憩區', url: '/dabajianshan/' },
-  { id: 'route-7', name: '郡大山｜望鄉部落 (含林道接駁)', description: '八大秀、郡大林道 32K 搖晃專車直達登山口', url: '/jundashan/' }
-];
 
 export const DEFAULT_DATA: SiteData = {
   phone: "0972573495",
@@ -34,7 +23,6 @@ export const DEFAULT_DATA: SiteData = {
   footerBannerTitle: "高山登山接駁專屬預約",
   footerBannerSub: "合法租賃車輛 ‧ 行程彈性安排 ‧ 歡迎提早預約包車",
   popularRoutesTitle: "熱門百岳登山接駁路線",
-  popularRoutes: DEFAULT_POPULAR_ROUTES,
   cards: [
     {
       id: "card-1",

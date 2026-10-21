@@ -7,6 +7,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { decodeFirestore, buildGroups, renderGroups } from './permit-render.mjs';
+import { resolveHomeContent, parseInline, plainText, DEFAULT_PERMIT_FAQ } from '../shared/homeContent.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SITE = 'https://transfer.amazon-hike.com';
@@ -39,6 +40,8 @@ const SEED_CARDS = [
   },
 ];
 
+let permitFaqRaw = null;
+
 async function fetchCards() {
   try {
     const ctl = new AbortController();
@@ -48,6 +51,7 @@ async function fetchCards() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const doc = await res.json();
     const data = decodeFirestore({ mapValue: { fields: doc.fields || {} } });
+    permitFaqRaw = data;
     return data.cards || [];
   } catch (e) {
     console.warn(`[permit] 讀取後台資料失敗，改用預設內容：${e.message}`);
@@ -57,24 +61,27 @@ async function fetchCards() {
 
 const today = new Date().toISOString().slice(0, 10);
 
-const FAQ = [
-  {
-    q: '入園入山申請要先辦，還是先預約接駁？',
-    a: '建議先確認入園入山的日期，再與我們聯絡預約接駁，日期不一致時就不必來回調整。若您的行程需要抽籤（例如玉山宿營地），可以等抽籤結果出來再預約，比較安心。',
-  },
-  {
-    q: '入園入山申請可以在哪裡辦理？',
-    a: '臺灣登山申請一站式服務網整合了玉山、雪霸、太魯閣國家公園與警政署入山的申請，由各機關個別審核；林業及自然保育署的山屋營地、自然保護區等，也可以從同一個入口進入。',
-  },
-  {
-    q: '申請之後行程有變動怎麼辦？',
-    a: '一站式服務網提供申請進度查詢、異動與取消。日期有變動時，建議儘早更新申請，也歡迎同步透過 LINE 告知我們，方便我們調整車輛安排。',
-  },
-  {
-    q: '申請需要提前多久？',
-    a: '各機關與各路線的受理時程不同，也可能因抽籤或名額而調整，建議以官方網站的公告為準，並儘早辦理，避免額滿或來不及。',
-  },
+// 常見問題：後台「首頁內容」分頁可編輯（settings/general 的 permitFaq）；沒存過就用 shared/homeContent.mjs 的預設
+let FAQ = DEFAULT_PERMIT_FAQ;
+
+// 其他登山接駁路線導覽：由 build-home.mjs 產生的 home.generated.json 的熱門路線決定（缺檔時用下方預設）
+const DEFAULT_NAV = [
+  ['hehuanshan', '合歡山'], ['xueshan', '雪山'], ['wulingshanzhuang', '武陵四秀'], ['yushan', '玉山'],
+  ['jiaminghu', '嘉明湖'], ['qilai-nanhua', '奇萊南華'], ['dabajianshan', '大霸尖山'], ['jundashan', '郡大山'],
 ];
+function navLinksHtml() {
+  let list = DEFAULT_NAV;
+  try {
+    const g = JSON.parse(fs.readFileSync(path.join(ROOT, 'src', 'data', 'home.generated.json'), 'utf8'));
+    if (g.routes && g.routes.popular && g.routes.popular.length) list = g.routes.popular.map((r) => [r.slug, r.navName || r.name]);
+  } catch { /* 沒有就用預設 */ }
+  return list.map(([slug, name]) => `<a href="/${esc(slug)}/">${esc(name)}</a>`).join(' ｜ ');
+}
+
+const faqAnswerHtml = (a) =>
+  parseInline(a)
+    .map((p) => (typeof p === 'string' ? esc(p) : `<a href="${esc(p.href)}"${/^https?:\/\//i.test(p.href) ? ' target="_blank" rel="noopener"' : ''}>${esc(p.text)}</a>`))
+    .join('');
 
 function buildHtml(groups, fromCloud) {
   const title = '登山入園入山申請｜國家公園、山屋營地申請入口整理 | 亞馬遜高山接駁';
@@ -96,10 +103,12 @@ function buildHtml(groups, fromCloud) {
           { '@type': 'ListItem', position: 2, name: '入園入山申請', item: url },
         ],
       },
-      {
-        '@type': 'FAQPage',
-        mainEntity: FAQ.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
-      },
+      ...(FAQ.length
+        ? [{
+            '@type': 'FAQPage',
+            mainEntity: FAQ.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: plainText(f.a) } })),
+          }]
+        : []),
     ],
   };
 
@@ -197,9 +206,7 @@ ${renderGroups(groups, GROUP_DESCS)}
 <li>行程有變動請儘早更新：申請可在一站式服務網異動或取消，也請同步告訴我們，方便調度車輛。</li>
 </ol>
 
-<h2>常見問題</h2>
-${FAQ.map((f) => `<h3>${esc(f.q)}</h3>\n<p>${esc(f.a)}</p>`).join('\n')}
-
+${FAQ.length ? `<h2>常見問題</h2>\n${FAQ.map((f) => `<h3>${esc(f.q)}</h3>\n<p>${faqAnswerHtml(f.a)}</p>`).join('\n')}\n` : ''}
 <h2>出發前準備</h2>
 <ul>
 <li><a href="https://stays.amazon-hike.com/trailhead-stays" target="_blank" rel="noopener">登山口住宿查詢</a>：搜尋登山口附近民宿與山屋，安排入山前一晚（D0）住宿。</li>
@@ -208,7 +215,7 @@ ${FAQ.map((f) => `<h3>${esc(f.q)}</h3>\n<p>${esc(f.a)}</p>`).join('\n')}
 </ul>
 
 <h2>其他登山接駁路線</h2>
-<p><a href="/hehuanshan/">合歡山</a> ｜ <a href="/xueshan/">雪山</a> ｜ <a href="/wulingshanzhuang/">武陵四秀</a> ｜ <a href="/yushan/">玉山</a> ｜ <a href="/jiaminghu/">嘉明湖</a> ｜ <a href="/qilai-nanhua/">奇萊南華</a> ｜ <a href="/dabajianshan/">大霸尖山</a> ｜ <a href="/jundashan/">郡大山</a></p>
+<p>${navLinksHtml()}</p>
 <p style="margin-top:40px"><a href="/">← 回到亞馬遜高山接駁首頁</a></p>
 </main>
 <script>${clientScript}</script>
@@ -218,6 +225,10 @@ ${FAQ.map((f) => `<h3>${esc(f.q)}</h3>\n<p>${esc(f.a)}</p>`).join('\n')}
 }
 
 const cloudCards = await fetchCards();
+if (permitFaqRaw) {
+  const resolved = resolveHomeContent(permitFaqRaw).permitFaq;
+  FAQ = Array.isArray(permitFaqRaw.permitFaq) ? resolved : DEFAULT_PERMIT_FAQ; // 後台存過就照後台（可以是空的＝不顯示 FAQ）
+}
 let groups = cloudCards ? buildGroups(cloudCards) : [];
 const fromCloud = groups.length > 0;
 if (!fromCloud) {

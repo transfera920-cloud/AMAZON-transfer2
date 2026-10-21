@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { SiteData, ActiveModalType } from './types';
 import { DEFAULT_DATA } from './data/defaultData';
 import {
@@ -19,6 +19,7 @@ import { AboutSection } from './components/AboutSection';
 import { Footer } from './components/Footer';
 import { AdminModal } from './components/AdminModal';
 import { AdminLoginModal } from './components/AdminLoginModal';
+import { AdminRoutesPanel } from './components/AdminRoutesPanel';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth } from './firebase';
 import { ADMIN_EMAIL } from './data/adminConfig';
@@ -26,16 +27,9 @@ import { PriceCalcModal } from './components/PriceCalcModal';
 import { D0LodgingModal } from './components/D0LodgingModal';
 import { FeastModal } from './components/FeastModal';
 import { RoadStatusModal } from './components/RoadStatusModal';
-import {
-  TrailheadCharterSection,
-  PopularRoutesSection,
-  MoreRoutesSection,
-  OneWayTripSection,
-  ServiceProcessSection,
-  RoadStatusGuideSection,
-  PermitGuideSection,
-  HomeFaqSection
-} from './components/ServiceSections';
+import { HomeBlocks } from './components/HomeBlocks';
+import { resolveHomeContent } from '../shared/homeContent.mjs';
+import homeGenerated from './data/home.generated.json';
 
 export default function App() {
   // Initialize with local cache for instant paint, then update with Cloud data
@@ -54,6 +48,13 @@ export default function App() {
   }, []);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
+  const [isRoutesOpen, setIsRoutesOpen] = useState(false);
+
+  // 首頁內容區塊與 FAQ：後台有存過就用後台的，沒有就用預設（shared/homeContent.mjs）；路線清單來自建置時產生的資料
+  const homeContent = useMemo(
+    () => resolveHomeContent({ popularRoutesTitle: siteData.popularRoutesTitle, homeBlocks: siteData.homeBlocks, homeFaq: siteData.homeFaq }),
+    [siteData.popularRoutesTitle, siteData.homeBlocks, siteData.homeFaq]
+  );
 
   const handleOpenAdmin = () => {
     if (isAdminLoggedIn) {
@@ -73,6 +74,7 @@ export default function App() {
     signOut(auth).catch((e) => console.warn(e));
     setIsAdminLoggedIn(false);
     setIsAdminOpen(false);
+    setIsRoutesOpen(false);
   };
 
   // <title> 與 meta description 皆以 index.html 內的固定內容為準，
@@ -151,17 +153,7 @@ export default function App() {
           onOpenModal={(modalType) => setActiveModal(modalType)}
         />
 
-        <TrailheadCharterSection />
-        <PopularRoutesSection
-          title={siteData.popularRoutesTitle || "熱門百岳登山接駁路線"}
-          routes={siteData.popularRoutes}
-        />
-        <MoreRoutesSection />
-        <OneWayTripSection />
-        <ServiceProcessSection />
-        <RoadStatusGuideSection />
-        <PermitGuideSection />
-        <HomeFaqSection />
+        <HomeBlocks content={homeContent} routes={homeGenerated.routes} />
 
         {/* 關於我們區塊 */}
         <AboutSection
@@ -188,6 +180,13 @@ export default function App() {
         onSave={handleSaveData}
         isCloudConnected={isCloudConnected}
         onLogout={handleLogout}
+        onOpenRoutes={() => { setIsAdminOpen(false); setIsRoutesOpen(true); }}
+      />
+
+      {/* 路線內容管理（編輯各路線頁、發布到網站） */}
+      <AdminRoutesPanel
+        isOpen={isRoutesOpen && isAdminLoggedIn}
+        onClose={() => { setIsRoutesOpen(false); setIsAdminOpen(true); }}
       />
 
       {/* 互動工具彈出視窗: 價格估算系統 */}

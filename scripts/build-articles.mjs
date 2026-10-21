@@ -1,3 +1,5 @@
+// ⚠ 舊流程（已不在 npm run build 內）：攻略文章現在在後台「路線內容管理」編輯，由 build-routes.mjs 輸出。
+// 此檔與 public/articles.json 僅保留作為歷史資料，不要再手動執行。
 // 讀取 public/articles.json，把「路線攻略文章」連結區塊注入 public/<slug>/index.html。
 // 只顯示 show 不是 false、且有標題與 https 網址的項目；沒有可顯示的項目時，該頁不會出現這個區塊。
 // 可重複執行（以標記取代）。在 `npm run build` 時自動執行，缺資料只會警告，不會讓建置失敗。
