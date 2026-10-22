@@ -188,7 +188,7 @@ export function renderRoutePage(route, ctx = {}) {
   const d = esc(route.metaDescription);
 
   const popular = all
-    .filter((r) => r.group === 'popular' && r.slug !== route.slug)
+    .filter((r) => r.slug !== route.slug)
     .sort((a, b) => (a.order || 0) - (b.order || 0));
   const navLinks = popular.map((r) => `<a href="/${r.slug}/">${esc(r.navName || r.name)}</a>`).join(' ｜ ');
   const articles = visibleArticles(route);
