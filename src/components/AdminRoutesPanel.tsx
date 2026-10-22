@@ -37,6 +37,35 @@ function youtubeIdFrom(input: string): string {
   return m ? m[1] : s;
 }
 
+/** 批次貼上：把「## 標題 + 內文」的純文字拆成內容區塊 */
+function parseBulkSections(text: string): { sections: RouteSection[]; warnings: string[] } {
+  const lines = String(text || '').replace(/\r/g, '').split('\n');
+  const warnings: string[] = [];
+  const raw: { heading: string; lines: string[] }[] = [];
+  let stray = false;
+  for (const line of lines) {
+    const m = line.match(/^##\s+(.+?)\s*$/);
+    if (m) {
+      raw.push({ heading: m[1].trim(), lines: [] });
+    } else if (raw.length) {
+      raw[raw.length - 1].lines.push(line);
+    } else if (line.trim()) {
+      stray = true;
+    }
+  }
+  if (stray) warnings.push('第一個「## 標題」之前的文字不會被匯入');
+  const stamp = Date.now();
+  const sections = raw.map((r, i) => ({
+    id: `s${stamp}${i}`,
+    heading: r.heading,
+    body: r.lines.join('\n').replace(/^\n+|\n+$/g, '').replace(/\n{3,}/g, '\n\n'),
+  }));
+  sections.forEach((s, i) => {
+    if (!s.body.trim()) warnings.push(`第 ${i + 1} 個區塊「${s.heading}」沒有內文，之後存檔也不會輸出到頁面`);
+  });
+  return { sections, warnings };
+}
+
 const inputCls = 'w-full border border-gray-300 rounded-lg px-2.5 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500';
 const btnGhost = 'inline-flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg border border-gray-300 bg-white hover:bg-gray-100 text-gray-700 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed';
 
@@ -150,6 +179,9 @@ export const AdminRoutesPanel: React.FC<Props> = ({ isOpen, onClose }) => {
   const [siteRaw, setSiteRaw] = useState<any>(null);
   const [contentUpdatedAtMs, setContentUpdatedAtMs] = useState(0);
   const [homeDirty, setHomeDirty] = useState(false);
+  const [bulkOpen, setBulkOpen] = useState(false);
+  const [bulkText, setBulkText] = useState('');
+  const [bulkMode, setBulkMode] = useState<'replace' | 'append'>('replace');
 
   const [hookUrl, setHookUrl] = useState('');
   const [lastPublishedAt, setLastPublishedAt] = useState(0);
@@ -592,11 +624,70 @@ export const AdminRoutesPanel: React.FC<Props> = ({ isOpen, onClose }) => {
 
               <Card
                 title={`內容區塊（${draft.sections.length}）`}
-                aside={<button className={btnGhost} onClick={() => set('sections', [...draft.sections, { id: `s${Date.now()}`, heading: '', body: '' }])}><Plus className="w-3.5 h-3.5" />新增區塊</button>}
+                aside={(
+                  <div className="flex items-center gap-2">
+                    <button className={btnGhost} onClick={() => setBulkOpen((v) => !v)}><Download className="w-3.5 h-3.5" />批次貼上</button>
+                    <button className={btnGhost} onClick={() => set('sections', [...draft.sections, { id: `s${Date.now()}`, heading: '', body: '' }])}><Plus className="w-3.5 h-3.5" />新增區塊</button>
+                  </div>
+                )}
               >
                 <p className="text-[11px] text-gray-500 leading-relaxed">
                   每個區塊 = 一個 H2 小標題 + 內文。內文寫法：空白行分段；每行開頭「- 」＝條列；「1. 」＝編號清單；連結 <code>[文字](https://網址)</code>，站內連結用 <code>[文字](/permit/)</code>。
                 </p>
+                {bulkOpen && (() => {
+                  const parsed = parseBulkSections(bulkText);
+                  const applyBulk = () => {
+                    if (!parsed.sections.length) return;
+                    if (bulkMode === 'replace' && draft.sections.length > 0 && !window.confirm(`會用貼上的 ${parsed.sections.length} 個區塊取代目前的 ${draft.sections.length} 個區塊（按「儲存路線」前，都可以按左上角的 ← 離開並放棄修改）。確定嗎？`)) return;
+                    set('sections', bulkMode === 'replace' ? parsed.sections : [...draft.sections, ...parsed.sections]);
+                    setBulkText('');
+                    setBulkOpen(false);
+                  };
+                  return (
+                    <div className="border border-emerald-300 bg-emerald-50/60 rounded-lg p-3 space-y-2">
+                      <p className="text-[11px] text-gray-600 leading-relaxed">
+                        格式：每個區塊以 <code>## 區塊標題</code> 開頭，下一行起是內文（寫法同上）。一次貼上全部區塊，下面會即時預覽。
+                      </p>
+                      <textarea
+                        className={`${inputCls} font-mono`}
+                        rows={12}
+                        value={bulkText}
+                        onChange={(e) => setBulkText(e.target.value)}
+                        placeholder={'## 第一個區塊的標題\n內文第一段\n\n- 條列一\n- 條列二\n\n## 第二個區塊的標題\n內文……'}
+                      />
+                      <div className="flex flex-wrap items-center gap-4 text-xs text-gray-700">
+                        <label className="inline-flex items-center gap-1 cursor-pointer">
+                          <input type="radio" checked={bulkMode === 'replace'} onChange={() => setBulkMode('replace')} />取代目前所有區塊
+                        </label>
+                        <label className="inline-flex items-center gap-1 cursor-pointer">
+                          <input type="radio" checked={bulkMode === 'append'} onChange={() => setBulkMode('append')} />加在最後面
+                        </label>
+                      </div>
+                      {bulkText.trim() && (
+                        <div className="text-xs space-y-1">
+                          <p className="font-semibold text-gray-700">預覽：解析出 {parsed.sections.length} 個區塊</p>
+                          {parsed.sections.length > 0 && (
+                            <ol className="list-decimal pl-5 text-gray-600 space-y-0.5">
+                              {parsed.sections.map((x) => (
+                                <li key={x.id}>{x.heading}<span className="text-gray-400">（{[...x.body].length} 字）</span></li>
+                              ))}
+                            </ol>
+                          )}
+                          {parsed.warnings.map((w, k) => (
+                            <p key={k} className="text-amber-700 flex items-start gap-1"><AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0" />{w}</p>
+                          ))}
+                          {parsed.sections.length === 0 && <p className="text-amber-700">還沒有偵測到「## 標題」，請確認每個區塊的標題前面有兩個井字號和一個空格。</p>}
+                        </div>
+                      )}
+                      <div className="flex items-center gap-2">
+                        <button className={`${btnGhost} !bg-emerald-600 !text-white !border-emerald-600 hover:!bg-emerald-700`} disabled={!parsed.sections.length} onClick={applyBulk}>
+                          <Check className="w-3.5 h-3.5" />套用到內容區塊
+                        </button>
+                        <button className={btnGhost} onClick={() => { setBulkOpen(false); setBulkText(''); }}>取消</button>
+                      </div>
+                    </div>
+                  );
+                })()}
                 {draft.sections.map((s, i) => (
                   <div key={s.id} className="border border-gray-200 rounded-lg p-3 space-y-2 bg-slate-50/50">
                     <div className="flex items-center gap-2">
