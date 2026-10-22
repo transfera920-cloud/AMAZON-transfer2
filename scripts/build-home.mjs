@@ -13,6 +13,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { decodeFirestore } from './permit-render.mjs';
+import { fetchRoutesResilient } from './fetch-routes.mjs';
 import { resolveHomeContent, buildHomeRoutes, applyHomeToIndexHtml, routeCategories } from '../shared/homeContent.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -36,14 +37,7 @@ async function getJson(url) {
 }
 
 async function fetchRoutes() {
-  const out = [];
-  let token = '';
-  do {
-    const j = await getJson(`${BASE}/routes?pageSize=100&key=${cfg.apiKey}${token ? `&pageToken=${encodeURIComponent(token)}` : ''}`);
-    for (const d of j.documents || []) out.push(decodeFirestore({ mapValue: { fields: d.fields || {} } }));
-    token = j.nextPageToken || '';
-  } while (token);
-  return out;
+  return fetchRoutesResilient({ BASE, key: cfg.apiKey, getJson, seedSlugs: loadSeed().map((r) => r.slug), tag: 'home' });
 }
 
 async function fetchSettings() {

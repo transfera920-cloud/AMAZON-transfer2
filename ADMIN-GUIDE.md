@@ -69,3 +69,4 @@
 - 首頁的內容區塊、FAQ 的預設文字在 `shared/homeContent.mjs`（只在後台從未儲存過時使用）；`index.html` 中 `<!--HOME:BLOCKS:START-->` 到 `<!--HOME:BLOCKS:END-->` 之間是建置時自動產生的，請勿手動修改。
 - `src/data/home.generated.json` 是建置時自動產生的首頁路線清單，請勿手動修改。
 - 仍在程式碼內、尚未接到後台的內容：首頁頁首大標題（`src/data/seoContent.ts` 的 `PAGE_H1`）、`index.html` 的 `<title>`／meta／OG、申請頁的「我們接送的路線，申請通常向哪裡辦理」與「常用的一站式申請頁面」段落（`scripts/build-permit.mjs`）、`llms.txt` 的手寫說明文字。
+- 本專案的 Firestore 對未登入者「只能單筆讀取、不能列出整個集合」。建置時若列出 `routes` 被拒絕（HTTP 403），會自動改成逐條讀取：路線代稱 = 預設 seed 的代稱 ＋ `settings/general` 的 `routeSlugs`。`routeSlugs` 由後台開啟「路線內容管理」時自動同步（新增路線也會寫入），不用手動維護；新增路線後請至少開啟一次路線內容管理再按「發布到網站」。

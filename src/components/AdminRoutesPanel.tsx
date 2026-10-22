@@ -157,7 +157,19 @@ export const AdminRoutesPanel: React.FC<Props> = ({ isOpen, onClose }) => {
 
   const say = (m: string) => { setToast(m); setTimeout(() => setToast(null), 3500); };
 
+  /** 建置腳本讀不到「路線列表」時，靠 settings/general.routeSlugs 逐條讀取；這裡讓它永遠等於目前所有路線的代稱 */
+  const syncRouteSlugs = async (current: unknown, slugs: string[]) => {
+    if (!slugs.length) return;
+    const have = Array.isArray(current) ? (current as string[]) : [];
+    const same = have.length === slugs.length && slugs.every((s) => have.includes(s));
+    if (same) return;
+    try {
+      await updateDoc(doc(db, 'settings', 'general'), { routeSlugs: slugs });
+    } catch { /* 寫不進去不影響後台使用；下次開啟會再試 */ }
+  };
+
   const load = async () => {
+    let loadedSlugs: string[] = [];
     setLoading(true);
     setError(null);
     try {
@@ -165,6 +177,7 @@ export const AdminRoutesPanel: React.FC<Props> = ({ isOpen, onClose }) => {
       const list = snap.docs.map((d) => clean(d.data() as RouteData));
       list.sort((a, b) => (a.order || 0) - (b.order || 0));
       setRoutes(list);
+      loadedSlugs = list.map((r) => r.slug);
     } catch (e: any) {
       setError(`讀取路線失敗：${e?.message || e}`);
     }
@@ -173,6 +186,7 @@ export const AdminRoutesPanel: React.FC<Props> = ({ isOpen, onClose }) => {
       if (g.exists()) {
         setSiteRaw(g.data());
         setContentUpdatedAtMs(Number(g.data().contentUpdatedAtMs) || 0);
+        await syncRouteSlugs(g.data().routeSlugs, loadedSlugs);
       }
     } catch { /* 讀不到就用預設內容 */ }
     try {

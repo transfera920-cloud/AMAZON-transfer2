@@ -214,7 +214,7 @@ export async function saveSiteDataToCloud(newData: SiteData): Promise<void> {
 
   try {
     const cleanData = sanitizeSiteData(newData);
-    await setDoc(docRef, cleanData);
+    await setDoc(docRef, cleanData, { merge: true }); // merge：不洗掉後台其他分頁寫入的欄位（例如 routeSlugs、homeBlocks）
     // Sync to local cache after successful cloud write
     updateLocalCachedData(cleanData);
   } catch (error) {

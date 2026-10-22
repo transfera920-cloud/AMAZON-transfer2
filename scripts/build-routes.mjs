@@ -10,6 +10,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { decodeFirestore } from './permit-render.mjs';
+import { fetchRoutesResilient } from './fetch-routes.mjs';
 import { renderRoutePage, esc, SITE } from '../shared/renderRoutePage.mjs';
 import { resolveHomeContent, routeCategories, cleanGroupId, resolveGroup } from '../shared/homeContent.mjs';
 
@@ -35,14 +36,7 @@ async function getJson(url) {
 }
 
 async function fetchRoutes() {
-  const out = [];
-  let token = '';
-  do {
-    const j = await getJson(`${BASE}/routes?pageSize=100&key=${cfg.apiKey}${token ? `&pageToken=${encodeURIComponent(token)}` : ''}`);
-    for (const d of j.documents || []) out.push(decodeFirestore({ mapValue: { fields: d.fields || {} } }));
-    token = j.nextPageToken || '';
-  } while (token);
-  return out;
+  return fetchRoutesResilient({ BASE, key: cfg.apiKey, getJson, seedSlugs: loadSeed().map((r) => r.slug), tag: 'routes' });
 }
 
 async function fetchContact() {
