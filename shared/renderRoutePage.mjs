@@ -225,7 +225,7 @@ ${BASE_CSS}${withVideo ? VIDEO_CSS + '\n' : ''}</style>
 `;
 
   const sections = (route.sections || [])
-    .filter((s) => s && (s.heading || s.body))
+    .filter((s) => s && String(s.body || '').trim())
     .map((s) => `<h2>${esc(s.heading)}</h2>\n${bodyToHtml(s.body)}\n\n`)
     .join('');
 
