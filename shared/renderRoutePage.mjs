@@ -6,6 +6,8 @@
 //   - 每行以「- 」開頭 = 條列；每行以「1. 」開頭 = 編號清單
 //   - [文字](網址) = 超連結（https 開頭會自動開新分頁；/permit/ 這類站內連結不會）
 
+import { DAY_THEME_HEAD } from './dayTheme.mjs';
+
 export const SITE = 'https://transfer.amazon-hike.com';
 export const BRAND = '亞馬遜高山接駁';
 export const DEFAULT_CONTACT = { lineUrl: 'https://lin.ee/TJJLV36', phone: '0972573495' };
@@ -188,7 +190,7 @@ export function renderRoutePage(route, ctx = {}) {
   const d = esc(route.metaDescription);
 
   const popular = all
-    .filter((r) => r.slug !== route.slug)
+    .filter((r) => r.group === 'popular' && r.slug !== route.slug)
     .sort((a, b) => (a.order || 0) - (b.order || 0));
   const navLinks = popular.map((r) => `<a href="/${r.slug}/">${esc(r.navName || r.name)}</a>`).join(' ｜ ');
   const articles = visibleArticles(route);
@@ -221,7 +223,7 @@ export function renderRoutePage(route, ctx = {}) {
 <script type="application/ld+json">${buildJsonLd(route, paras)}</script>
 <style>
 ${BASE_CSS}${withVideo ? VIDEO_CSS + '\n' : ''}</style>
-</head>
+${DAY_THEME_HEAD}</head>
 `;
 
   const sections = (route.sections || [])

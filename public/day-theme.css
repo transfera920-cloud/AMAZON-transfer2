@@ -1,0 +1,307 @@
+/* 亞馬遜高山接駁：依星期變換背景（紅橙黃綠藍靛紫，致敬台北 101）
+   ── 每一天的色票 ── 只需要改這一區的色碼就能調整 */
+
+html[data-day="1"]{ /* 星期一 紅 */
+  --d-bright:#ff1a1a;
+  --d-glow:#ff0000;
+  --d-bg-top:#721313;
+  --d-bg-bot:#4b0c0c;
+  --d-card:#2e0c0c;
+  --d-card-deep:#260a0a;
+  --d-card-deep2:#340e0e;
+  --d-card-hi:#461111;
+  --d-card-hover:#401111;
+  --d-footer:#200909;
+  --d-hdr1:#2e0a0a;
+  --d-hdr2:#4b0c0c;
+  --d-hdr3:#651010;
+  --d-link:#ffa3a3;
+  --d-text:#f7e3e3;
+  --d-accent:#ff7a7a;
+  --d-accent-dk:#931010;
+  --d-btn:#7b1414;
+  --color-emerald-50:oklch(97.9% 0.021 25);
+  --color-emerald-100:oklch(95% 0.052 25);
+  --color-emerald-200:oklch(90.5% 0.093 25);
+  --color-emerald-300:oklch(84.5% 0.143 25);
+  --color-emerald-400:oklch(76.5% 0.177 25);
+  --color-emerald-500:oklch(69.6% 0.17 25);
+  --color-emerald-600:oklch(59.6% 0.145 25);
+  --color-emerald-700:oklch(50.8% 0.118 25);
+  --color-emerald-800:oklch(43.2% 0.095 25);
+  --color-emerald-900:oklch(37.8% 0.077 25);
+  --color-emerald-950:oklch(26.2% 0.051 25);
+}
+
+html[data-day="2"]{ /* 星期二 橙 */
+  --d-bright:#ff6e1a;
+  --d-glow:#ff5e00;
+  --d-bg-top:#6f2d06;
+  --d-bg-bot:#441b04;
+  --d-card:#321808;
+  --d-card-deep:#2a1407;
+  --d-card-deep2:#391b09;
+  --d-card-hi:#4d230a;
+  --d-card-hover:#46210b;
+  --d-footer:#231006;
+  --d-hdr1:#331605;
+  --d-hdr2:#522104;
+  --d-hdr3:#612705;
+  --d-link:#ffc5a3;
+  --d-text:#f7ebe3;
+  --d-accent:#ffab7a;
+  --d-accent-dk:#934010;
+  --d-btn:#883607;
+  --color-emerald-50:oklch(97.9% 0.021 55);
+  --color-emerald-100:oklch(95% 0.052 55);
+  --color-emerald-200:oklch(90.5% 0.093 55);
+  --color-emerald-300:oklch(84.5% 0.143 55);
+  --color-emerald-400:oklch(76.5% 0.177 55);
+  --color-emerald-500:oklch(69.6% 0.17 55);
+  --color-emerald-600:oklch(59.6% 0.145 55);
+  --color-emerald-700:oklch(50.8% 0.118 55);
+  --color-emerald-800:oklch(43.2% 0.095 55);
+  --color-emerald-900:oklch(37.8% 0.077 55);
+  --color-emerald-950:oklch(26.2% 0.051 55);
+}
+
+html[data-day="3"]{ /* 星期三 黃 */
+  --d-bright:#ffc91a;
+  --d-glow:#ffc300;
+  --d-bg-top:#685103;
+  --d-bg-bot:#3c2e02;
+  --d-card:#342907;
+  --d-card-deep:#2b2206;
+  --d-card-deep2:#3a2f08;
+  --d-card-hi:#4e3e08;
+  --d-card-hover:#48390a;
+  --d-footer:#241d05;
+  --d-hdr1:#342904;
+  --d-hdr2:#554102;
+  --d-hdr3:#5a4502;
+  --d-link:#ffeaa3;
+  --d-text:#f7f2e3;
+  --d-accent:#ffe07a;
+  --d-accent-dk:#937410;
+  --d-btn:#8b6c04;
+  --color-emerald-50:oklch(97.9% 0.021 95);
+  --color-emerald-100:oklch(95% 0.052 95);
+  --color-emerald-200:oklch(90.5% 0.093 95);
+  --color-emerald-300:oklch(84.5% 0.143 95);
+  --color-emerald-400:oklch(76.5% 0.177 95);
+  --color-emerald-500:oklch(69.6% 0.17 95);
+  --color-emerald-600:oklch(59.6% 0.145 95);
+  --color-emerald-700:oklch(50.8% 0.118 95);
+  --color-emerald-800:oklch(43.2% 0.095 95);
+  --color-emerald-900:oklch(37.8% 0.077 95);
+  --color-emerald-950:oklch(26.2% 0.051 95);
+}
+
+html[data-day="4"]{ /* 星期四 綠 */
+  --d-bright:#1aff85;
+  --d-glow:#00ff77;
+  --d-bg-top:#115a33;
+  --d-bg-bot:#0a331d;
+  --d-card:#0d2d1c;
+  --d-card-deep:#0b2517;
+  --d-card-deep2:#0f3320;
+  --d-card-hi:#12442a;
+  --d-card-hover:#133f27;
+  --d-footer:#091f14;
+  --d-hdr1:#0b2d1b;
+  --d-hdr2:#0e4929;
+  --d-hdr3:#0f4d2c;
+  --d-link:#a3ffce;
+  --d-text:#e3f7ec;
+  --d-accent:#7affb8;
+  --d-accent-dk:#10934d;
+  --d-btn:#177844;
+  --color-emerald-50:oklch(97.9% 0.021 150);
+  --color-emerald-100:oklch(95% 0.052 150);
+  --color-emerald-200:oklch(90.5% 0.093 150);
+  --color-emerald-300:oklch(84.5% 0.143 150);
+  --color-emerald-400:oklch(76.5% 0.177 150);
+  --color-emerald-500:oklch(69.6% 0.17 150);
+  --color-emerald-600:oklch(59.6% 0.145 150);
+  --color-emerald-700:oklch(50.8% 0.118 150);
+  --color-emerald-800:oklch(43.2% 0.095 150);
+  --color-emerald-900:oklch(37.8% 0.077 150);
+  --color-emerald-950:oklch(26.2% 0.051 150);
+}
+
+html[data-day="5"]{ /* 星期五 藍 */
+  --d-bright:#1a7dff;
+  --d-glow:#006eff;
+  --d-bg-top:#0d3b77;
+  --d-bg-bot:#09274e;
+  --d-card:#0b1b30;
+  --d-card-deep:#091628;
+  --d-card-deep2:#0c1e36;
+  --d-card-hi:#0e2749;
+  --d-card-hover:#0f2543;
+  --d-footer:#071321;
+  --d-hdr1:#081930;
+  --d-hdr2:#09274e;
+  --d-hdr3:#0c346a;
+  --d-link:#a3cbff;
+  --d-text:#e3ecf7;
+  --d-accent:#7ab4ff;
+  --d-accent-dk:#104993;
+  --d-btn:#0e4081;
+  --color-emerald-50:oklch(97.9% 0.021 255);
+  --color-emerald-100:oklch(95% 0.052 255);
+  --color-emerald-200:oklch(90.5% 0.093 255);
+  --color-emerald-300:oklch(84.5% 0.143 255);
+  --color-emerald-400:oklch(76.5% 0.177 255);
+  --color-emerald-500:oklch(69.6% 0.17 255);
+  --color-emerald-600:oklch(59.6% 0.145 255);
+  --color-emerald-700:oklch(50.8% 0.118 255);
+  --color-emerald-800:oklch(43.2% 0.095 255);
+  --color-emerald-900:oklch(37.8% 0.077 255);
+  --color-emerald-950:oklch(26.2% 0.051 255);
+}
+
+html[data-day="6"]{ /* 星期六 靛 */
+  --d-bright:#401aff;
+  --d-glow:#2a00ff;
+  --d-bg-top:#2a1881;
+  --d-bg-bot:#1d115a;
+  --d-card:#130d2d;
+  --d-card-deep:#0f0b25;
+  --d-card-deep2:#150f33;
+  --d-card-hi:#1b1244;
+  --d-card-hover:#1a133f;
+  --d-footer:#0d091f;
+  --d-hdr1:#110b2d;
+  --d-hdr2:#180e49;
+  --d-hdr3:#261674;
+  --d-link:#b2a3ff;
+  --d-text:#e7e3f7;
+  --d-accent:#907aff;
+  --d-accent-dk:#261093;
+  --d-btn:#271778;
+  --color-emerald-50:oklch(97.9% 0.021 280);
+  --color-emerald-100:oklch(95% 0.052 280);
+  --color-emerald-200:oklch(90.5% 0.093 280);
+  --color-emerald-300:oklch(84.5% 0.143 280);
+  --color-emerald-400:oklch(76.5% 0.177 280);
+  --color-emerald-500:oklch(69.6% 0.17 280);
+  --color-emerald-600:oklch(59.6% 0.145 280);
+  --color-emerald-700:oklch(50.8% 0.118 280);
+  --color-emerald-800:oklch(43.2% 0.095 280);
+  --color-emerald-900:oklch(37.8% 0.077 280);
+  --color-emerald-950:oklch(26.2% 0.051 280);
+}
+
+html[data-day="0"]{ /* 星期日 紫 */
+  --d-bright:#c21aff;
+  --d-glow:#bb00ff;
+  --d-bg-top:#5f1c78;
+  --d-bg-bot:#421353;
+  --d-card:#240f2c;
+  --d-card-deep:#1e0c24;
+  --d-card-deep2:#291132;
+  --d-card-hi:#361542;
+  --d-card-hover:#32153d;
+  --d-footer:#190a1f;
+  --d-hdr1:#230c2c;
+  --d-hdr2:#381046;
+  --d-hdr3:#55196b;
+  --d-link:#e7a3ff;
+  --d-text:#f2e3f7;
+  --d-accent:#dc7aff;
+  --d-accent-dk:#701093;
+  --d-btn:#5c1b74;
+  --color-emerald-50:oklch(97.9% 0.021 315);
+  --color-emerald-100:oklch(95% 0.052 315);
+  --color-emerald-200:oklch(90.5% 0.093 315);
+  --color-emerald-300:oklch(84.5% 0.143 315);
+  --color-emerald-400:oklch(76.5% 0.177 315);
+  --color-emerald-500:oklch(69.6% 0.17 315);
+  --color-emerald-600:oklch(59.6% 0.145 315);
+  --color-emerald-700:oklch(50.8% 0.118 315);
+  --color-emerald-800:oklch(43.2% 0.095 315);
+  --color-emerald-900:oklch(37.8% 0.077 315);
+  --color-emerald-950:oklch(26.2% 0.051 315);
+}
+
+/* ============================================================
+   依星期變換的背景（致敬台北 101 的七彩燈光）
+   星期一紅、二橙、三黃、四綠、五藍、六靛、日紫
+   - 日期由 <head> 內的小段 script 以「台灣時間」判斷，寫成 <html data-day="1~6,0">
+   - 想預覽某一天：網址後面加 ?day=1（週一）… ?day=6（週六）、?day=0（週日）
+   - 想調整顏色深淺：改上面每一天區塊裡的 --d-bg-top / --d-bg-bot（越暗，白字越清楚）
+   - 文字對比（白字對背景）：七天都在 7.6:1 以上，符合 WCAG AAA
+   ============================================================ */
+
+html[data-day] {
+  min-height: 100%;
+  background:
+    radial-gradient(ellipse 85% 55% at 50% -8%, color-mix(in srgb, var(--d-glow) 30%, transparent), transparent 72%),
+    linear-gradient(180deg, var(--d-bg-top), var(--d-bg-bot)) fixed;
+  background-color: var(--d-bg-bot);
+}
+
+/* 頂端的 101 燈光細條 */
+html[data-day]::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 5px;
+  z-index: 30;
+  pointer-events: none;
+  background: var(--d-bright);
+  box-shadow: 0 0 16px 2px color-mix(in srgb, var(--d-bright) 70%, transparent);
+}
+
+/* 最外層（body 與 React 外層容器）改成透明，讓 html 的漸層露出來 */
+html[data-day] body,
+html[data-day] [class~="bg-[#07130e]"] {
+  background: transparent;
+}
+
+/* 單頁式靜態頁（路線頁、入園入山申請頁）：body 沒有 class */
+html[data-day] body:not([class]) { color: var(--d-text); }
+html[data-day] body:not([class]) a:not(.cta) { color: var(--d-link); }
+html[data-day] .cta.alt { border-color: var(--d-link); color: var(--d-link); }
+html[data-day] .video details { border-color: color-mix(in srgb, var(--d-link) 70%, transparent); }
+html[data-day] .video summary { color: var(--d-link); }
+
+/* ---------- 首頁 ---------- */
+/* 頁首 */
+html[data-day] header[class~="from-[#04110a]"] {
+  background-image: linear-gradient(180deg, var(--d-hdr1), var(--d-hdr2) 55%, var(--d-hdr3));
+  border-bottom-color: color-mix(in srgb, var(--d-bright) 75%, transparent);
+}
+html[data-day] [class~="drop-shadow-[0_2px_18px_rgba(0,200,83,0.35)]"] {
+  filter: drop-shadow(0 2px 18px color-mix(in srgb, var(--d-bright) 50%, transparent));
+}
+html[data-day] [class~="bg-[#00e676]"] { background-color: var(--d-accent); }
+
+/* 卡片與標籤 */
+html[data-day] [class~="bg-[#0e2318]/85"] { background-color: color-mix(in srgb, var(--d-card) 85%, transparent); }
+html[data-day] [class~="hover:bg-[#122e20]"]:hover { background-color: var(--d-card-hover); }
+html[data-day] [class~="bg-[#071a10]/80"] { background-color: color-mix(in srgb, var(--d-card-deep) 80%, transparent); }
+html[data-day] [class~="bg-[#0a2015]/80"] { background-color: color-mix(in srgb, var(--d-card-deep2) 80%, transparent); }
+html[data-day] [class~="bg-[#0f3822]"] { background-color: var(--d-card-hi); }
+html[data-day] [class~="to-[#0f3822]"] { --tw-gradient-to: var(--d-card-hi); }
+html[data-day] [class~="from-[#0a2718]"] { --tw-gradient-from: var(--d-card-hi); }
+html[data-day] [class~="to-[#06190f]"] { --tw-gradient-to: var(--d-card-deep); }
+
+/* 底部與後台按鈕 */
+html[data-day] [class~="bg-[#040e08]"] { background-color: var(--d-footer); }
+html[data-day] [class~="bg-[#0e271a]"] { background-color: var(--d-card-hi); }
+html[data-day] [class~="hover:bg-[#133725]"]:hover { background-color: var(--d-card-hover); }
+html[data-day] [class~="bg-[#091f14]"] { background-color: var(--d-card); }
+html[data-day] [class~="hover:bg-[#0f2e1e]"]:hover { background-color: var(--d-card-hover); }
+html[data-day] [class~="bg-[#0a1b13]/90"] { background-color: color-mix(in srgb, var(--d-card-deep) 90%, transparent); }
+html[data-day] [class~="hover:bg-[#102b1f]"]:hover { background-color: var(--d-card-hover); }
+
+/* 亮色強調文字（原本的螢光綠） */
+html[data-day] [class~="text-[#00e676]"] { color: var(--d-accent); }
+html[data-day] [class~="text-[#00e676]"][class~="hover:text-white"]:hover { color: #fff; }
+html[data-day] .group:hover [class~="group-hover:text-[#00e676]"] { color: var(--d-accent); }
+html[data-day] [class~="text-[#00c853]"] { color: var(--d-accent-dk); }
+html[data-day] [class~="text-[#00c853]"][class~="bg-emerald-500/20"] { color: var(--d-accent); }
+
+/* LINE 按鈕（from-[#00c853]、bg-[#00c853]）維持 LINE 品牌綠色，不跟著換色 */

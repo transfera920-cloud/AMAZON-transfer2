@@ -7,6 +7,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { decodeFirestore, buildGroups, renderGroups } from './permit-render.mjs';
+import { DAY_THEME_HEAD } from '../shared/dayTheme.mjs';
 import { resolveHomeContent, parseInline, plainText, DEFAULT_PERMIT_FAQ } from '../shared/homeContent.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -162,7 +163,7 @@ h1{color:#fff;font-size:28px;line-height:1.4}h2{color:#fff;font-size:20px;margin
 .cta{display:inline-block;background:#00c853;color:#fff;font-weight:700;padding:12px 28px;border-radius:999px;text-decoration:none;margin:8px 8px 0 0}
 .cta.alt{background:transparent;border:1px solid #10b981;color:#a7f3d0}
 </style>
-</head>
+${DAY_THEME_HEAD}</head>
 <body>
 <main>
 <nav aria-label="breadcrumb"><a href="/">亞馬遜高山接駁</a> › 入園入山申請</nav>

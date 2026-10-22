@@ -455,7 +455,9 @@
 
     <!-- FontAwesome 圖示庫 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  </head>
+  <script>(function(){function s(){var d;try{var m=/[?&]day=([0-6])(?:&|#|$)/.exec(location.search);if(m){d=+m[1]}else{d={Sun:0,Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6}[new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Taipei',weekday:'short'}).format(new Date())]}}catch(e){}if(d===undefined)d=new Date().getDay();document.documentElement.setAttribute('data-day',d)}s();document.addEventListener('visibilitychange',s)})();</script>
+<link rel="stylesheet" href="/day-theme.css" />
+</head>
   <body class="min-h-screen bg-[#07130e] text-slate-100 flex flex-col font-sans antialiased">
     <!-- 初次載入即存在的主要文字與結構，供爬蟲與初次載入檢視，React 掛載後接手互動 -->
     <div id="root" class="flex flex-col min-h-screen">
