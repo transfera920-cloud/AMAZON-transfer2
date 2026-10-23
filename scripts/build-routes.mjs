@@ -136,8 +136,18 @@ for (const r of routes) {
   if (!r.h1 || !r.metaTitle || !r.metaDescription) { console.warn(`[routes] ${r.slug}: H1／SEO 標題／SEO 描述缺漏，略過（保留原檔）`); continue; }
   published.push(r);
 }
+// ---------- 地區對照（路線頁頂端選單與底部導覽） ----------
+let regions = {};
+try {
+  regions = JSON.parse(fs.readFileSync(path.join(ROOT, 'src', 'data', 'routeRegions.json'), 'utf8'));
+  const missing = published.filter((r) => !regions[r.slug]).map((r) => r.slug);
+  console.log(`[routes] 套用 routeRegions.json${missing.length ? `；沒有地區的路線（會放在「其他」）：${missing.join('、')}` : ''}`);
+} catch (e) {
+  if (e.code !== 'ENOENT') console.warn(`[routes] 讀取 routeRegions.json 失敗，略過：${e.message}`);
+  regions = null;
+}
 for (const r of published) {
-  const html = renderRoutePage(r, { routes: published, contact, categoryTitles });
+  const html = renderRoutePage(r, { routes: published, contact, categoryTitles, ...(regions ? { regions } : {}) });
   const dir = path.join(PUB, r.slug);
   fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(path.join(dir, 'index.html'), html);

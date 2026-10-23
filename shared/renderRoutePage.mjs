@@ -76,7 +76,48 @@ a{color:#00e676}nav{font-size:14px;margin-bottom:20px}
 h1{color:#fff;font-size:28px;line-height:1.4}h2{color:#fff;font-size:20px;margin-top:32px}h3{color:#fff;font-size:16px;margin-bottom:0}
 .cta{display:inline-block;background:#00c853;color:#fff;font-weight:700;padding:12px 28px;border-radius:999px;text-decoration:none;margin:8px 8px 0 0}
 .cta.alt{background:transparent;border:1px solid #10b981;color:#a7f3d0}
+.regions{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 20px}
+.regions details{position:relative}
+.regions summary{cursor:pointer;list-style:none;padding:6px 12px;border:1px solid #10b981;border-radius:999px;color:#a7f3d0;font-size:14px}
+.regions summary::-webkit-details-marker{display:none}
+.regions summary::after{content:" ▾"}
+.regions ul{position:absolute;z-index:5;top:100%;left:0;margin:6px 0 0;padding:8px 14px;list-style:none;background:#0b1f17;border:1px solid #10b981;border-radius:12px;min-width:190px;max-height:60vh;overflow:auto;line-height:2}
+.regions li a{white-space:nowrap}
+.regions li a[aria-current]{color:#fff;font-weight:700;text-decoration:none}
 `;
+
+const REGION_ORDER = ['北北基', '宜花東', '桃竹苗', '中彰投', '雲嘉南', '高屏區'];
+
+/** 依地區分組（只含有路線的地區；沒有對照的路線放「其他」）。回傳 [{ region, items }] */
+function groupByRegion(list, regions) {
+  const map = new Map();
+  for (const r of list) {
+    const g = REGION_ORDER.includes(regions[r.slug]) ? regions[r.slug] : '其他';
+    if (!map.has(g)) map.set(g, []);
+    map.get(g).push(r);
+  }
+  return [...REGION_ORDER, '其他'].filter((g) => map.has(g)).map((g) => ({
+    region: g,
+    items: map.get(g).sort((a, b) => (a.order || 0) - (b.order || 0)),
+  }));
+}
+
+const linkText = (r) => `${r.navName || r.name}接駁`;
+
+/** 頁面頂端的地區選單（<details> 純 HTML，不需要 JS；連結全部在 HTML 裡，爬蟲讀得到） */
+function regionMenu(groups, currentSlug) {
+  return `<nav class="regions" aria-label="登山接駁路線選單">\n${groups.map((g) => `<details name="region-menu"><summary>${esc(g.region === '其他' ? '其他路線' : g.region + '登山接駁')}</summary><ul>${g.items.map((r) => `<li><a href="/${r.slug}/"${r.slug === currentSlug ? ' aria-current="page"' : ''}>${esc(linkText(r))}</a></li>`).join('')}</ul></details>`).join('\n')}\n</nav>\n`;
+}
+
+/** 頁面底部的完整導覽（所有已發布路線，依地區分組，不含目前這一頁） */
+function regionFooter(groups, currentSlug) {
+  const rows = groups
+    .map((g) => ({ region: g.region, items: g.items.filter((r) => r.slug !== currentSlug) }))
+    .filter((g) => g.items.length)
+    .map((g) => `<p><strong>${esc(g.region === '其他' ? '其他路線' : g.region + '登山接駁')}</strong>：${g.items.map((r) => `<a href="/${r.slug}/">${esc(linkText(r))}</a>`).join(' ｜ ')}</p>`)
+    .join('\n');
+  return rows ? `<h2>其他登山接駁路線</h2>\n${rows}\n` : '';
+}
 
 /** 逐字稿文字 → 段落陣列（一行一段） */
 export function transcriptParas(t = '') {
@@ -193,6 +234,7 @@ export function renderRoutePage(route, ctx = {}) {
     .filter((r) => r.group === 'popular' && r.slug !== route.slug)
     .sort((a, b) => (a.order || 0) - (b.order || 0));
   const navLinks = popular.map((r) => `<a href="/${r.slug}/">${esc(r.navName || r.name)}</a>`).join(' ｜ ');
+  const regionGroups = ctx.regions && typeof ctx.regions === 'object' ? groupByRegion(all, ctx.regions) : null; // 沒傳地區對照（例如後台預覽）就維持舊的導覽
   const articles = visibleArticles(route);
   const cp = route.ctaPrice && route.ctaPrice.url ? route.ctaPrice : DEFAULT_CTA_PRICE;
   const closing = String(route.closing || '').trim() || DEFAULT_CLOSING;
@@ -242,12 +284,12 @@ ${DAY_THEME_HEAD}</head>
 
   const body = `<body>
 <main>
-<nav aria-label="breadcrumb"><a href="/">${BRAND}</a> › ${esc(route.breadcrumbName)}</nav>
+${regionGroups ? regionMenu(regionGroups, route.slug) : ''}<nav aria-label="breadcrumb"><a href="/">${BRAND}</a> › ${esc(route.breadcrumbName)}</nav>
 <h1>${esc(route.h1)}</h1>
 <p>${inline(route.intro)}</p>
 <p><a class="cta" href="${esc(contact.lineUrl)}" target="_blank" rel="noopener">LINE 預約詢問</a><a class="cta alt" href="tel:${esc(contact.phone)}">來電諮詢</a><a class="cta alt" href="${esc(cp.url)}" target="_blank" rel="noopener">${esc(cp.label || DEFAULT_CTA_PRICE.label)}</a></p>
 
-${sections}${withVideo ? videoBlock(route, paras) : ''}${faq ? `<h2>常見問題</h2>\n${faq}\n` : ''}${prep}${navLinks ? `<h2>其他登山接駁路線</h2>\n<p>${navLinks}</p>\n` : ''}${route.group !== 'popular' ? `<p>更多路線請見<a href="/">首頁的「${esc((ctx.categoryTitles && ctx.categoryTitles[route.group]) || '更多百岳登山接駁路線')}」</a>。</p>\n` : ''}${articles.length ? articlesBlock(articles) : ''}${bodyToHtml(closing)}
+${sections}${withVideo ? videoBlock(route, paras) : ''}${faq ? `<h2>常見問題</h2>\n${faq}\n` : ''}${prep}${regionGroups ? regionFooter(regionGroups, route.slug) : navLinks ? `<h2>其他登山接駁路線</h2>\n<p>${navLinks}</p>\n` : ''}${route.group !== 'popular' ? `<p>更多路線請見<a href="/">首頁的「${esc((ctx.categoryTitles && ctx.categoryTitles[route.group]) || '更多百岳登山接駁路線')}」</a>。</p>\n` : ''}${articles.length ? articlesBlock(articles) : ''}${bodyToHtml(closing)}
 <p style="margin-top:40px"><a href="/">← 回到${BRAND}首頁</a></p>
 </main>
 </body>

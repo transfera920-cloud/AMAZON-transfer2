@@ -1,0 +1,22 @@
+{
+  "_說明": "路線所屬地區（網址代稱 → 地區）。路線頁頂端選單與底部導覽會依此分組；沒寫的路線會放在「其他」。地區順序固定：北北基、宜花東、桃竹苗、中彰投、雲嘉南、高屏區。新增路線後請在這裡補一行。",
+  "hehuanshan": "中彰投",
+  "xueshan": "中彰投",
+  "wulingshanzhuang": "中彰投",
+  "yushan": "中彰投",
+  "jiaminghu": "宜花東",
+  "qilai-nanhua": "中彰投",
+  "dabajianshan": "桃竹苗",
+  "jundashan": "中彰投",
+  "dajianshan": "中彰投",
+  "zhijiayang": "中彰投",
+  "nanhu": "中彰投",
+  "baigu": "中彰投",
+  "shuanshan": "中彰投",
+  "biyang": "宜花東",
+  "nenggao-andongjun": "中彰投",
+  "wanda": "中彰投",
+  "batongguan": "中彰投",
+  "nanhengsanxing": "宜花東",
+  "beidawu": "高屏區"
+}

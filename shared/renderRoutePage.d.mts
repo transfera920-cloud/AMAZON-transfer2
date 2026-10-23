@@ -9,7 +9,7 @@ export function bodyToHtml(body?: string): string;
 export function transcriptParas(t?: string): string[];
 export function hasVideo(route: any): boolean;
 export function visibleArticles(route: any): any[];
-export function renderRoutePage(route: any, ctx?: { routes?: any[]; contact?: { lineUrl?: string; phone?: string }; categoryTitles?: Record<string, string> }): string;
+export function renderRoutePage(route: any, ctx?: { routes?: any[]; contact?: { lineUrl?: string; phone?: string }; categoryTitles?: Record<string, string>; regions?: Record<string, string> }): string;
 export function checkRoute(route: any): string[];
 export function makeRouteTemplate(slug: string, name?: string, order?: number): any;
 export const DEFAULT_CTA_PRICE: { label: string; url: string };
