@@ -60,7 +60,8 @@ export function bodyToHtml(body = '') {
       if (lines.every((l) => /^\d+[.)] /.test(l))) {
         return `<ol>\n${lines.map((l) => `<li>${inline(l.replace(/^\d+[.)] /, ''))}</li>`).join('\n')}\n</ol>`;
       }
-      return `<p>${inline(lines.join(''))}</p>`;
+      // 同一段內單按 Enter 的換行 → <br>（不留段落間距）；要分段請空一行
+      return `<p>${lines.map(inline).join('<br>\n')}</p>`;
     })
     .join('\n');
 }
