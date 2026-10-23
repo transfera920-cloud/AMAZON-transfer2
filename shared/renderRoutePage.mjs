@@ -23,7 +23,10 @@ export const unesc = (s = '') =>
 
 const LINK_RE = /\[([^\]]+)\]\(([^)\s]+)\)/g;
 
-/** 簡易標記 → 行內 HTML */
+/** 粗體：**文字** → <strong>（輸入已先跳脫，只處理成對的 **） */
+const boldHtml = (t) => esc(t).replace(/\*\*([^*]+?)\*\*/g, '<strong>$1</strong>');
+
+/** 簡易標記 → 行內 HTML（連結 [文字](網址)、粗體 **文字**） */
 export function inline(md = '') {
   const s = String(md);
   let out = '';
@@ -31,18 +34,18 @@ export function inline(md = '') {
   let m;
   LINK_RE.lastIndex = 0;
   while ((m = LINK_RE.exec(s))) {
-    out += esc(s.slice(last, m.index));
+    out += boldHtml(s.slice(last, m.index));
     const url = m[2];
     const external = /^https?:\/\//i.test(url);
-    out += `<a href="${esc(url)}"${external ? ' target="_blank" rel="noopener"' : ''}>${esc(m[1])}</a>`;
+    out += `<a href="${esc(url)}"${external ? ' target="_blank" rel="noopener"' : ''}>${boldHtml(m[1])}</a>`;
     last = m.index + m[0].length;
   }
-  return out + esc(s.slice(last));
+  return out + boldHtml(s.slice(last));
 }
 
 /** 簡易標記 → 純文字（FAQ JSON-LD 用） */
 export function plain(md = '') {
-  return String(md).replace(LINK_RE, '$1');
+  return String(md).replace(LINK_RE, '$1').replace(/\*\*([^*]+?)\*\*/g, '$1');
 }
 
 /** 簡易標記區塊 → HTML 區塊 */
