@@ -24,7 +24,10 @@ export const unesc = (s = '') =>
 const LINK_RE = /\[([^\]]+)\]\(([^)\s]+)\)/g;
 
 /** 粗體：**文字** → <strong>（輸入已先跳脫，只處理成對的 **） */
-const boldHtml = (t) => esc(t).replace(/\*\*([^*]+?)\*\*/g, '<strong>$1</strong>');
+const boldHtml = (t) =>
+  esc(t)
+    .replace(/\+\+([^+]+?)\+\+/g, '<strong class="big">$1</strong>') // ++文字++ → 粗體＋放大
+    .replace(/\*\*([^*]+?)\*\*/g, '<strong>$1</strong>');
 
 /** 簡易標記 → 行內 HTML（連結 [文字](網址)、粗體 **文字**） */
 export function inline(md = '') {
@@ -45,7 +48,7 @@ export function inline(md = '') {
 
 /** 簡易標記 → 純文字（FAQ JSON-LD 用） */
 export function plain(md = '') {
-  return String(md).replace(LINK_RE, '$1').replace(/\*\*([^*]+?)\*\*/g, '$1');
+  return String(md).replace(LINK_RE, '$1').replace(/\*\*([^*]+?)\*\*/g, '$1').replace(/\+\+([^+]+?)\+\+/g, '$1');
 }
 
 /** 簡易標記區塊 → HTML 區塊 */
@@ -77,6 +80,7 @@ const BASE_CSS = `:root{color-scheme:dark}
 body{margin:0;background:#07130e;color:#d1fae5;font-family:system-ui,"Noto Sans TC",sans-serif;line-height:1.8}
 main{max-width:760px;margin:0 auto;padding:24px 16px 56px}
 a{color:#00e676}nav{font-size:14px;margin-bottom:20px}
+strong.big{font-size:1.3em;color:#fff}
 h1{color:#fff;font-size:28px;line-height:1.4}h2{color:#fff;font-size:20px;margin-top:32px}h3{color:#fff;font-size:16px;margin-bottom:0}
 .cta{display:inline-block;background:#00c853;color:#fff;font-weight:700;padding:12px 28px;border-radius:999px;text-decoration:none;margin:8px 8px 0 0}
 .cta.alt{background:transparent;border:1px solid #10b981;color:#a7f3d0}
