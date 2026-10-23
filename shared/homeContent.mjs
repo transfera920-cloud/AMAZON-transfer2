@@ -427,12 +427,52 @@ export function renderHomeBlocksHtml(content, routes) {
   return content.blocks.map((b) => renderBlockHtml(b, ctx)).filter(Boolean).join('\n\n');
 }
 
+/* ------------------------------------------------------------------ */
+/* 路線選單（放在首頁「高山接駁服務與即時查詢」卡片區上方）               */
+/* ------------------------------------------------------------------ */
+
+export const HOME_NAV_MARKER_START = '<!--HOME:NAV:START-->';
+export const HOME_NAV_MARKER_END = '<!--HOME:NAV:END-->';
+
+/** 選單與路線頁導覽的連結文字：「山名＋接駁」（名稱已經以「接駁」結尾就不重複加） */
+export function navLinkText(r) {
+  const n = String((r && (r.navName || r.name)) || '').trim();
+  return n.endsWith('接駁') ? n : `${n}接駁`;
+}
+
+/** 首頁選單的靜態 HTML（給爬蟲與初次載入；React 掛載後由 HomeNav 元件接手）。分類 = 後台首頁內容的「路線清單」區塊 */
+export function renderNavHtml(blocks, routes) {
+  const cats = routeCategories(blocks)
+    .map((c) => ({ ...c, list: (routes && routes[c.id]) || [] }))
+    .filter((c) => c.list.length);
+  if (!cats.length) return '';
+  const items = cats
+    .map(
+      (c) => `<details name="home-menu" style="margin:0 0 8px"><summary style="cursor:pointer;list-style:none;display:inline-block;padding:8px 16px;border:1px solid rgba(16,185,129,.6);border-radius:999px;color:#a7f3d0;font-weight:600">${esc(c.title)}</summary><ul style="list-style:none;margin:8px 0 0;padding:12px 16px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 16px">${c.list
+        .map((r) => `<li><a href="${esc(r.url)}" style="color:#00e676">${esc(navLinkText(r))}</a></li>`)
+        .join('')}</ul></details>`
+    )
+    .join('\n');
+  return `<nav aria-label="登山接駁路線選單" style="margin-bottom:32px;text-align:center">\n${items}\n</nav>`;
+}
+
 /** 把產生的區塊放進 index.html（以標記取代），並更新 JSON-LD 的 FAQPage 與服務目錄。回傳新的 HTML。 */
 export function applyHomeToIndexHtml(html, content, routes, allPublished) {
   const re = new RegExp(`${HOME_MARKER_START}[\\s\\S]*?${HOME_MARKER_END}`);
   if (!re.test(html)) throw new Error('index.html 找不到首頁區塊標記（<!--HOME:BLOCKS:START-->）');
   const block = `${HOME_MARKER_START}\n${renderHomeBlocksHtml(content, routes)}\n        ${HOME_MARKER_END}`;
   let out = html.replace(re, () => block);
+
+  // 路線選單：放在「百岳與高山登山接駁」卡片區上方；有標記就更新，沒有標記就在卡片區前面插入
+  const navHtml = renderNavHtml(content.blocks, routes);
+  const navRe = new RegExp(`${HOME_NAV_MARKER_START}[\\s\\S]*?${HOME_NAV_MARKER_END}`);
+  const navBlock = navHtml ? `${HOME_NAV_MARKER_START}\n${navHtml}\n        ${HOME_NAV_MARKER_END}` : `${HOME_NAV_MARKER_START}${HOME_NAV_MARKER_END}`;
+  if (navRe.test(out)) out = out.replace(navRe, () => navBlock);
+  else {
+    const cardsAnchor = '<!-- 百岳與高山登山接駁核心卡片 -->';
+    if (out.includes(cardsAnchor)) out = out.replace(cardsAnchor, () => `${navBlock}\n        ${cardsAnchor}`);
+    else console.warn('[home] index.html 找不到卡片區標記，略過路線選單');
+  }
 
   const ldRe = /(<script type="application\/ld\+json">)([\s\S]*?)(<\/script>)/;
   const m = out.match(ldRe);

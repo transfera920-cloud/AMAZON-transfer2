@@ -28,6 +28,7 @@ import { D0LodgingModal } from './components/D0LodgingModal';
 import { FeastModal } from './components/FeastModal';
 import { RoadStatusModal } from './components/RoadStatusModal';
 import { HomeBlocks } from './components/HomeBlocks';
+import { HomeNav } from './components/HomeNav';
 import { resolveHomeContent, routeCategories, buildHomeRoutes } from '../shared/homeContent.mjs';
 import type { HomeRoutes } from '../shared/homeContent.mjs';
 import { collection, onSnapshot } from 'firebase/firestore';
@@ -166,6 +167,9 @@ export default function App() {
 
       {/* 主要內容區 Main Content */}
       <main className="max-w-5xl mx-auto px-3 md:px-4 py-4 md:py-10 flex-grow w-full">
+        {/* 路線選單（分類來自後台首頁內容的路線清單區塊） */}
+        <HomeNav content={homeContent} routes={homeRoutes} />
+
         {/* 板塊網格 (百岳與高山登山接駁) */}
         <CardsGrid
           sectionTitle={siteData.sectionTitle || "百岳與高山登山接駁"}

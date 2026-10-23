@@ -86,35 +86,29 @@ h1{color:#fff;font-size:28px;line-height:1.4}h2{color:#fff;font-size:20px;margin
 .regions li a[aria-current]{color:#fff;font-weight:700;text-decoration:none}
 `;
 
-const REGION_ORDER = ['北北基', '宜花東', '桃竹苗', '中彰投', '雲嘉南', '高屏區'];
-
-/** 依地區分組（只含有路線的地區；沒有對照的路線放「其他」）。回傳 [{ region, items }] */
-function groupByRegion(list, regions) {
-  const map = new Map();
-  for (const r of list) {
-    const g = REGION_ORDER.includes(regions[r.slug]) ? regions[r.slug] : '其他';
-    if (!map.has(g)) map.set(g, []);
-    map.get(g).push(r);
-  }
-  return [...REGION_ORDER, '其他'].filter((g) => map.has(g)).map((g) => ({
-    region: g,
-    items: map.get(g).sort((a, b) => (a.order || 0) - (b.order || 0)),
-  }));
+/** 依後台的路線分類分組（分類順序＝首頁路線清單順序；不在分類清單裡的路線放最後「其他路線」）。回傳 [{ title, items }] */
+function groupByCategory(list, categories) {
+  const known = new Set(categories.map((c) => c.id));
+  const bucket = (id) => list.filter((r) => r.group === id).sort((a, b) => (a.order || 0) - (b.order || 0));
+  const groups = categories.map((c) => ({ title: c.title, items: bucket(c.id) }));
+  const rest = list.filter((r) => !known.has(r.group)).sort((a, b) => (a.order || 0) - (b.order || 0));
+  if (rest.length) groups.push({ title: '其他路線', items: rest });
+  return groups.filter((g) => g.items.length);
 }
 
 const linkText = (r) => `${r.navName || r.name}接駁`;
 
-/** 頁面頂端的地區選單（<details> 純 HTML，不需要 JS；連結全部在 HTML 裡，爬蟲讀得到） */
+/** 頁面頂端的分類選單（<details> 純 HTML，不需要 JS；連結全部在 HTML 裡，爬蟲讀得到） */
 function regionMenu(groups, currentSlug) {
-  return `<nav class="regions" aria-label="登山接駁路線選單">\n${groups.map((g) => `<details name="region-menu"><summary>${esc(g.region === '其他' ? '其他路線' : g.region + '登山接駁')}</summary><ul>${g.items.map((r) => `<li><a href="/${r.slug}/"${r.slug === currentSlug ? ' aria-current="page"' : ''}>${esc(linkText(r))}</a></li>`).join('')}</ul></details>`).join('\n')}\n</nav>\n`;
+  return `<nav class="regions" aria-label="登山接駁路線選單">\n${groups.map((g) => `<details name="region-menu"><summary>${esc(g.title)}</summary><ul>${g.items.map((r) => `<li><a href="/${r.slug}/"${r.slug === currentSlug ? ' aria-current="page"' : ''}>${esc(linkText(r))}</a></li>`).join('')}</ul></details>`).join('\n')}\n</nav>\n`;
 }
 
-/** 頁面底部的完整導覽（所有已發布路線，依地區分組，不含目前這一頁） */
+/** 頁面底部的完整導覽（所有已發布路線，依分類分組，不含目前這一頁） */
 function regionFooter(groups, currentSlug) {
   const rows = groups
-    .map((g) => ({ region: g.region, items: g.items.filter((r) => r.slug !== currentSlug) }))
+    .map((g) => ({ title: g.title, items: g.items.filter((r) => r.slug !== currentSlug) }))
     .filter((g) => g.items.length)
-    .map((g) => `<p><strong>${esc(g.region === '其他' ? '其他路線' : g.region + '登山接駁')}</strong>：${g.items.map((r) => `<a href="/${r.slug}/">${esc(linkText(r))}</a>`).join(' ｜ ')}</p>`)
+    .map((g) => `<p><strong>${esc(g.title)}</strong>：${g.items.map((r) => `<a href="/${r.slug}/">${esc(linkText(r))}</a>`).join(' ｜ ')}</p>`)
     .join('\n');
   return rows ? `<h2>其他登山接駁路線</h2>\n${rows}\n` : '';
 }
@@ -234,7 +228,7 @@ export function renderRoutePage(route, ctx = {}) {
     .filter((r) => r.group === 'popular' && r.slug !== route.slug)
     .sort((a, b) => (a.order || 0) - (b.order || 0));
   const navLinks = popular.map((r) => `<a href="/${r.slug}/">${esc(r.navName || r.name)}</a>`).join(' ｜ ');
-  const regionGroups = ctx.regions && typeof ctx.regions === 'object' ? groupByRegion(all, ctx.regions) : null; // 沒傳地區對照（例如後台預覽）就維持舊的導覽
+  const regionGroups = Array.isArray(ctx.categories) && ctx.categories.length ? groupByCategory(all, ctx.categories) : null; // 沒傳分類（例如後台預覽）就維持舊的導覽
   const articles = visibleArticles(route);
   const cp = route.ctaPrice && route.ctaPrice.url ? route.ctaPrice : DEFAULT_CTA_PRICE;
   const closing = String(route.closing || '').trim() || DEFAULT_CLOSING;

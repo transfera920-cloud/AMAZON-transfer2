@@ -34,3 +34,7 @@ export function bodyHtml(body: string): string;
 export function renderBlockHtml(block: HomeBlock, ctx: { routes: HomeRoutes; faq: HomeFaqEntry[] }): string;
 export function renderHomeBlocksHtml(content: HomeContent, routes: HomeRoutes): string;
 export function applyHomeToIndexHtml(html: string, content: HomeContent, routes: HomeRoutes, allPublished?: any[]): string;
+export const HOME_NAV_MARKER_START: string;
+export const HOME_NAV_MARKER_END: string;
+export function navLinkText(r: { navName?: string; name?: string }): string;
+export function renderNavHtml(blocks: HomeBlock[], routes: HomeRoutes): string;
