@@ -424,7 +424,8 @@ ${cards}
 /** 首頁所有區塊的靜態 HTML（不含標記） */
 export function renderHomeBlocksHtml(content, routes) {
   const ctx = { routes, faq: content.faq };
-  return content.blocks.map((b) => renderBlockHtml(b, ctx)).filter(Boolean).join('\n\n');
+  // 路線清單區塊（熱門／更多）不再顯示在頁面中間，路線連結改由上方的路線選單呈現（renderNavHtml）
+  return content.blocks.filter((b) => b.kind !== 'routes').map((b) => renderBlockHtml(b, ctx)).filter(Boolean).join('\n\n');
 }
 
 /* ------------------------------------------------------------------ */

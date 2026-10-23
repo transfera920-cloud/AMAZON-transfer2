@@ -59,6 +59,12 @@ export default function App() {
     [siteData.popularRoutesTitle, siteData.homeBlocks, siteData.homeFaq]
   );
 
+  // 頁面中間的區塊：隱藏路線清單（選單仍使用完整的 homeContent 取得分類）
+  const homeBlocksContent = useMemo(
+    () => ({ ...homeContent, blocks: homeContent.blocks.filter((b) => b.kind !== 'routes') }),
+    [homeContent]
+  );
+
   // 首頁路線清單：先用建置時產生的資料（立刻有畫面），再改讀資料庫的路線資料，
   // 這樣後台改的名稱、說明、分類、順序，以及新增的路線，儲存後首頁馬上更新，不必等「發布到網站」。
   const [liveRoutes, setLiveRoutes] = useState<any[] | null>(null);
@@ -177,7 +183,8 @@ export default function App() {
           onOpenModal={(modalType) => setActiveModal(modalType)}
         />
 
-        <HomeBlocks content={homeContent} routes={homeRoutes} />
+        {/* 路線清單區塊（熱門／更多）改由上方 HomeNav 顯示，頁面中間不再重複呈現 */}
+        <HomeBlocks content={homeBlocksContent} routes={homeRoutes} />
 
         {/* 關於我們區塊 */}
         <AboutSection
