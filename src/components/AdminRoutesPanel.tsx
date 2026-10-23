@@ -365,6 +365,21 @@ export const AdminRoutesPanel: React.FC<Props> = ({ isOpen, onClose }) => {
   };
 
   const set = <K extends keyof RouteData>(k: K, v: RouteData[K]) => { setDraft((d) => (d ? { ...d, [k]: v } : d)); setDirty(true); };
+  // 改路線名稱時，連動更新「還是系統自動帶入、沒被手動改過」的 SEO 欄位（H1、SEO 標題、SEO 描述、麵包屑、服務名稱）。
+  // 已經手動改過的欄位（和自動版本不一樣）一律不動。
+  const renameRoute = (nv: string) => {
+    setDraft((d) => {
+      if (!d) return d;
+      const oldT = makeRouteTemplate(d.slug, d.name) as Record<string, string>;
+      const newT = makeRouteTemplate(d.slug, nv) as Record<string, string>;
+      const next: Record<string, unknown> = { ...d, navName: nv, name: nv };
+      for (const k of ['h1', 'metaTitle', 'metaDescription', 'breadcrumbName', 'serviceName']) {
+        if ((d as unknown as Record<string, string>)[k] === oldT[k]) next[k] = newT[k];
+      }
+      return next as unknown as RouteData;
+    });
+    setDirty(true);
+  };
 
   const updSection = (i: number, patch: Partial<RouteSection>) =>
     set('sections', draft!.sections.map((s, k) => (k === i ? { ...s, ...patch } : s)));
@@ -573,7 +588,7 @@ export const AdminRoutesPanel: React.FC<Props> = ({ isOpen, onClose }) => {
 
               <Card title="基本設定">
                 <div className="grid md:grid-cols-2 gap-3">
-                  <Field label="路線名稱（後台與導覽短名稱）"><input className={inputCls} value={draft.navName} onChange={(e) => { set('navName', e.target.value); set('name', e.target.value); }} /></Field>
+                  <Field label="路線名稱（後台與導覽短名稱）"><input className={inputCls} value={draft.navName} onChange={(e) => renameRoute(e.target.value)} /></Field>
                   <Field label="llms.txt 與清單用的完整名稱" hint="例：玉山｜塔塔加"><input className={inputCls} value={draft.listName} onChange={(e) => set('listName', e.target.value)} /></Field>
                   <Field label="首頁清單顯示名稱" hint="首頁「熱門／更多路線」清單裡的連結文字，例：玉山登山口｜塔塔加停車場">
                     <input className={inputCls} value={draft.homeName || ''} onChange={(e) => set('homeName', e.target.value)} />
