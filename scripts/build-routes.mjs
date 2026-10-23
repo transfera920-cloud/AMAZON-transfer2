@@ -93,6 +93,22 @@ try {
   }
 }
 routes = routes.filter((r) => r && typeof r.slug === 'string').map(normalize);
+
+// ---------- SEO 覆蓋檔 ----------
+// src/data/seoOverrides.json 有寫的路線，H1／SEO 標題／SEO 描述以該檔為準（優先於後台）。不需要時刪掉該路線或整個檔案。
+try {
+  const ov = JSON.parse(fs.readFileSync(path.join(ROOT, 'src', 'data', 'seoOverrides.json'), 'utf8'));
+  let n = 0;
+  for (const r of routes) {
+    const o = ov[r.slug];
+    if (!o || typeof o !== 'object') continue;
+    for (const k of ['h1', 'metaTitle', 'metaDescription']) if (typeof o[k] === 'string' && o[k].trim()) r[k] = o[k].trim();
+    n++;
+  }
+  console.log(`[routes] 套用 seoOverrides.json：${n} 條路線`);
+} catch (e) {
+  if (e.code !== 'ENOENT') console.warn(`[routes] 讀取 seoOverrides.json 失敗，略過：${e.message}`);
+}
 routes.sort((a, b) => a.order - b.order);
 console.log(`[routes] 資料來源：${source}；共 ${routes.length} 條路線`);
 
