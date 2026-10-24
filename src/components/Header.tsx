@@ -1,5 +1,5 @@
 import React from 'react';
-import { Settings, ExternalLink } from 'lucide-react';
+import { Settings, ExternalLink, MessageCircle } from 'lucide-react';
 import { SiteData } from '../types';
 import { PAGE_H1 } from '../data/seoContent';
 
@@ -19,7 +19,7 @@ export const Header: React.FC<HeaderProps> = ({ data, onOpenAdmin, isCloudConnec
         className="absolute top-3 right-3 md:fixed md:top-4 md:right-4 z-40 bg-[#0a1b13]/90 hover:bg-[#102b1f] text-emerald-100 text-xs px-3.5 py-1.5 rounded-lg shadow-lg flex items-center gap-1.5 backdrop-blur-md transition-all border border-emerald-700/50 cursor-pointer"
         title="開啟網站內容管理後台"
       >
-        <i className="fa-solid fa-gear text-emerald-400" aria-hidden="true"></i>
+        <Settings className="w-3.5 h-3.5 text-emerald-400" aria-hidden="true" />
         <span>管理後台</span>
         {isCloudConnected && (
           <span
@@ -75,7 +75,7 @@ export const Header: React.FC<HeaderProps> = ({ data, onOpenAdmin, isCloudConnec
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center bg-gradient-to-r from-[#00c853] to-[#00b248] hover:from-[#00e676] hover:to-[#00c853] text-white font-bold px-9 py-4 rounded-full text-base md:text-lg shadow-[0_4px_25px_rgba(0,200,83,0.4)] hover:shadow-[0_6px_35px_rgba(0,200,83,0.55)] transition-all duration-200 transform hover:-translate-y-0.5"
             >
-              <i className="fa-brands fa-line text-2xl mr-2.5" aria-hidden="true"></i>
+              <MessageCircle className="w-6 h-6 mr-2.5" aria-hidden="true" />
               <span id="hero-line-text">{data.heroLineText || "點我加 LINE 官方帳號預約"}</span>
             </a>
           </div>

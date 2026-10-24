@@ -25,17 +25,7 @@ interface DynamicIconProps {
 export const DynamicIcon: React.FC<DynamicIconProps> = ({ iconName, className = '' }) => {
   const cleanName = (iconName || '').trim();
 
-  // If it is an explicit FontAwesome class name
-  const isFa = cleanName.startsWith('fa-') || cleanName.includes('fa-');
-
-  if (isFa) {
-    const fullClass = cleanName.startsWith('fa-') && !cleanName.includes('fa-solid') && !cleanName.includes('fa-brands') && !cleanName.includes('fa-regular')
-      ? `fa-solid ${cleanName}`
-      : cleanName;
-    return <i className={`${fullClass} ${className}`} aria-hidden="true" />;
-  }
-
-  // Fallback to Lucide mapping
+  // 舊資料可能存的是 FontAwesome 名稱（如 fa-calculator），這裡直接用關鍵字對應到 Lucide 圖示
   const lower = cleanName.toLowerCase();
   if (lower.includes('calc')) return <Calculator className={className} />;
   if (lower.includes('hotel') || lower.includes('bed') || lower.includes('lodg')) return <Hotel className={className} />;

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, lazy, Suspense } from 'react';
 import { SiteData, ActiveModalType } from './types';
 import { DEFAULT_DATA } from './data/defaultData';
 import {
@@ -17,22 +17,24 @@ import { Header } from './components/Header';
 import { CardsGrid } from './components/CardsGrid';
 import { AboutSection } from './components/AboutSection';
 import { Footer } from './components/Footer';
-import { AdminModal } from './components/AdminModal';
-import { AdminLoginModal } from './components/AdminLoginModal';
-import { AdminRoutesPanel } from './components/AdminRoutesPanel';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth, db } from './firebase';
 import { ADMIN_EMAIL } from './data/adminConfig';
-import { PriceCalcModal } from './components/PriceCalcModal';
-import { D0LodgingModal } from './components/D0LodgingModal';
-import { FeastModal } from './components/FeastModal';
-import { RoadStatusModal } from './components/RoadStatusModal';
 import { HomeBlocks } from './components/HomeBlocks';
 import { HomeNav } from './components/HomeNav';
 import { resolveHomeContent, routeCategories, buildHomeRoutes } from '../shared/homeContent.mjs';
 import type { HomeRoutes } from '../shared/homeContent.mjs';
 import { collection, onSnapshot } from 'firebase/firestore';
 import homeGenerated from './data/home.generated.json';
+
+// 後台與各工具視窗只在打開時才下載，減少首頁 JS 體積
+const AdminModal = lazy(() => import('./components/AdminModal').then((m) => ({ default: m.AdminModal })));
+const AdminLoginModal = lazy(() => import('./components/AdminLoginModal').then((m) => ({ default: m.AdminLoginModal })));
+const AdminRoutesPanel = lazy(() => import('./components/AdminRoutesPanel').then((m) => ({ default: m.AdminRoutesPanel })));
+const PriceCalcModal = lazy(() => import('./components/PriceCalcModal').then((m) => ({ default: m.PriceCalcModal })));
+const D0LodgingModal = lazy(() => import('./components/D0LodgingModal').then((m) => ({ default: m.D0LodgingModal })));
+const FeastModal = lazy(() => import('./components/FeastModal').then((m) => ({ default: m.FeastModal })));
+const RoadStatusModal = lazy(() => import('./components/RoadStatusModal').then((m) => ({ default: m.RoadStatusModal })));
 
 export default function App() {
   // Initialize with local cache for instant paint, then update with Cloud data
@@ -196,55 +198,50 @@ export default function App() {
       {/* 底部預約 Bar (Sticky/Fixed Footer) */}
       <Footer data={siteData} />
 
-      {/* 後台登入彈出視窗 (Admin Login Modal) */}
-      <AdminLoginModal
-        isOpen={isLoginOpen}
-        onClose={() => setIsLoginOpen(false)}
-        onLoginSuccess={handleLoginSuccess}
-      />
+      <Suspense fallback={null}>
+        {/* 後台登入彈出視窗 (Admin Login Modal) */}
+        {isLoginOpen && (
+          <AdminLoginModal
+            isOpen={isLoginOpen}
+            onClose={() => setIsLoginOpen(false)}
+            onLoginSuccess={handleLoginSuccess}
+          />
+        )}
 
-      {/* 後台管理彈出視窗 (Admin Modal) */}
-      <AdminModal
-        isOpen={isAdminOpen}
-        onClose={() => setIsAdminOpen(false)}
-        data={siteData}
-        onSave={handleSaveData}
-        isCloudConnected={isCloudConnected}
-        onLogout={handleLogout}
-        onOpenRoutes={() => { setIsAdminOpen(false); setIsRoutesOpen(true); }}
-      />
+        {/* 後台管理彈出視窗 (Admin Modal) */}
+        {isAdminOpen && (
+          <AdminModal
+            isOpen={isAdminOpen}
+            onClose={() => setIsAdminOpen(false)}
+            data={siteData}
+            onSave={handleSaveData}
+            isCloudConnected={isCloudConnected}
+            onLogout={handleLogout}
+            onOpenRoutes={() => { setIsAdminOpen(false); setIsRoutesOpen(true); }}
+          />
+        )}
 
-      {/* 路線內容管理（編輯各路線頁、發布到網站） */}
-      <AdminRoutesPanel
-        isOpen={isRoutesOpen && isAdminLoggedIn}
-        onClose={() => { setIsRoutesOpen(false); setIsAdminOpen(true); }}
-      />
+        {/* 路線內容管理（編輯各路線頁、發布到網站） */}
+        {isRoutesOpen && isAdminLoggedIn && (
+          <AdminRoutesPanel
+            isOpen={true}
+            onClose={() => { setIsRoutesOpen(false); setIsAdminOpen(true); }}
+          />
+        )}
 
-      {/* 互動工具彈出視窗: 價格估算系統 */}
-      <PriceCalcModal
-        isOpen={activeModal === 'calc'}
-        onClose={() => setActiveModal(null)}
-        lineUrl={siteData.lineUrl}
-        phone={siteData.phone}
-      />
-
-      {/* 互動工具彈出視窗: D0 住宿查詢 */}
-      <D0LodgingModal
-        isOpen={activeModal === 'hotel'}
-        onClose={() => setActiveModal(null)}
-      />
-
-      {/* 互動工具彈出視窗: 下山慶功宴查詢 */}
-      <FeastModal
-        isOpen={activeModal === 'food'}
-        onClose={() => setActiveModal(null)}
-      />
-
-      {/* 互動工具彈出視窗: 道路路線管制查詢 */}
-      <RoadStatusModal
-        isOpen={activeModal === 'road'}
-        onClose={() => setActiveModal(null)}
-      />
+        {/* 互動工具彈出視窗 */}
+        {activeModal === 'calc' && (
+          <PriceCalcModal
+            isOpen={true}
+            onClose={() => setActiveModal(null)}
+            lineUrl={siteData.lineUrl}
+            phone={siteData.phone}
+          />
+        )}
+        {activeModal === 'hotel' && <D0LodgingModal isOpen={true} onClose={() => setActiveModal(null)} />}
+        {activeModal === 'food' && <FeastModal isOpen={true} onClose={() => setActiveModal(null)} />}
+        {activeModal === 'road' && <RoadStatusModal isOpen={true} onClose={() => setActiveModal(null)} />}
+      </Suspense>
     </div>
   );
 }

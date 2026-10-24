@@ -160,7 +160,7 @@ function buildJsonLd(route, paras) {
       name: route.serviceName,
       serviceType: '登山口包車接送',
       areaServed: { '@type': 'Country', name: 'Taiwan' },
-      provider: { '@id': `${SITE}/#org` },
+      provider: { '@type': 'LocalBusiness', '@id': `${SITE}/#org`, name: '亞馬遜高山接駁', url: `${SITE}/`, telephone: '+886972573495' },
       '@id': `${url}#service`,
     },
     {

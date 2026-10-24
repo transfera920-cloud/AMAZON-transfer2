@@ -18,7 +18,8 @@ import {
   Cloud,
   Loader2,
   LogOut,
-  FileText
+  FileText,
+  Pencil,
 } from 'lucide-react';
 import { DynamicIcon } from './DynamicIcon';
 
@@ -331,7 +332,7 @@ export const AdminModal: React.FC<AdminModalProps> = ({
         <div className="bg-[#1e293b] text-white px-6 py-4 flex justify-between items-center border-b border-slate-700">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-emerald-600/30 text-emerald-400 flex items-center justify-center">
-              <i className="fa-solid fa-pen-to-square text-base"></i>
+              <Pencil className="w-4 h-4" aria-hidden="true" />
             </div>
             <div>
               <div className="flex items-center gap-2">

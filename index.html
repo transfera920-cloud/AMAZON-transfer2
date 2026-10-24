@@ -452,16 +452,13 @@
   ]
 }
     </script>
-
-    <!-- FontAwesome 圖示庫 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <script>(function(){function s(){var d;try{var m=/[?&]day=([0-6])(?:&|#|$)/.exec(location.search);if(m){d=+m[1]}else{d={Sun:0,Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6}[new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Taipei',weekday:'short'}).format(new Date())]}}catch(e){}if(d===undefined)d=new Date().getDay();document.documentElement.setAttribute('data-day',d)}s();document.addEventListener('visibilitychange',s)})();</script>
 <link rel="stylesheet" href="/day-theme.css" />
 </head>
   <body class="min-h-screen bg-[#07130e] text-slate-100 flex flex-col font-sans antialiased">
     <!-- 初次載入即存在的主要文字與結構，供爬蟲與初次載入檢視，React 掛載後接手互動 -->
     <div id="root" class="flex flex-col min-h-screen">
-      <header class="bg-gradient-to-b from-[#04110a] via-[#092215] to-[#0a1f14] text-white pt-14 pb-10 px-4 text-center border-b border-emerald-900/60">
+      <header class="bg-gradient-to-b from-[#04110a] via-[#092215] to-[#0a1f14] text-white pt-12 md:pt-14 pb-6 md:pb-10 px-4 text-center border-b border-emerald-900/60">
         <div class="max-w-4xl mx-auto">
           <div class="mb-3">
             <a
@@ -492,11 +489,12 @@
               rel="noopener noreferrer"
               class="inline-flex items-center justify-center bg-gradient-to-r from-[#00c853] to-[#00b248] text-white font-bold px-9 py-4 rounded-full text-base md:text-lg"
             >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="mr-2.5"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
               <span>點我加 LINE 官方帳號預約</span>
             </a>
           </div>
 
-          <div id="features-container" class="mt-9 pt-7 border-t border-emerald-800/40 flex flex-wrap justify-center gap-2.5 text-xs md:text-sm text-emerald-200">
+          <div id="features-container" class="mt-6 md:mt-9 pt-5 md:pt-7 border-t border-emerald-800/40 flex flex-wrap justify-center gap-2.5 text-xs md:text-sm text-emerald-200">
             <span class="px-3.5 py-1.5 rounded-full bg-[#0a2015]/80 border border-emerald-700/40">• 合法租賃營業車</span>
             <span class="px-3.5 py-1.5 rounded-full bg-[#0a2015]/80 border border-emerald-700/40">• 職業駕照司機</span>
             <span class="px-3.5 py-1.5 rounded-full bg-[#0a2015]/80 border border-emerald-700/40">• 準時接送不延誤</span>
@@ -506,7 +504,7 @@
         </div>
       </header>
 
-      <main class="max-w-5xl mx-auto px-4 py-10 flex-grow w-full">
+      <main class="max-w-5xl mx-auto px-3 md:px-4 py-4 md:py-10 flex-grow w-full">
         <!-- 百岳與高山登山接駁核心卡片 -->
         <section class="mb-12">
           <div class="text-center mb-9">
