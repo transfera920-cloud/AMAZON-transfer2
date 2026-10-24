@@ -8,17 +8,15 @@ import { SiteData, ActiveModalType } from './types';
 import { DEFAULT_DATA } from './data/defaultData';
 import {
   getLocalCachedData,
-  loadSiteDataFromCloud,
   saveSiteDataToCloud,
   subscribeToSiteData,
-  testConnection
+  getAuthInstance
 } from './firebase';
 import { Header } from './components/Header';
 import { CardsGrid } from './components/CardsGrid';
 import { AboutSection } from './components/AboutSection';
 import { Footer } from './components/Footer';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { auth, db } from './firebase';
+import { db } from './firebase';
 import { ADMIN_EMAIL } from './data/adminConfig';
 import { HomeBlocks } from './components/HomeBlocks';
 import { HomeNav } from './components/HomeNav';
@@ -47,9 +45,24 @@ export default function App() {
 
   // 以 Firebase Authentication 判斷登入狀態（真正的寫入權限由 Firestore 規則把關）
   useEffect(() => {
-    return onAuthStateChanged(auth, (user) => {
-      setIsAdminLoggedIn(!!user && user.email === ADMIN_EMAIL);
-    });
+    // firebase/auth 改為按需載入，不阻擋首頁
+    let unsub: (() => void) | undefined;
+    let cancelled = false;
+    (async () => {
+      try {
+        const [{ onAuthStateChanged }, auth] = await Promise.all([import('firebase/auth'), getAuthInstance()]);
+        if (cancelled) return;
+        unsub = onAuthStateChanged(auth, (user) => {
+          setIsAdminLoggedIn(!!user && user.email === ADMIN_EMAIL);
+        });
+      } catch (e) {
+        console.warn('Auth init failed', e);
+      }
+    })();
+    return () => {
+      cancelled = true;
+      unsub?.();
+    };
   }, []);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
@@ -71,11 +84,27 @@ export default function App() {
   // 這樣後台改的名稱、說明、分類、順序，以及新增的路線，儲存後首頁馬上更新，不必等「發布到網站」。
   const [liveRoutes, setLiveRoutes] = useState<any[] | null>(null);
   useEffect(() => {
-    return onSnapshot(
-      collection(db, 'routes'),
-      (snap) => setLiveRoutes(snap.docs.map((d) => d.data())),
-      (err) => console.warn('路線即時資料讀取失敗，使用建置時的清單：', err)
-    );
+    // 延後到首屏完成後才訂閱，避免和首屏渲染搶頻寬
+    let unsub: (() => void) | undefined;
+    let cancelled = false;
+    const start = () => {
+      if (cancelled) return;
+      unsub = onSnapshot(
+        collection(db, 'routes'),
+        (snap) => setLiveRoutes(snap.docs.map((d) => d.data())),
+        (err) => console.warn('路線即時資料讀取失敗，使用建置時的清單：', err)
+      );
+    };
+    const w = window as any;
+    const handle = typeof w.requestIdleCallback === 'function'
+      ? w.requestIdleCallback(start, { timeout: 2500 })
+      : window.setTimeout(start, 1500);
+    return () => {
+      cancelled = true;
+      if (typeof w.cancelIdleCallback === 'function' && typeof w.requestIdleCallback === 'function') w.cancelIdleCallback(handle);
+      else window.clearTimeout(handle);
+      unsub?.();
+    };
   }, []);
   const homeRoutes = useMemo<HomeRoutes>(() => {
     if (!liveRoutes || !liveRoutes.length) return homeGenerated.routes as HomeRoutes;
@@ -100,7 +129,9 @@ export default function App() {
   };
 
   const handleLogout = () => {
-    signOut(auth).catch((e) => console.warn(e));
+    Promise.all([import('firebase/auth'), getAuthInstance()])
+      .then(([{ signOut }, auth]) => signOut(auth))
+      .catch((e) => console.warn(e));
     setIsAdminLoggedIn(false);
     setIsAdminOpen(false);
     setIsRoutesOpen(false);
@@ -113,21 +144,7 @@ export default function App() {
   useEffect(() => {
     let isMounted = true;
 
-    // Validate connection
-    testConnection();
-
-    // Initial load from cloud with automatic localStorage fallback
-    loadSiteDataFromCloud()
-      .then(({ data, fromCloud }) => {
-        if (isMounted) {
-          setSiteData(data);
-          setIsCloudConnected(fromCloud);
-        }
-      })
-      .catch((err) => {
-        console.warn('Initial cloud fetch error, relying on local cache:', err);
-      });
-
+    // 只保留即時監聽：第一次回呼就是初始資料，settings/general 每次造訪只讀一次
     // Real-time multi-device sync listener
     const unsubscribe = subscribeToSiteData(
       (updatedData) => {

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Lock, User, KeyRound, Eye, EyeOff, X, AlertCircle } from 'lucide-react';
-import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
-import { auth } from '../firebase';
+import { getAuthInstance } from '../firebase';
 import { ADMIN_EMAIL } from '../data/adminConfig';
 
 interface AdminLoginModalProps {
@@ -28,6 +27,8 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
     setErrorMsg(null);
     setLoading(true);
     try {
+      const { signInWithEmailAndPassword, signOut } = await import('firebase/auth');
+      const auth = await getAuthInstance();
       const cred = await signInWithEmailAndPassword(auth, username.trim(), password);
       if (cred.user.email !== ADMIN_EMAIL) {
         await signOut(auth);

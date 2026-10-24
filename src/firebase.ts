@@ -4,7 +4,7 @@
  */
 
 import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import type { Auth } from 'firebase/auth';
 import {
   getFirestore,
   doc,
@@ -23,7 +23,15 @@ const app = initializeApp(firebaseConfig);
 
 // CRITICAL: Using firestoreDatabaseId specified in config
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
-export const auth = getAuth(app);
+
+// firebase/auth 只有管理員登入時才需要，改為按需載入，避免拖慢首頁
+let authInstance: Auth | null = null;
+export async function getAuthInstance(): Promise<Auth> {
+  if (authInstance) return authInstance;
+  const { getAuth } = await import('firebase/auth');
+  authInstance = getAuth(app);
+  return authInstance;
+}
 
 export enum OperationType {
   CREATE = 'create',
@@ -55,12 +63,12 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
   const errInfo: FirestoreErrorInfo = {
     error: error instanceof Error ? error.message : String(error),
     authInfo: {
-      userId: auth.currentUser?.uid,
-      email: auth.currentUser?.email,
-      emailVerified: auth.currentUser?.emailVerified,
-      isAnonymous: auth.currentUser?.isAnonymous,
-      tenantId: auth.currentUser?.tenantId,
-      providerInfo: auth.currentUser?.providerData?.map(provider => ({
+      userId: authInstance?.currentUser?.uid,
+      email: authInstance?.currentUser?.email,
+      emailVerified: authInstance?.currentUser?.emailVerified,
+      isAnonymous: authInstance?.currentUser?.isAnonymous,
+      tenantId: authInstance?.currentUser?.tenantId,
+      providerInfo: authInstance?.currentUser?.providerData?.map(provider => ({
         providerId: provider.providerId,
         email: provider.email,
       })) || []
