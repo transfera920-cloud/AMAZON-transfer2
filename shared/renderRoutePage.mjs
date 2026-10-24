@@ -82,6 +82,7 @@ main{max-width:760px;margin:0 auto;padding:24px 16px 56px}
 a{color:#00e676}nav{font-size:14px;margin-bottom:20px}
 strong.big{font-size:1.3em;color:#fff}
 h1{color:#fff;font-size:28px;line-height:1.4}h2{color:#fff;font-size:20px;margin-top:32px}h3{color:#fff;font-size:16px;margin-bottom:0}
+.updated{font-size:14px;color:#6ee7b7;margin:-8px 0 14px}
 .cta{display:inline-block;background:#00c853;color:#fff;font-weight:700;padding:12px 28px;border-radius:999px;text-decoration:none;margin:8px 8px 0 0}
 .cta.alt{background:transparent;border:1px solid #10b981;color:#a7f3d0}
 .regions{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 20px}
@@ -134,9 +135,60 @@ export function visibleArticles(route) {
   return (route.articles || []).filter((a) => a && a.show !== false && a.title && /^https:\/\//.test(a.url || ''));
 }
 
-function buildJsonLd(route, paras) {
+// ---------- 登山口照片 ----------
+/** 只接受 https 網址或站內路徑（/images/...）；其他一律不輸出 */
+export function photoSrc(u = '') {
+  const t = String(u || '').trim();
+  if (/^https:\/\/[^\s"'<>]+$/i.test(t)) return t;
+  if (/^\/(?!\/)[^\s"'<>]*$/.test(t)) return t;
+  return '';
+}
+const absUrl = (u) => (u.startsWith('/') ? `${SITE}${u}` : u);
+
+/** 會顯示的照片：網址合法、且有填 ALT（沒有替代文字的照片不輸出，避免影響無障礙與圖片搜尋） */
+export function visiblePhotos(route) {
+  return (route.photos || []).filter((p) => p && p.show !== false && photoSrc(p.url) && String(p.alt || '').trim());
+}
+
+const PHOTO_CSS = `/*PHOTOS:START*/
+.photos{display:grid;gap:14px;margin:16px 0}.photos figure{margin:0}
+.photos img{display:block;width:100%;height:auto;border-radius:12px;background:#0b1f17}
+.photos figcaption{font-size:14px;color:#a7f3d0;margin-top:6px;line-height:1.6}
+/*PHOTOS:END*/`;
+
+function photosBlock(items, heading) {
+  const figs = items
+    .map((p) => {
+      const w = Math.round(Number(p.width));
+      const h = Math.round(Number(p.height));
+      const dim = w > 0 && h > 0 ? ` width="${w}" height="${h}"` : '';
+      const cap = String(p.caption || '').trim();
+      return `<figure><img src="${esc(photoSrc(p.url))}" alt="${esc(String(p.alt).trim())}"${dim} loading="lazy" decoding="async" />${cap ? `<figcaption>${esc(cap)}</figcaption>` : ''}</figure>`;
+    })
+    .join('\n');
+  return `<!--PHOTOS:START-->\n<h2>${esc(heading || '登山口照片')}</h2>\n<div class="photos">\n${figs}\n</div>\n<!--PHOTOS:END-->\n`;
+}
+
+// ---------- 小標題錨點 ----------
+/** 幫 <h2>／<h3> 加上 id（由標題文字產生、同一頁不重複），讓搜尋結果與 AI 可以直接連到段落 */
+export function addHeadingIds(html = '') {
+  const used = new Set();
+  return String(html).replace(/<h([23])>([^<]*)<\/h\1>/g, (m, lv, inner) => {
+    const base = unesc(inner).toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-+|-+$/g, '').slice(0, 40).replace(/-+$/g, '');
+    if (!base) return m;
+    let id = base;
+    for (let n = 2; used.has(id); n++) id = `${base}-${n}`;
+    used.add(id);
+    return `<h${lv} id="${esc(id)}">${inner}</h${lv}>`;
+  });
+}
+
+const validDate = (d) => /^\d{4}-\d{2}-\d{2}$/.test(String(d || ''));
+
+function buildJsonLd(route, paras, contact = DEFAULT_CONTACT) {
   const url = `${SITE}/${route.slug}/`;
   const faq = (route.faq || []).filter((f) => f && f.q && f.a);
+  const photos = visiblePhotos(route);
   const graph = [
     {
       '@type': 'WebPage',
@@ -147,6 +199,7 @@ function buildJsonLd(route, paras) {
       isPartOf: { '@id': `${SITE}/#website` },
       about: { '@id': `${url}#service` },
       dateModified: route.updatedAt,
+      ...(photos.length ? { primaryImageOfPage: { '@id': `${url}#photo-1` } } : {}),
     },
     {
       '@type': 'BreadcrumbList',
@@ -160,7 +213,20 @@ function buildJsonLd(route, paras) {
       name: route.serviceName,
       serviceType: '登山口包車接送',
       areaServed: { '@type': 'Country', name: 'Taiwan' },
-      provider: { '@type': 'LocalBusiness', '@id': `${SITE}/#org`, name: '亞馬遜高山接駁', url: `${SITE}/`, telephone: '+886972573495' },
+      // 與首頁的 LocalBusiness（同一個 @id）欄位保持一致，搜尋引擎與 AI 才會當成同一個實體
+      provider: {
+        '@type': 'LocalBusiness',
+        '@id': `${SITE}/#org`,
+        name: BRAND,
+        alternateName: ['高山接駁', '登山接駁', 'Amazon Hike Transfer'],
+        url: `${SITE}/`,
+        telephone: '+886972573495',
+        image: `${SITE}/images/og-cover.jpg`,
+        logo: `${SITE}/logo.png`,
+        priceRange: '$$',
+        address: { '@type': 'PostalAddress', addressCountry: 'TW', addressRegion: '嘉義縣' },
+        sameAs: [contact.lineUrl, 'https://www.facebook.com/groups/518840791872080'].filter(Boolean),
+      },
       '@id': `${url}#service`,
     },
     {
@@ -172,6 +238,21 @@ function buildJsonLd(route, paras) {
       })),
     },
   ];
+  photos.forEach((p, i) => {
+    const w = Math.round(Number(p.width));
+    const h = Math.round(Number(p.height));
+    graph.push({
+      '@type': 'ImageObject',
+      '@id': `${url}#photo-${i + 1}`,
+      contentUrl: absUrl(photoSrc(p.url)),
+      url: absUrl(photoSrc(p.url)),
+      description: String(p.alt).trim(),
+      caption: String(p.caption || p.alt).trim(),
+      ...(w > 0 && h > 0 ? { width: w, height: h } : {}),
+      inLanguage: 'zh-TW',
+      creator: { '@id': `${SITE}/#org` },
+    });
+  });
   const v = route.video || {};
   const id = String(v.youtubeId || '').trim();
   if (id && v.title && v.description && v.uploadDate) {
@@ -228,6 +309,7 @@ export function renderRoutePage(route, ctx = {}) {
   const all = (ctx.routes || []).filter((r) => r.published !== false);
   const url = `${SITE}/${route.slug}/`;
   const withVideo = hasVideo(route);
+  const photos = visiblePhotos(route);
   const paras = withVideo ? transcriptParas(route.video.transcript) : [];
   const t = esc(route.metaTitle);
   const d = esc(route.metaDescription);
@@ -268,9 +350,9 @@ export function renderRoutePage(route, ctx = {}) {
 <meta name="twitter:title" content="${t}" />
 <meta name="twitter:description" content="${d}" />
 <meta name="twitter:image" content="${SITE}/images/og-cover.jpg" />
-<script type="application/ld+json">${buildJsonLd(route, paras)}</script>
+<script type="application/ld+json">${buildJsonLd(route, paras, contact)}</script>
 <style>
-${BASE_CSS}${withVideo ? VIDEO_CSS + '\n' : ''}</style>
+${BASE_CSS}${withVideo ? VIDEO_CSS + '\n' : ''}${photos.length ? PHOTO_CSS + '\n' : ''}</style>
 ${DAY_THEME_HEAD}</head>
 `;
 
@@ -292,16 +374,16 @@ ${DAY_THEME_HEAD}</head>
 <main>
 ${regionGroups ? regionMenu(regionGroups, route.slug) : ''}<nav aria-label="breadcrumb"><a href="/">${BRAND}</a> › ${esc(route.breadcrumbName)}</nav>
 <h1>${esc(route.h1)}</h1>
-<p>${inline(route.intro)}</p>
+${validDate(route.updatedAt) ? `<p class="updated">最後更新：<time datetime="${route.updatedAt}">${route.updatedAt}</time></p>\n` : ''}<p>${inline(route.intro)}</p>
 <p><a class="cta" href="${esc(contact.lineUrl)}" target="_blank" rel="noopener">LINE 預約詢問</a><a class="cta alt" href="tel:${esc(contact.phone)}">來電諮詢</a><a class="cta alt" href="${esc(cp.url)}" target="_blank" rel="noopener">${esc(cp.label || DEFAULT_CTA_PRICE.label)}</a></p>
 
-${sections}${withVideo ? videoBlock(route, paras) : ''}${faq ? `<h2>常見問題</h2>\n${faq}\n` : ''}${prep}${regionGroups ? regionFooter(regionGroups, route.slug) : navLinks ? `<h2>其他登山接駁路線</h2>\n<p>${navLinks}</p>\n` : ''}${route.group !== 'popular' ? `<p>更多路線請見<a href="/">首頁的「${esc((ctx.categoryTitles && ctx.categoryTitles[route.group]) || '更多百岳登山接駁路線')}」</a>。</p>\n` : ''}${articles.length ? articlesBlock(articles) : ''}${bodyToHtml(closing)}
+${sections}${photos.length ? photosBlock(photos, route.photosHeading) : ''}${withVideo ? videoBlock(route, paras) : ''}${faq ? `<h2>常見問題</h2>\n${faq}\n` : ''}${prep}${regionGroups ? regionFooter(regionGroups, route.slug) : navLinks ? `<h2>其他登山接駁路線</h2>\n<p>${navLinks}</p>\n` : ''}${route.group !== 'popular' ? `<p>更多路線請見<a href="/">首頁的「${esc((ctx.categoryTitles && ctx.categoryTitles[route.group]) || '更多百岳登山接駁路線')}」</a>。</p>\n` : ''}${articles.length ? articlesBlock(articles) : ''}${bodyToHtml(closing)}
 <p style="margin-top:40px"><a href="/">← 回到${BRAND}首頁</a></p>
 </main>
 </body>
 </html>
 `;
-  return head + body;
+  return head + addHeadingIds(body);
 }
 
 /** 檢查路線資料，回傳提醒文字陣列（只提醒，不擋存檔） */
@@ -324,6 +406,15 @@ export function checkRoute(route) {
   });
   (route.articles || []).forEach((a) => {
     if (a.show !== false && a.url && !/^https:\/\//.test(a.url)) w.push(`攻略文章「${a.title || a.url}」網址不是 https，不會顯示`);
+  });
+  (route.photos || []).forEach((p, i) => {
+    if (!p || (!p.url && !p.alt)) return;
+    const n = `第 ${i + 1} 張照片`;
+    if (!photoSrc(p.url)) w.push(`${n}：網址要用 https:// 開頭，或站內路徑（/images/...），目前不會顯示`);
+    else if (!String(p.alt || '').trim()) w.push(`${n}：還沒填 ALT（替代文字），沒有 ALT 的照片不會顯示`);
+    else if ([...String(p.alt)].length < 8) w.push(`${n}：ALT 太短（建議 8～60 字，描述照片裡有什麼）`);
+    else if ([...String(p.alt)].length > 120) w.push(`${n}：ALT 偏長（建議 60 字內）`);
+    if (p.url && photoSrc(p.url) && !(Number(p.width) > 0 && Number(p.height) > 0)) w.push(`${n}：沒填寬高，載入時版面可能跳動（選填，建議填）`);
   });
   if (route.video && route.video.youtubeId) {
     if (!route.video.uploadDate) w.push('影片缺上傳日期，只會嵌入影片、不會輸出影片結構化資料');
@@ -382,5 +473,6 @@ export function makeRouteTemplate(slug, name, order = 99) {
     },
     video: { youtubeId: '', title: '', description: '', uploadDate: '', duration: '', heading: '', summary: [], transcript: '' },
     articles: [],
+    photos: [],
   };
 }

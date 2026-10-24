@@ -4,7 +4,7 @@ import {
   X, Save, Plus, Trash2, ArrowUp, ArrowDown, Eye, EyeOff, ChevronLeft, Loader2, Rocket, AlertTriangle, Check, Download
 } from 'lucide-react';
 import { db } from '../firebase';
-import { RouteData, RouteSection } from '../types';
+import { RouteData, RouteSection, RoutePhoto } from '../types';
 import seedRoutesRaw from '../data/routes.seed.json';
 import { AdminHomePanel } from './AdminHomePanel';
 import { resolveHomeContent, routeCategories, DEFAULT_HOME_ROUTE_TEXT } from '../../shared/homeContent.mjs';
@@ -22,6 +22,7 @@ function clean(r: RouteData): RouteData {
   c.sections = (c.sections || []).map((s, i) => ({ ...s, id: s.id || `s${Date.now()}${i}` }));
   c.faq = c.faq || [];
   c.articles = c.articles || [];
+  c.photos = (c.photos || []).map((p) => ({ ...p }));
   c.prep = c.prep || { heading: '', body: '' };
   c.video = { youtubeId: '', heading: '', title: '', description: '', uploadDate: '', duration: '', summary: [], transcript: '', ...(c.video || {}) };
   // 首頁清單的名稱與說明：後台還沒填過的路線，帶入原本寫在程式裡的文字，編輯時看得到、存檔後就屬於後台
@@ -753,6 +754,50 @@ export const AdminRoutesPanel: React.FC<Props> = ({ isOpen, onClose }) => {
                 <Field label="影片說明（給搜尋引擎的結構化資料）"><textarea className={inputCls} rows={2} value={draft.video.description} onChange={(e) => set('video', { ...draft.video, description: e.target.value })} /></Field>
                 <Field label="重點摘要（一行一點）"><textarea className={inputCls} rows={3} value={draft.video.summary.join('\n')} onChange={(e) => set('video', { ...draft.video, summary: e.target.value.split('\n') })} /></Field>
                 <Field label="逐字稿（一行一段，可直接貼上）"><textarea className={inputCls} rows={5} value={draft.video.transcript} onChange={(e) => set('video', { ...draft.video, transcript: e.target.value })} /></Field>
+              </Card>
+
+              <Card
+                title={`登山口照片（${(draft.photos || []).length}）`}
+                aside={<button className={btnGhost} onClick={() => set('photos', [...(draft.photos || []), { url: '', alt: '', caption: '', show: true }])}><Plus className="w-3.5 h-3.5" />新增照片</button>}
+              >
+                <div className="text-[11px] text-gray-600 bg-amber-50 border border-amber-200 rounded-lg p-2.5 space-y-1 leading-relaxed">
+                  <p><b>怎麼放照片：</b>把照片（建議 WebP 或 JPG、寬約 1200px、單張 300KB 以下）放進專案的 <code>public/images/trailheads/</code> 資料夾，用 GitHub Desktop 提交，這裡的網址欄就填 <code>/images/trailheads/檔名.webp</code>。也可以直接貼 https 開頭的圖片網址。檔名請用英文小寫（例：yushan-tatajia-trailhead.webp），<b>換照片時請改檔名</b>，不然瀏覽器會沿用舊圖。</p>
+                  <p><b>ALT（替代文字）：</b>用一句話描述照片裡有什麼，給視障者的讀屏軟體、搜尋引擎與 AI 閱讀；圖片載入失敗時也會顯示。例：「玉山塔塔加登山口停車場與登山口告示牌，清晨有薄霧」。<b>沒填 ALT 的照片不會顯示在網頁上。</b></p>
+                  <p>寬、高（像素）選填，填了網頁載入時版面比較不會跳動。照片會顯示在「內容區塊」後面、影片前面。</p>
+                </div>
+                <Field label="照片區塊標題（H2，留空＝登山口照片）">
+                  <input className={inputCls} value={draft.photosHeading || ''} onChange={(e) => set('photosHeading', e.target.value)} placeholder="例：塔塔加登山口照片" />
+                </Field>
+                {(draft.photos || []).map((p, i) => {
+                  const upd = (patch: Partial<RoutePhoto>) => set('photos', (draft.photos || []).map((x, k) => (k === i ? { ...x, ...patch } : x)));
+                  const okUrl = /^https:\/\//i.test(p.url || '') || /^\/(?!\/)/.test(p.url || '');
+                  return (
+                    <div key={i} className="border border-gray-200 rounded-lg p-3 space-y-2 bg-slate-50/50">
+                      <div className="flex gap-3">
+                        <div className="w-24 h-24 shrink-0 rounded-md bg-slate-200 overflow-hidden flex items-center justify-center text-[10px] text-gray-500">
+                          {okUrl ? <img src={p.url} alt={p.alt || ''} className="w-full h-full object-cover" /> : '預覽'}
+                        </div>
+                        <div className="flex-1 space-y-2 min-w-0">
+                          <input className={inputCls} placeholder="/images/trailheads/檔名.webp 或 https://…" value={p.url || ''} onChange={(e) => upd({ url: e.target.value.trim() })} />
+                          <input className={inputCls} placeholder="ALT 替代文字（必填，描述照片裡有什麼）" value={p.alt || ''} onChange={(e) => upd({ alt: e.target.value })} />
+                          <input className={inputCls} placeholder="照片說明（選填，顯示在照片下方）" value={p.caption || ''} onChange={(e) => upd({ caption: e.target.value })} />
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <input className={`${inputCls} w-24`} type="number" min={0} placeholder="寬 px" value={p.width || ''} onChange={(e) => upd({ width: e.target.value ? Number(e.target.value) : undefined })} />
+                        <input className={`${inputCls} w-24`} type="number" min={0} placeholder="高 px" value={p.height || ''} onChange={(e) => upd({ height: e.target.value ? Number(e.target.value) : undefined })} />
+                        <label className="text-xs flex items-center gap-1 cursor-pointer"><input type="checkbox" checked={p.show !== false} onChange={(e) => upd({ show: e.target.checked })} />顯示</label>
+                        {!p.alt?.trim() && p.url && <span className="text-[11px] text-red-600">缺 ALT，不會顯示</span>}
+                        <span className="ml-auto flex gap-1">
+                          <button className={btnGhost} disabled={i === 0} onClick={() => set('photos', moveItem(draft.photos || [], i, -1))}><ArrowUp className="w-3.5 h-3.5" /></button>
+                          <button className={btnGhost} disabled={i === (draft.photos || []).length - 1} onClick={() => set('photos', moveItem(draft.photos || [], i, 1))}><ArrowDown className="w-3.5 h-3.5" /></button>
+                          <button className={`${btnGhost} text-red-600`} onClick={() => set('photos', (draft.photos || []).filter((_, k) => k !== i))}><Trash2 className="w-3.5 h-3.5" /></button>
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+                {!(draft.photos || []).length && <p className="text-[11px] text-gray-500">還沒有照片。按右上角「新增照片」。</p>}
               </Card>
 
               <Card

@@ -11,7 +11,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { decodeFirestore } from './permit-render.mjs';
 import { fetchRoutesResilient } from './fetch-routes.mjs';
-import { renderRoutePage, esc, SITE } from '../shared/renderRoutePage.mjs';
+import { renderRoutePage, esc, SITE, DEFAULT_CONTACT, visiblePhotos, photoSrc } from '../shared/renderRoutePage.mjs';
 import { resolveHomeContent, routeCategories, cleanGroupId, resolveGroup } from '../shared/homeContent.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -68,6 +68,7 @@ function normalize(r) {
     sections: arr(r.sections),
     faq: arr(r.faq),
     articles: arr(r.articles),
+    photos: arr(r.photos),
     video: r.video && typeof r.video === 'object' ? { ...r.video, summary: arr(r.video.summary) } : {},
     prep: r.prep && typeof r.prep === 'object' ? r.prep : { heading: '', body: '' },
     updatedAt: /^\d{4}-\d{2}-\d{2}$/.test(r.updatedAt || '') ? r.updatedAt : new Date().toISOString().slice(0, 10),
@@ -147,11 +148,27 @@ console.log(`[routes] 已輸出 ${written} 個路線頁`);
 
 // ---------- sitemap.xml ----------
 const maxDate = published.reduce((m, r) => (r.updatedAt > m ? r.updatedAt : m), '0000-00-00');
-const urls = [{ loc: `${SITE}/`, lastmod: maxDate }, ...published.map((r) => ({ loc: `${SITE}/${r.slug}/`, lastmod: r.updatedAt })), { loc: `${SITE}/permit/`, lastmod: maxDate }];
+const imagesOf = (r) =>
+  visiblePhotos(r).map((p) => {
+    const u = photoSrc(p.url);
+    return u.startsWith('/') ? `${SITE}${u}` : u;
+  });
+const urls = [
+  { loc: `${SITE}/`, lastmod: maxDate, images: [] },
+  ...published.map((r) => ({ loc: `${SITE}/${r.slug}/`, lastmod: r.updatedAt, images: imagesOf(r) })),
+  { loc: `${SITE}/permit/`, lastmod: maxDate, images: [] },
+];
 fs.writeFileSync(
   path.join(PUB, 'sitemap.xml'),
-  `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
-    urls.map((u) => `  <url>\n    <loc>${esc(u.loc)}</loc>\n    <lastmod>${u.lastmod}</lastmod>\n  </url>`).join('\n') +
+  `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n` +
+    urls
+      .map(
+        (u) =>
+          `  <url>\n    <loc>${esc(u.loc)}</loc>\n    <lastmod>${u.lastmod}</lastmod>\n` +
+          u.images.map((i) => `    <image:image>\n      <image:loc>${esc(i)}</image:loc>\n    </image:image>\n`).join('') +
+          `  </url>`
+      )
+      .join('\n') +
     `\n</urlset>\n`
 );
 
@@ -177,5 +194,32 @@ if (fs.existsSync(llmsPath)) {
     .join('');
   if (extra) t = t.replace(/(## 更多百岳路線\n[\s\S]*?\n)(?=\n## |$)/, (m) => `${m}${extra}`);
   fs.writeFileSync(llmsPath, t);
+}
+// ---------- llms-full.txt（所有已發布路線的完整文字，給 AI 一次讀完；每次建置自動重寫） ----------
+{
+  const strip = (t = '') => String(t).replace(/\+\+([^+]+?)\+\+/g, '$1').replace(/\r/g, '').trim();
+  const line = (t) => String(t || '').replace(/\s*\n\s*/g, ' ').trim();
+  const lineUrl = contact.lineUrl || DEFAULT_CONTACT.lineUrl;
+  const phone = contact.phone || DEFAULT_CONTACT.phone;
+  const parts = [
+    `# 亞馬遜高山接駁（登山接駁）：全站路線完整內容`,
+    `> 本檔彙整 ${SITE} 所有已發布路線頁的文字內容，供 AI 與搜尋引擎一次閱讀。各路線的最新版本以網址對應的頁面為準。`,
+    `預約：LINE ${lineUrl} ｜ 電話 ${phone}`,
+  ];
+  for (const r of published) {
+    const out = [`\n---\n\n## ${r.h1}`, `網址：${SITE}/${r.slug}/`, `最後更新：${r.updatedAt}`, '', strip(r.intro)];
+    for (const sec of r.sections || []) {
+      if (!sec || !String(sec.body || '').trim()) continue;
+      out.push('', `### ${line(sec.heading)}`, strip(sec.body));
+    }
+    const ph = visiblePhotos(r);
+    if (ph.length) out.push('', `### ${line(r.photosHeading) || '登山口照片'}`, ...ph.map((p) => `- ${line(p.alt)}${p.caption ? `（${line(p.caption)}）` : ''}`));
+    const faq = (r.faq || []).filter((f) => f && f.q && f.a);
+    if (faq.length) out.push('', '### 常見問題', ...faq.flatMap((f) => ['', `Q：${line(f.q)}`, `A：${strip(f.a)}`]));
+    if (r.prep && (r.prep.heading || r.prep.body)) out.push('', `### ${line(r.prep.heading)}`, strip(r.prep.body));
+    parts.push(out.join('\n'));
+  }
+  fs.writeFileSync(path.join(PUB, 'llms-full.txt'), parts.join('\n') + '\n');
+  console.log(`[routes] 已輸出 llms-full.txt（${published.length} 條路線）`);
 }
 console.log('[routes] 完成');

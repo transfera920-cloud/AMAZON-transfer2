@@ -15,7 +15,8 @@
     "routes:offline": "ROUTES_ALLOW_SEED=1 node scripts/build-routes.mjs && ROUTES_ALLOW_SEED=1 node scripts/build-home.mjs",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "indexnow": "node scripts/indexnow.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

@@ -64,6 +64,15 @@ export interface RouteArticle {
   show: boolean;
 }
 
+export interface RoutePhoto {
+  url: string;      // https 圖片網址，或站內路徑（例 /images/trailheads/yushan-1.webp）
+  alt: string;      // 替代文字（ALT）：用一句話描述照片裡有什麼；沒填就不會顯示這張照片
+  caption?: string; // 照片下方的說明文字（選填）
+  width?: number;   // 原圖寬（選填，填了可避免載入時版面跳動）
+  height?: number;  // 原圖高（選填）
+  show?: boolean;
+}
+
 export interface RouteData {
   slug: string;
   name: string;
@@ -86,6 +95,8 @@ export interface RouteData {
   prep: { heading: string; body: string };
   video: RouteVideo;
   articles: RouteArticle[];
+  photos?: RoutePhoto[];       // 登山口照片
+  photosHeading?: string;      // 照片區塊標題（H2），沒填就是「登山口照片」
   closing?: string;
   updatedAt?: string;   // YYYY-MM-DD（輸出到頁面與 sitemap）
   updatedAtMs?: number; // 用來判斷「有尚未發布的變更」
