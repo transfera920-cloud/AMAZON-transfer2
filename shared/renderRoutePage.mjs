@@ -250,6 +250,10 @@ export function renderRoutePage(route, ctx = {}) {
 <meta name="robots" content="index, follow, max-image-preview:large" />
 <meta name="description" content="${d}" />
 <link rel="canonical" href="${url}" />
+<link rel="icon" href="/favicon.ico" sizes="48x48" />
+<link rel="icon" type="image/png" href="/favicon-192x192.png" sizes="192x192" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<meta name="theme-color" content="#0E3B27" />
 <meta property="og:title" content="${t}" />
 <meta property="og:description" content="${d}" />
 <meta property="og:url" content="${url}" />
