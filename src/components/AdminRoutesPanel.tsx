@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { collection, doc, getDoc, getDocs, setDoc, updateDoc, writeBatch } from 'firebase/firestore';
 import {
-  X, Save, Plus, Trash2, ArrowUp, ArrowDown, Eye, EyeOff, ChevronLeft, Loader2, Rocket, AlertTriangle, Check, Download
+  X, Save, Plus, Trash2, ArrowUp, ArrowDown, Eye, EyeOff, ChevronLeft, Loader2, Rocket, AlertTriangle, Check, Download, ImagePlus
 } from 'lucide-react';
 import { db } from '../firebase';
 import { RouteData, RouteSection, RoutePhoto } from '../types';
@@ -66,6 +66,66 @@ function parseBulkSections(text: string): { sections: RouteSection[]; warnings: 
   });
   return { sections, warnings };
 }
+
+
+/** 把使用者選的照片（JPG/PNG/WebP/HEIC 瀏覽器能開的都行）縮成寬或高最長 1200px 的 WebP（不支援時用 JPEG），
+ *  並壓到約 110KB 以內。回傳 data URL；存檔後，網站建置時會自動把它變成 /images/trailheads/ 底下的正式圖檔網址。 */
+const PHOTO_MAX_SIDE = 1200;
+const PHOTO_MAX_BYTES = 110 * 1024;
+async function compressPhoto(file: File): Promise<{ dataUrl: string; width: number; height: number; bytes: number }> {
+  if (!/^image\//.test(file.type)) throw new Error('這不是圖片檔');
+  let src: ImageBitmap | HTMLImageElement;
+  let sw = 0, sh = 0;
+  try {
+    src = await createImageBitmap(file);
+    sw = src.width; sh = src.height;
+  } catch {
+    const url = URL.createObjectURL(file);
+    try {
+      const img = new Image();
+      await new Promise<void>((res, rej) => { img.onload = () => res(); img.onerror = () => rej(new Error('無法讀取這張圖片')); img.src = url; });
+      src = img; sw = img.naturalWidth; sh = img.naturalHeight;
+    } finally { URL.revokeObjectURL(url); }
+  }
+  if (!sw || !sh) throw new Error('無法讀取這張圖片');
+  const toBlob = (c: HTMLCanvasElement, type: string, q: number) => new Promise<Blob | null>((res) => c.toBlob(res, type, q));
+  let scale = Math.min(1, PHOTO_MAX_SIDE / Math.max(sw, sh));
+  let best: { blob: Blob; w: number; h: number } | null = null;
+  for (let round = 0; round < 5; round++) {
+    const w = Math.max(1, Math.round(sw * scale));
+    const h = Math.max(1, Math.round(sh * scale));
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('瀏覽器不支援圖片處理');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, w, h);
+    ctx.drawImage(src as CanvasImageSource, 0, 0, w, h);
+    let type = 'image/webp';
+    let q = 0.82;
+    for (let i = 0; i < 8; i++) {
+      let blob = await toBlob(canvas, type, q);
+      if (!blob || blob.type !== type) { type = 'image/jpeg'; blob = await toBlob(canvas, type, q); }
+      if (!blob) throw new Error('圖片壓縮失敗');
+      best = { blob, w, h };
+      if (blob.size <= PHOTO_MAX_BYTES) break;
+      q -= 0.08;
+      if (q < 0.4) break;
+    }
+    if (best && best.blob.size <= PHOTO_MAX_BYTES) break;
+    scale *= 0.85; // 品質壓到底還是太大 → 縮小尺寸再試
+  }
+  if (!best) throw new Error('圖片壓縮失敗');
+  if ('close' in src) (src as ImageBitmap).close?.();
+  const dataUrl = await new Promise<string>((res, rej) => {
+    const fr = new FileReader();
+    fr.onload = () => res(String(fr.result));
+    fr.onerror = () => rej(new Error('讀取壓縮結果失敗'));
+    fr.readAsDataURL(best!.blob);
+  });
+  return { dataUrl, width: best.w, height: best.h, bytes: best.blob.size };
+}
+const isDataUrl = (u = '') => /^data:image\//i.test(u);
 
 const inputCls = 'w-full border border-gray-300 rounded-lg px-2.5 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500';
 const btnGhost = 'inline-flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg border border-gray-300 bg-white hover:bg-gray-100 text-gray-700 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed';
@@ -180,6 +240,7 @@ export const AdminRoutesPanel: React.FC<Props> = ({ isOpen, onClose }) => {
   const [siteRaw, setSiteRaw] = useState<any>(null);
   const [contentUpdatedAtMs, setContentUpdatedAtMs] = useState(0);
   const [homeDirty, setHomeDirty] = useState(false);
+  const [photoBusy, setPhotoBusy] = useState(false);
   const [bulkOpen, setBulkOpen] = useState(false);
   const [bulkText, setBulkText] = useState('');
   const [bulkMode, setBulkMode] = useState<'replace' | 'append'>('replace');
@@ -331,6 +392,10 @@ export const AdminRoutesPanel: React.FC<Props> = ({ isOpen, onClose }) => {
       const out = clean(draft);
       out.updatedAt = taipeiToday();
       out.updatedAtMs = Date.now();
+      const approxBytes = new Blob([JSON.stringify(out)]).size;
+      if (approxBytes > 950 * 1024) {
+        throw new Error(`這條路線的資料約 ${Math.round(approxBytes / 1024)}KB，快超過資料庫單筆 1MB 的上限。請刪掉幾張匯入的照片，或把照片改放 public/images/trailheads/ 後只填網址`);
+      }
       await setDoc(doc(db, 'routes', out.slug), out);
       setDraft(out); setDirty(false);
       say('已儲存。要讓網站更新，請按「發布到網站」');
@@ -366,6 +431,33 @@ export const AdminRoutesPanel: React.FC<Props> = ({ isOpen, onClose }) => {
   };
 
   const set = <K extends keyof RouteData>(k: K, v: RouteData[K]) => { setDraft((d) => (d ? { ...d, [k]: v } : d)); setDirty(true); };
+
+  /** 選照片 → 自動縮小壓縮 → 填進第 index 張（index=-1 表示每張都新增一格） */
+  const importPhotos = async (files: FileList | File[] | null, index: number) => {
+    const list = Array.from(files || []).filter((f) => /^image\//.test(f.type));
+    if (!list.length) { setError('請選擇圖片檔（JPG、PNG、WebP）'); return; }
+    setPhotoBusy(true);
+    setError(null);
+    try {
+      const done: { dataUrl: string; width: number; height: number; bytes: number }[] = [];
+      for (const f of list) done.push(await compressPhoto(f));
+      setDraft((d) => {
+        if (!d) return d;
+        const photos = [...(d.photos || [])];
+        done.forEach((r, k) => {
+          const patch = { url: r.dataUrl, width: r.width, height: r.height };
+          if (index >= 0 && k === 0 && photos[index]) photos[index] = { ...photos[index], ...patch };
+          else photos.push({ ...patch, alt: '', caption: '', show: true });
+        });
+        return { ...d, photos };
+      });
+      setDirty(true);
+      say(`已匯入 ${done.length} 張，壓縮後約 ${done.map((r) => Math.round(r.bytes / 1024) + 'KB').join('、')}。記得填 ALT 後按「儲存路線」`);
+    } catch (e: any) {
+      setError(`匯入照片失敗：${e?.message || e}`);
+    }
+    setPhotoBusy(false);
+  };
   // 改路線名稱時，連動更新「還是系統自動帶入、沒被手動改過」的 SEO 欄位（H1、SEO 標題、SEO 描述、麵包屑、服務名稱）。
   // 已經手動改過的欄位（和自動版本不一樣）一律不動。
   const renameRoute = (nv: string) => {
@@ -758,10 +850,17 @@ export const AdminRoutesPanel: React.FC<Props> = ({ isOpen, onClose }) => {
 
               <Card
                 title={`登山口照片（${(draft.photos || []).length}）`}
-                aside={<button className={btnGhost} onClick={() => set('photos', [...(draft.photos || []), { url: '', alt: '', caption: '', show: true }])}><Plus className="w-3.5 h-3.5" />新增照片</button>}
+                aside={<span className="flex gap-2">
+                  <label className={`${btnGhost} ${photoBusy ? 'opacity-40 pointer-events-none' : ''}`}>
+                    {photoBusy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ImagePlus className="w-3.5 h-3.5" />}匯入照片（可多選）
+                    <input type="file" accept="image/*" multiple className="hidden" disabled={photoBusy} onChange={(e) => { const f = e.target.files; if (f && f.length) void importPhotos(f, -1); e.target.value = ''; }} />
+                  </label>
+                  <button className={btnGhost} onClick={() => set('photos', [...(draft.photos || []), { url: '', alt: '', caption: '', show: true }])}><Plus className="w-3.5 h-3.5" />新增照片</button>
+                </span>}
               >
                 <div className="text-[11px] text-gray-600 bg-amber-50 border border-amber-200 rounded-lg p-2.5 space-y-1 leading-relaxed">
-                  <p><b>怎麼放照片：</b>把照片（建議 WebP 或 JPG、寬約 1200px、單張 300KB 以下）放進專案的 <code>public/images/trailheads/</code> 資料夾，用 GitHub Desktop 提交，這裡的網址欄就填 <code>/images/trailheads/檔名.webp</code>。也可以直接貼 https 開頭的圖片網址。檔名請用英文小寫（例：yushan-tatajia-trailhead.webp），<b>換照片時請改檔名</b>，不然瀏覽器會沿用舊圖。</p>
+                  <p><b>怎麼放照片（最簡單）：</b>按「匯入照片」或每張卡片的「選擇照片」，直接選手機／電腦裡的 JPG，系統會自動縮成寬約 1200px 的小檔（約 110KB 以內），並自動填好寬高。填完 ALT 按「儲存路線」，再「發布到網站」，網站建置時會自動把照片變成 <code>/images/trailheads/…</code> 的正式圖檔網址。<b>每條路線的照片建議不要超過 6 張。</b></p>
+                  <p><b>進階：</b>也可以自己把照片放進專案 <code>public/images/trailheads/</code>，網址欄填 <code>/images/trailheads/檔名.webp</code>，或貼 https 開頭的圖片網址。檔名請用英文小寫，<b>換照片時請改檔名</b>，不然瀏覽器會沿用舊圖。</p>
                   <p><b>ALT（替代文字）：</b>用一句話描述照片裡有什麼，給視障者的讀屏軟體、搜尋引擎與 AI 閱讀；圖片載入失敗時也會顯示。例：「玉山塔塔加登山口停車場與登山口告示牌，清晨有薄霧」。<b>沒填 ALT 的照片不會顯示在網頁上。</b></p>
                   <p>寬、高（像素）選填，填了網頁載入時版面比較不會跳動。照片會顯示在「內容區塊」後面、影片前面。</p>
                 </div>
@@ -770,7 +869,7 @@ export const AdminRoutesPanel: React.FC<Props> = ({ isOpen, onClose }) => {
                 </Field>
                 {(draft.photos || []).map((p, i) => {
                   const upd = (patch: Partial<RoutePhoto>) => set('photos', (draft.photos || []).map((x, k) => (k === i ? { ...x, ...patch } : x)));
-                  const okUrl = /^https:\/\//i.test(p.url || '') || /^\/(?!\/)/.test(p.url || '');
+                  const okUrl = /^https:\/\//i.test(p.url || '') || /^\/(?!\/)/.test(p.url || '') || isDataUrl(p.url);
                   return (
                     <div key={i} className="border border-gray-200 rounded-lg p-3 space-y-2 bg-slate-50/50">
                       <div className="flex gap-3">
@@ -778,7 +877,20 @@ export const AdminRoutesPanel: React.FC<Props> = ({ isOpen, onClose }) => {
                           {okUrl ? <img src={p.url} alt={p.alt || ''} className="w-full h-full object-cover" /> : '預覽'}
                         </div>
                         <div className="flex-1 space-y-2 min-w-0">
-                          <input className={inputCls} placeholder="/images/trailheads/檔名.webp 或 https://…" value={p.url || ''} onChange={(e) => upd({ url: e.target.value.trim() })} />
+                          {isDataUrl(p.url) ? (
+                            <div className="flex gap-2">
+                              <input className={`${inputCls} bg-emerald-50 text-emerald-800`} readOnly value={`已匯入照片（約 ${Math.round((p.url.length * 3) / 4 / 1024)}KB），發布後自動變成圖檔網址`} />
+                              <button className={btnGhost} onClick={() => upd({ url: '', width: undefined, height: undefined })}>清除</button>
+                            </div>
+                          ) : (
+                            <div className="flex gap-2">
+                              <input className={inputCls} placeholder="/images/trailheads/檔名.webp 或 https://…" value={p.url || ''} onChange={(e) => upd({ url: e.target.value.trim() })} />
+                              <label className={`${btnGhost} shrink-0 ${photoBusy ? 'opacity-40 pointer-events-none' : ''}`}>
+                                <ImagePlus className="w-3.5 h-3.5" />選擇照片
+                                <input type="file" accept="image/*" className="hidden" disabled={photoBusy} onChange={(e) => { const f = e.target.files; if (f && f.length) void importPhotos(f, i); e.target.value = ''; }} />
+                              </label>
+                            </div>
+                          )}
                           <input className={inputCls} placeholder="ALT 替代文字（必填，描述照片裡有什麼）" value={p.alt || ''} onChange={(e) => upd({ alt: e.target.value })} />
                           <input className={inputCls} placeholder="照片說明（選填，顯示在照片下方）" value={p.caption || ''} onChange={(e) => upd({ caption: e.target.value })} />
                         </div>

@@ -141,6 +141,8 @@ export function photoSrc(u = '') {
   const t = String(u || '').trim();
   if (/^https:\/\/[^\s"'<>]+$/i.test(t)) return t;
   if (/^\/(?!\/)[^\s"'<>]*$/.test(t)) return t;
+  // 後台剛匯入、還沒轉成圖檔的照片（data URL）：只供後台預覽用；正式建置會先把它存成 /images/trailheads/ 圖檔再輸出
+  if (/^data:image\/(webp|jpeg|png);base64,[A-Za-z0-9+/=]+$/.test(t)) return t;
   return '';
 }
 const absUrl = (u) => (u.startsWith('/') ? `${SITE}${u}` : u);

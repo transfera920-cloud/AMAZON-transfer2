@@ -7,6 +7,7 @@
 //      不會用舊內容悄悄蓋掉後台的新內容。
 //      本機離線測試可設環境變數 ROUTES_ALLOW_SEED=1，改用 seed 繼續。
 import fs from 'node:fs';
+import crypto from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { decodeFirestore } from './permit-render.mjs';
@@ -94,6 +95,29 @@ try {
   }
 }
 routes = routes.filter((r) => r && typeof r.slug === 'string').map(normalize);
+
+
+// ---------- 後台匯入的照片（data URL）→ 存成 public/images/trailheads/ 圖檔，並把網址改成站內路徑 ----------
+// 檔名 = 路線代稱 + 內容雜湊，內容不變就不會重複產生；換照片就會是新檔名（瀏覽器不會沿用舊圖）。
+{
+  const dir = path.join(PUB, 'images', 'trailheads');
+  let n = 0;
+  for (const r of routes) {
+    for (const p of r.photos || []) {
+      const m = /^data:image\/(webp|jpeg|png);base64,([A-Za-z0-9+/=]+)$/.exec(String(p && p.url || '').trim());
+      if (!m) continue;
+      const ext = m[1] === 'jpeg' ? 'jpg' : m[1];
+      const buf = Buffer.from(m[2], 'base64');
+      const hash = crypto.createHash('sha1').update(buf).digest('hex').slice(0, 10);
+      const name = `${r.slug}-${hash}.${ext}`;
+      fs.mkdirSync(dir, { recursive: true });
+      fs.writeFileSync(path.join(dir, name), buf);
+      p.url = `/images/trailheads/${name}`;
+      n++;
+    }
+  }
+  if (n) console.log(`[routes] 已把 ${n} 張後台匯入的照片存成 /images/trailheads/ 圖檔`);
+}
 
 // ---------- SEO 覆蓋檔 ----------
 // src/data/seoOverrides.json 有寫的路線，H1／SEO 標題／SEO 描述以該檔為準（優先於後台）。不需要時刪掉該路線或整個檔案。
