@@ -262,6 +262,14 @@ export const AdminRoutesPanel: React.FC<Props> = ({ isOpen, onClose }) => {
     } catch { /* 寫不進去不影響後台使用；下次開啟會再試 */ }
   };
 
+  /** 儲存後只更新本機清單裡的那一條路線，不重新讀取整個集合（省 Firestore 讀取額度） */
+  const upsertLocal = (r: RouteData) => {
+    setRoutes((prev) => {
+      const next = prev.some((x) => x.slug === r.slug) ? prev.map((x) => (x.slug === r.slug ? r : x)) : [...prev, r];
+      return next.slice().sort((a, b) => (a.order || 0) - (b.order || 0));
+    });
+  };
+
   const load = async () => {
     let loadedSlugs: string[] = [];
     setLoading(true);
@@ -342,7 +350,9 @@ export const AdminRoutesPanel: React.FC<Props> = ({ isOpen, onClose }) => {
       batch.update(doc(db, 'routes', a.slug), { order: b.order, updatedAtMs: now });
       batch.update(doc(db, 'routes', b.slug), { order: a.order, updatedAtMs: now });
       await batch.commit();
-      await load();
+      setRoutes((prev) => prev
+        .map((x) => (x.slug === a.slug ? { ...x, order: b.order, updatedAtMs: now } : x.slug === b.slug ? { ...x, order: a.order, updatedAtMs: now } : x))
+        .sort((p, q) => (p.order || 0) - (q.order || 0)));
     } catch (e: any) { setError(`調整順序失敗：${e?.message || e}`); }
   };
 
@@ -360,8 +370,9 @@ export const AdminRoutesPanel: React.FC<Props> = ({ isOpen, onClose }) => {
     const next = !r.published;
     if (!next && !window.confirm(`停用「${r.name}」後，下次發布時 /${r.slug}/ 會從網站下架（網址變 404）。確定嗎？`)) return;
     try {
-      await updateDoc(doc(db, 'routes', r.slug), { published: next, updatedAtMs: Date.now() });
-      await load();
+      const now = Date.now();
+      await updateDoc(doc(db, 'routes', r.slug), { published: next, updatedAtMs: now });
+      setRoutes((prev) => prev.map((x) => (x.slug === r.slug ? { ...x, published: next, updatedAtMs: now } : x)));
     } catch (e: any) { setError(`更新失敗：${e?.message || e}`); }
   };
 
@@ -378,7 +389,8 @@ export const AdminRoutesPanel: React.FC<Props> = ({ isOpen, onClose }) => {
     try {
       await setDoc(doc(db, 'routes', slug), t);
       setNewSlug(''); setNewName('');
-      await load();
+      upsertLocal(t);
+      await syncRouteSlugs(siteRaw?.routeSlugs, [...routes.map((x) => x.slug), t.slug]);
       setDraft(t); setDirty(false);
       say('已建立草稿（尚未發布），請填寫內容');
     } catch (e: any) { setError(`建立失敗：${e?.message || e}`); }
@@ -399,7 +411,7 @@ export const AdminRoutesPanel: React.FC<Props> = ({ isOpen, onClose }) => {
       await setDoc(doc(db, 'routes', out.slug), out);
       setDraft(out); setDirty(false);
       say('已儲存。要讓網站更新，請按「發布到網站」');
-      await load();
+      upsertLocal(out);
     } catch (e: any) {
       setError(`儲存失敗：${e?.message || e}`);
     }
