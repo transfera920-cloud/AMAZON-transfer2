@@ -147,6 +147,14 @@ export function photoSrc(u = '') {
 }
 const absUrl = (u) => (u.startsWith('/') ? `${SITE}${u}` : u);
 
+/** 照片區塊的 H2：後台有填就用後台的；沒填時用「路線名＋登山口與沿途照片」，每頁標題不同，也自然帶到路線關鍵字 */
+export function photosHeadingOf(route) {
+  const custom = String((route && route.photosHeading) || '').trim();
+  if (custom) return custom;
+  const name = String((route && route.name) || '').trim();
+  return name ? `${name}登山口與沿途照片` : '登山口與沿途照片';
+}
+
 /** 會顯示的照片：網址合法、且有填 ALT（沒有替代文字的照片不輸出，避免影響無障礙與圖片搜尋） */
 export function visiblePhotos(route) {
   return (route.photos || []).filter((p) => p && p.show !== false && photoSrc(p.url) && String(p.alt || '').trim());
@@ -168,7 +176,7 @@ function photosBlock(items, heading) {
       return `<figure><img src="${esc(photoSrc(p.url))}" alt="${esc(String(p.alt).trim())}"${dim} loading="lazy" decoding="async" />${cap ? `<figcaption>${esc(cap)}</figcaption>` : ''}</figure>`;
     })
     .join('\n');
-  return `<!--PHOTOS:START-->\n<h2>${esc(heading || '登山口照片')}</h2>\n<div class="photos">\n${figs}\n</div>\n<!--PHOTOS:END-->\n`;
+  return `<!--PHOTOS:START-->\n<h2>${esc(heading || '登山口與沿途照片')}</h2>\n<div class="photos">\n${figs}\n</div>\n<!--PHOTOS:END-->\n`;
 }
 
 // ---------- 小標題錨點 ----------
@@ -379,7 +387,7 @@ ${regionGroups ? regionMenu(regionGroups, route.slug) : ''}<nav aria-label="brea
 ${validDate(route.updatedAt) ? `<p class="updated">最後更新：<time datetime="${route.updatedAt}">${route.updatedAt}</time></p>\n` : ''}<p>${inline(route.intro)}</p>
 <p><a class="cta" href="${esc(contact.lineUrl)}" target="_blank" rel="noopener">LINE 預約詢問</a><a class="cta alt" href="tel:${esc(contact.phone)}">來電諮詢</a><a class="cta alt" href="${esc(cp.url)}" target="_blank" rel="noopener">${esc(cp.label || DEFAULT_CTA_PRICE.label)}</a></p>
 
-${sections}${photos.length ? photosBlock(photos, route.photosHeading) : ''}${withVideo ? videoBlock(route, paras) : ''}${faq ? `<h2>常見問題</h2>\n${faq}\n` : ''}${prep}${regionGroups ? regionFooter(regionGroups, route.slug) : navLinks ? `<h2>其他登山接駁路線</h2>\n<p>${navLinks}</p>\n` : ''}${route.group !== 'popular' ? `<p>更多路線請見<a href="/">首頁的「${esc((ctx.categoryTitles && ctx.categoryTitles[route.group]) || '更多百岳登山接駁路線')}」</a>。</p>\n` : ''}${articles.length ? articlesBlock(articles) : ''}${bodyToHtml(closing)}
+${sections}${photos.length ? photosBlock(photos, photosHeadingOf(route)) : ''}${withVideo ? videoBlock(route, paras) : ''}${faq ? `<h2>常見問題</h2>\n${faq}\n` : ''}${prep}${regionGroups ? regionFooter(regionGroups, route.slug) : navLinks ? `<h2>其他登山接駁路線</h2>\n<p>${navLinks}</p>\n` : ''}${route.group !== 'popular' ? `<p>更多路線請見<a href="/">首頁的「${esc((ctx.categoryTitles && ctx.categoryTitles[route.group]) || '更多百岳登山接駁路線')}」</a>。</p>\n` : ''}${articles.length ? articlesBlock(articles) : ''}${bodyToHtml(closing)}
 <p style="margin-top:40px"><a href="/">← 回到${BRAND}首頁</a></p>
 </main>
 </body>

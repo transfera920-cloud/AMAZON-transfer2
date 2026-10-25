@@ -12,7 +12,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { decodeFirestore } from './permit-render.mjs';
 import { fetchRoutesResilient } from './fetch-routes.mjs';
-import { renderRoutePage, esc, SITE, DEFAULT_CONTACT, visiblePhotos, photoSrc } from '../shared/renderRoutePage.mjs';
+import { renderRoutePage, esc, SITE, DEFAULT_CONTACT, visiblePhotos, photoSrc, photosHeadingOf } from '../shared/renderRoutePage.mjs';
 import { resolveHomeContent, routeCategories, cleanGroupId, resolveGroup } from '../shared/homeContent.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -237,7 +237,7 @@ if (fs.existsSync(llmsPath)) {
       out.push('', `### ${line(sec.heading)}`, strip(sec.body));
     }
     const ph = visiblePhotos(r);
-    if (ph.length) out.push('', `### ${line(r.photosHeading) || '登山口照片'}`, ...ph.map((p) => `- ${line(p.alt)}${p.caption ? `（${line(p.caption)}）` : ''}`));
+    if (ph.length) out.push('', `### ${line(photosHeadingOf(r))}`, ...ph.map((p) => `- ${line(p.alt)}${p.caption ? `（${line(p.caption)}）` : ''}`));
     const faq = (r.faq || []).filter((f) => f && f.q && f.a);
     if (faq.length) out.push('', '### 常見問題', ...faq.flatMap((f) => ['', `Q：${line(f.q)}`, `A：${strip(f.a)}`]));
     if (r.prep && (r.prep.heading || r.prep.body)) out.push('', `### ${line(r.prep.heading)}`, strip(r.prep.body));

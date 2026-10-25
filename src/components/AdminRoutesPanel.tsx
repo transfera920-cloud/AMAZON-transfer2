@@ -849,7 +849,7 @@ export const AdminRoutesPanel: React.FC<Props> = ({ isOpen, onClose }) => {
               </Card>
 
               <Card
-                title={`登山口照片（${(draft.photos || []).length}）`}
+                title={`登山口與沿途照片（${(draft.photos || []).length}）`}
                 aside={<span className="flex gap-2">
                   <label className={`${btnGhost} ${photoBusy ? 'opacity-40 pointer-events-none' : ''}`}>
                     {photoBusy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ImagePlus className="w-3.5 h-3.5" />}匯入照片（可多選）
@@ -864,8 +864,8 @@ export const AdminRoutesPanel: React.FC<Props> = ({ isOpen, onClose }) => {
                   <p><b>ALT（替代文字）：</b>用一句話描述照片裡有什麼，給視障者的讀屏軟體、搜尋引擎與 AI 閱讀；圖片載入失敗時也會顯示。例：「玉山塔塔加登山口停車場與登山口告示牌，清晨有薄霧」。<b>沒填 ALT 的照片不會顯示在網頁上。</b></p>
                   <p>寬、高（像素）選填，填了網頁載入時版面比較不會跳動。照片會顯示在「內容區塊」後面、影片前面。</p>
                 </div>
-                <Field label="照片區塊標題（H2，留空＝登山口照片）">
-                  <input className={inputCls} value={draft.photosHeading || ''} onChange={(e) => set('photosHeading', e.target.value)} placeholder="例：塔塔加登山口照片" />
+                <Field label="照片區塊標題（H2，留空＝「{路線名}登山口與沿途照片」）">
+                  <input className={inputCls} value={draft.photosHeading || ''} onChange={(e) => set('photosHeading', e.target.value)} placeholder={`留空會自動用：${draft.name || '路線名'}登山口與沿途照片`} />
                 </Field>
                 {(draft.photos || []).map((p, i) => {
                   const upd = (patch: Partial<RoutePhoto>) => set('photos', (draft.photos || []).map((x, k) => (k === i ? { ...x, ...patch } : x)));
