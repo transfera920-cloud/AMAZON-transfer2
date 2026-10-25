@@ -9,7 +9,7 @@ import { DEFAULT_DATA } from './data/defaultData';
 import {
   getLocalCachedData,
   saveSiteDataToCloud,
-  subscribeToSiteData,
+  fetchSiteDataOnce,
   getAuthInstance
 } from './firebase';
 import { Header } from './components/Header';
@@ -22,7 +22,7 @@ import { HomeBlocks } from './components/HomeBlocks';
 import { HomeNav } from './components/HomeNav';
 import { resolveHomeContent, routeCategories, buildHomeRoutes } from '../shared/homeContent.mjs';
 import type { HomeRoutes } from '../shared/homeContent.mjs';
-import { collection, onSnapshot } from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
 import homeGenerated from './data/home.generated.json';
 
 // 後台與各工具視窗只在打開時才下載，減少首頁 JS 體積
@@ -82,30 +82,17 @@ export default function App() {
 
   // 首頁路線清單：先用建置時產生的資料（立刻有畫面），再改讀資料庫的路線資料，
   // 這樣後台改的名稱、說明、分類、順序，以及新增的路線，儲存後首頁馬上更新，不必等「發布到網站」。
+  // 訪客一律使用建置時產生的清單（0 次資料庫讀取）；只有登入後台的管理員才讀一次最新路線資料，
+  // 這樣後台改的名稱、說明、分類、順序儲存後，管理員自己看首頁會立刻更新，不必等「發布到網站」。
   const [liveRoutes, setLiveRoutes] = useState<any[] | null>(null);
   useEffect(() => {
-    // 延後到首屏完成後才訂閱，避免和首屏渲染搶頻寬
-    let unsub: (() => void) | undefined;
+    if (!isAdminLoggedIn) { setLiveRoutes(null); return; }
     let cancelled = false;
-    const start = () => {
-      if (cancelled) return;
-      unsub = onSnapshot(
-        collection(db, 'routes'),
-        (snap) => setLiveRoutes(snap.docs.map((d) => d.data())),
-        (err) => console.warn('路線即時資料讀取失敗，使用建置時的清單：', err)
-      );
-    };
-    const w = window as any;
-    const handle = typeof w.requestIdleCallback === 'function'
-      ? w.requestIdleCallback(start, { timeout: 2500 })
-      : window.setTimeout(start, 1500);
-    return () => {
-      cancelled = true;
-      if (typeof w.cancelIdleCallback === 'function' && typeof w.requestIdleCallback === 'function') w.cancelIdleCallback(handle);
-      else window.clearTimeout(handle);
-      unsub?.();
-    };
-  }, []);
+    getDocs(collection(db, 'routes'))
+      .then((snap) => { if (!cancelled) setLiveRoutes(snap.docs.map((d) => d.data())); })
+      .catch((err) => console.warn('路線資料讀取失敗，使用建置時的清單：', err));
+    return () => { cancelled = true; };
+  }, [isAdminLoggedIn]);
   const homeRoutes = useMemo<HomeRoutes>(() => {
     if (!liveRoutes || !liveRoutes.length) return homeGenerated.routes as HomeRoutes;
     // 與 build-home.mjs 相同的上線條件：已發布且 H1／SEO 欄位齊全
@@ -140,29 +127,18 @@ export default function App() {
   // <title> 與 meta description 皆以 index.html 內的固定內容為準，
   // 避免 JS 執行後與原始 HTML 不一致（Googlebot 會同時看原始與渲染後版本）
 
-  // Connect to Firestore and subscribe to live changes across all devices
+  // 網站設定：不使用即時監聽。訪客有 1 小時內的本機快取就完全不讀資料庫；
+  // 過期才讀 1 次。管理員登入後強制讀 1 次，確保看到最新內容。
   useEffect(() => {
     let isMounted = true;
-
-    // 只保留即時監聽：第一次回呼就是初始資料，settings/general 每次造訪只讀一次
-    // Real-time multi-device sync listener
-    const unsubscribe = subscribeToSiteData(
-      (updatedData) => {
-        if (isMounted) {
-          setSiteData(updatedData);
-          setIsCloudConnected(true);
-        }
-      },
-      (err) => {
-        console.warn('Realtime sync subscription status:', err);
+    fetchSiteDataOnce(isAdminLoggedIn).then((fresh) => {
+      if (isMounted && fresh) {
+        setSiteData(fresh);
+        setIsCloudConnected(true);
       }
-    );
-
-    return () => {
-      isMounted = false;
-      unsubscribe();
-    };
-  }, []);
+    });
+    return () => { isMounted = false; };
+  }, [isAdminLoggedIn]);
 
   // Support legacy global toggleAdminModal if referenced by external inline onclick
   useEffect(() => {

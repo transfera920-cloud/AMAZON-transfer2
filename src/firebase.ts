@@ -81,6 +81,9 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
 }
 
 const SETTINGS_COLLECTION = 'settings';
+// 訪客的設定快取：1 小時內不重讀資料庫（Firestore 免費額度有限，避免每次造訪都計費）
+const CACHE_TS_KEY = `${STORAGE_KEY}_ts`;
+export const SETTINGS_CACHE_TTL_MS = 60 * 60 * 1000;
 const SETTINGS_DOC_ID = 'general';
 
 /**
@@ -175,6 +178,7 @@ export function getLocalCachedData(): SiteData {
 export function updateLocalCachedData(data: SiteData): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    localStorage.setItem(CACHE_TS_KEY, String(Date.now()));
   } catch (e) {
     console.warn('Failed to update localStorage cache', e);
   }
@@ -227,6 +231,29 @@ export async function saveSiteDataToCloud(newData: SiteData): Promise<void> {
     updateLocalCachedData(cleanData);
   } catch (error) {
     handleFirestoreError(error, OperationType.WRITE, docPath);
+  }
+}
+
+/**
+ * 讀取一次網站設定（取代即時監聽）：
+ *  - 快取未過期（預設 1 小時）且非強制 → 完全不讀資料庫
+ *  - 否則 getDoc 讀 1 次並更新快取；失敗（含額度用完）就沿用快取
+ */
+export async function fetchSiteDataOnce(force = false): Promise<SiteData | null> {
+  try {
+    const ts = Number(localStorage.getItem(CACHE_TS_KEY)) || 0;
+    const hasCache = !!localStorage.getItem(STORAGE_KEY);
+    if (!force && hasCache && Date.now() - ts < SETTINGS_CACHE_TTL_MS) return null;
+  } catch { /* localStorage 不可用就直接讀 */ }
+  try {
+    const snap = await getDoc(doc(db, SETTINGS_COLLECTION, SETTINGS_DOC_ID));
+    if (!snap.exists()) return null;
+    const cloudData = sanitizeSiteData(snap.data());
+    updateLocalCachedData(cloudData);
+    return cloudData;
+  } catch (error) {
+    console.warn('讀取網站設定失敗，沿用本機快取：', error);
+    return null;
   }
 }
 
