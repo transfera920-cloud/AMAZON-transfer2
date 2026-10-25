@@ -14,6 +14,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { decodeFirestore } from './permit-render.mjs';
 import { fetchRoutesResilient } from './fetch-routes.mjs';
+import { readSnapshot } from './snapshot.mjs';
 import { resolveHomeContent, buildHomeRoutes, applyHomeToIndexHtml, routeCategories } from '../shared/homeContent.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -59,8 +60,15 @@ let routes;
 let settings;
 let source;
 try {
-  routes = await fetchRoutes();
-  settings = await fetchSettings();
+  const snap = readSnapshot(ROOT, BASE); // build-routes 剛讀過的資料，直接沿用，省下一輪 Firestore 讀取
+  if (snap) {
+    routes = snap.routes;
+    settings = snap.settings || (await fetchSettings());
+    console.log('[home] 沿用 build-routes 這次已讀取的 Firestore 資料（不重複讀取）');
+  } else {
+    routes = await fetchRoutes();
+    settings = await fetchSettings();
+  }
   if (routes.length) source = 'Firestore';
   else { routes = loadSeed(); source = 'seed（Firestore routes 集合是空的）'; }
 } catch (e) {

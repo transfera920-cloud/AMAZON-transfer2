@@ -12,6 +12,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { decodeFirestore } from './permit-render.mjs';
 import { fetchRoutesResilient } from './fetch-routes.mjs';
+import { writeSnapshot } from './snapshot.mjs';
 import { renderRoutePage, esc, SITE, DEFAULT_CONTACT, visiblePhotos, photoSrc, photosHeadingOf } from '../shared/renderRoutePage.mjs';
 import { resolveHomeContent, routeCategories, cleanGroupId, resolveGroup } from '../shared/homeContent.mjs';
 
@@ -21,7 +22,15 @@ const cfg = JSON.parse(fs.readFileSync(path.join(ROOT, 'firebase-applet-config.j
 const BASE = process.env.FIRESTORE_BASE_URL || `https://firestore.googleapis.com/v1/projects/${cfg.projectId}/databases/${cfg.firestoreDatabaseId}/documents`; // FIRESTORE_BASE_URL 僅供本機測試
 const ALLOW_SEED = process.env.ROUTES_ALLOW_SEED === '1';
 
-async function getJson(url) {
+// settings/general 在一次建置裡會被好幾處用到（逐條讀取的路線清單、聯絡資料、給後面腳本的暫存），同一網址只讀一次
+const settingsCache = new Map();
+function getJson(url) {
+  if (!/\/settings\/general\?/.test(url)) return fetchJson(url);
+  if (!settingsCache.has(url)) settingsCache.set(url, fetchJson(url));
+  return settingsCache.get(url);
+}
+
+async function fetchJson(url) {
   const ctl = new AbortController();
   const timer = setTimeout(() => ctl.abort(), 20000);
   try {
@@ -81,7 +90,16 @@ let routes;
 let source;
 try {
   routes = await fetchRoutes();
-  if (routes.length) source = 'Firestore';
+  if (routes.length) {
+    source = 'Firestore';
+    // 把這次讀到的資料存成暫存檔，build-home / build-permit 直接沿用，不再各讀一次 Firestore
+    let rawSettings = null;
+    try {
+      const j = await getJson(`${BASE}/settings/general?key=${cfg.apiKey}`);
+      rawSettings = decodeFirestore({ mapValue: { fields: j.fields || {} } }) || {};
+    } catch { /* 讀不到就讓後面的腳本自己處理 */ }
+    writeSnapshot(ROOT, { base: BASE, routes, settings: rawSettings });
+  }
   else { routes = loadSeed(); source = 'seed（Firestore routes 集合是空的，請到後台「路線內容管理」匯入預設路線）'; }
 } catch (e) {
   if (ALLOW_SEED) {

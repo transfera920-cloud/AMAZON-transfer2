@@ -7,6 +7,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { decodeFirestore, buildGroups, renderGroups } from './permit-render.mjs';
+import { readSnapshot } from './snapshot.mjs';
 import { DAY_THEME_HEAD } from '../shared/dayTheme.mjs';
 import { resolveHomeContent, parseInline, plainText, DEFAULT_PERMIT_FAQ } from '../shared/homeContent.mjs';
 
@@ -14,9 +15,8 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SITE = 'https://transfer.amazon-hike.com';
 const OUT = path.join(ROOT, 'public', 'permit', 'index.html');
 const cfg = JSON.parse(fs.readFileSync(path.join(ROOT, 'firebase-applet-config.json'), 'utf8'));
-const DOC_URL =
-  `https://firestore.googleapis.com/v1/projects/${cfg.projectId}/databases/${cfg.firestoreDatabaseId}` +
-  `/documents/settings/general?key=${cfg.apiKey}`;
+const BASE = process.env.FIRESTORE_BASE_URL || `https://firestore.googleapis.com/v1/projects/${cfg.projectId}/databases/${cfg.firestoreDatabaseId}/documents`; // FIRESTORE_BASE_URL 僅供本機測試
+const DOC_URL = `${BASE}/settings/general?key=${cfg.apiKey}`;
 
 const esc = (s = '') =>
   String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -44,6 +44,12 @@ const SEED_CARDS = [
 let permitFaqRaw = null;
 
 async function fetchCards() {
+  const snap = readSnapshot(ROOT, BASE); // build-routes 剛讀過 settings/general，直接沿用
+  if (snap && snap.settings) {
+    permitFaqRaw = snap.settings;
+    console.log('[permit] 沿用 build-routes 這次已讀取的後台資料（不重複讀取）');
+    return snap.settings.cards || [];
+  }
   try {
     const ctl = new AbortController();
     const timer = setTimeout(() => ctl.abort(), 15000);
