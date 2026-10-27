@@ -229,7 +229,6 @@ ${FAQ.length ? `<h2>常見問題</h2>\n${FAQ.map((f) => `<h3>${esc(f.q)}</h3>\n<
 <p>${navLinksHtml()}</p>
 <p style="margin-top:40px"><a href="/">← 回到亞馬遜高山接駁首頁</a></p>
 </main>
-<script>${clientScript}</script>
 </body>
 </html>
 `;
