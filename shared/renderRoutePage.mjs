@@ -69,6 +69,40 @@ export function bodyToHtml(body = '') {
     .join('\n');
 }
 
+// ---------- 登山口街景（選填）----------
+// 路線資料的 streetview.location 填「緯度,經度」就會顯示；沒填整塊不出現。
+// 要嵌入互動街景：把 Google Cloud 的金鑰（已限制網域 amazon-hike.com 與 Maps Embed API）貼在下面。
+// 金鑰留空時，會改顯示「在 Google 地圖查看街景」的連結按鈕（不需金鑰）。
+export const GOOGLE_EMBED_KEY = '';
+
+export function streetviewOf(route) {
+  const sv = route && route.streetview;
+  if (!sv || typeof sv !== 'object') return null;
+  const m = String(sv.location || '').replace(/，/g, ',').match(/^\s*(-?\d{1,2}(?:\.\d+)?)\s*,\s*(-?\d{1,3}(?:\.\d+)?)\s*$/);
+  if (!m) return null;
+  const lat = Number(m[1]);
+  const lng = Number(m[2]);
+  if (!(lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180)) return null;
+  const h = Number(sv.heading);
+  const heading = sv.heading !== '' && sv.heading != null && Number.isFinite(h) ? ((Math.round(h) % 360) + 360) % 360 : 0;
+  return { lat, lng, heading };
+}
+
+const SV_CSS = `/*SV:START*/
+.sv{margin:16px 0}.sv-frame{position:relative;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#0b1f17}
+.sv-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+/*SV:END*/`;
+
+function streetviewBlock(route, sv) {
+  const name = esc(route.breadcrumbName || route.name || '');
+  const label = `${name}登山口街景`;
+  const link = `https://www.google.com/maps/@?api=1&amp;map_action=pano&amp;viewpoint=${sv.lat},${sv.lng}&amp;heading=${sv.heading}&amp;pitch=0&amp;fov=90`;
+  const inner = GOOGLE_EMBED_KEY
+    ? `<div class="sv-frame"><iframe src="https://www.google.com/maps/embed/v1/streetview?key=${esc(GOOGLE_EMBED_KEY)}&amp;location=${sv.lat},${sv.lng}&amp;heading=${sv.heading}&amp;pitch=0&amp;fov=90" title="${label}" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe></div>\n<p><a href="${link}" target="_blank" rel="noopener">在 Google 地圖開啟街景</a></p>`
+    : `<p><a class="cta alt" href="${link}" target="_blank" rel="noopener">在 Google 地圖查看${name}登山口街景</a></p>`;
+  return `<!--SV:START-->\n<h2>登山口街景</h2>\n<div class="sv">\n${inner}\n</div>\n<!--SV:END-->\n`;
+}
+
 const VIDEO_CSS = `/*VIDEO:START*/
 .video{margin:16px 0}.video-frame{position:relative;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#000}
 .video-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
@@ -319,6 +353,7 @@ export function renderRoutePage(route, ctx = {}) {
   const all = (ctx.routes || []).filter((r) => r.published !== false);
   const url = `${SITE}/${route.slug}/`;
   const withVideo = hasVideo(route);
+  const svData = streetviewOf(route);
   const photos = visiblePhotos(route);
   const paras = withVideo ? transcriptParas(route.video.transcript) : [];
   const t = esc(route.metaTitle);
@@ -362,7 +397,7 @@ export function renderRoutePage(route, ctx = {}) {
 <meta name="twitter:image" content="${SITE}/images/og-cover.jpg" />
 <script type="application/ld+json">${buildJsonLd(route, paras, contact)}</script>
 <style>
-${BASE_CSS}${withVideo ? VIDEO_CSS + '\n' : ''}${photos.length ? PHOTO_CSS + '\n' : ''}</style>
+${BASE_CSS}${withVideo ? VIDEO_CSS + '\n' : ''}${photos.length ? PHOTO_CSS + '\n' : ''}${svData && GOOGLE_EMBED_KEY ? SV_CSS + '\n' : ''}</style>
 ${DAY_THEME_HEAD}</head>
 `;
 
@@ -387,7 +422,7 @@ ${regionGroups ? regionMenu(regionGroups, route.slug) : ''}<nav aria-label="brea
 ${validDate(route.updatedAt) ? `<p class="updated">最後更新：<time datetime="${route.updatedAt}">${route.updatedAt}</time></p>\n` : ''}<p>${inline(route.intro)}</p>
 <p><a class="cta" href="${esc(contact.lineUrl)}" target="_blank" rel="noopener">LINE 預約詢問</a><a class="cta alt" href="tel:${esc(contact.phone)}">來電諮詢</a><a class="cta alt" href="${esc(cp.url)}" target="_blank" rel="noopener">${esc(cp.label || DEFAULT_CTA_PRICE.label)}</a></p>
 
-${sections}${photos.length ? photosBlock(photos, photosHeadingOf(route)) : ''}${withVideo ? videoBlock(route, paras) : ''}${faq ? `<h2>常見問題</h2>\n${faq}\n` : ''}${prep}${regionGroups ? regionFooter(regionGroups, route.slug) : navLinks ? `<h2>其他登山接駁路線</h2>\n<p>${navLinks}</p>\n` : ''}${route.group !== 'popular' ? `<p>更多路線請見<a href="/">首頁的「${esc((ctx.categoryTitles && ctx.categoryTitles[route.group]) || '更多百岳登山接駁路線')}」</a>。</p>\n` : ''}${articles.length ? articlesBlock(articles) : ''}${bodyToHtml(closing)}
+${sections}${photos.length ? photosBlock(photos, photosHeadingOf(route)) : ''}${svData ? streetviewBlock(route, svData) : ''}${withVideo ? videoBlock(route, paras) : ''}${faq ? `<h2>常見問題</h2>\n${faq}\n` : ''}${prep}${regionGroups ? regionFooter(regionGroups, route.slug) : navLinks ? `<h2>其他登山接駁路線</h2>\n<p>${navLinks}</p>\n` : ''}${route.group !== 'popular' ? `<p>更多路線請見<a href="/">首頁的「${esc((ctx.categoryTitles && ctx.categoryTitles[route.group]) || '更多百岳登山接駁路線')}」</a>。</p>\n` : ''}${articles.length ? articlesBlock(articles) : ''}${bodyToHtml(closing)}
 <p style="margin-top:40px"><a href="/">← 回到${BRAND}首頁</a></p>
 </main>
 </body>

@@ -24,6 +24,7 @@ function clean(r: RouteData): RouteData {
   c.articles = c.articles || [];
   c.photos = (c.photos || []).map((p) => ({ ...p }));
   c.prep = c.prep || { heading: '', body: '' };
+  c.streetview = { location: '', heading: '', ...(c.streetview || {}) };
   c.video = { youtubeId: '', heading: '', title: '', description: '', uploadDate: '', duration: '', summary: [], transcript: '', ...(c.video || {}) };
   // 首頁清單的名稱與說明：後台還沒填過的路線，帶入原本寫在程式裡的文字，編輯時看得到、存檔後就屬於後台
   const dflt = DEFAULT_HOME_ROUTE_TEXT[c.slug];
@@ -844,6 +845,14 @@ export const AdminRoutesPanel: React.FC<Props> = ({ isOpen, onClose }) => {
                 <Field label="內容" hint="每行「- [連結文字](網址)：說明」">
                   <textarea className={`${inputCls} font-mono`} rows={6} value={draft.prep.body} onChange={(e) => set('prep', { ...draft.prep, body: e.target.value })} />
                 </Field>
+              </Card>
+
+              <Card title="登山口街景（Google 街景）">
+                <p className="text-[11px] text-gray-500">座標留空＝這頁不顯示街景。在 Google 地圖對登山口按右鍵，點第一行的數字就能複製「緯度,經度」。</p>
+                <div className="grid md:grid-cols-2 gap-3">
+                  <Field label="登山口座標（緯度,經度）"><input className={inputCls} value={draft.streetview?.location || ''} onChange={(e) => set('streetview', { ...draft.streetview, location: e.target.value })} placeholder="24.1432, 121.2735" /></Field>
+                  <Field label="起始面向角度（選填）" hint="0＝北、90＝東、180＝南、270＝西"><input className={inputCls} value={draft.streetview?.heading || ''} onChange={(e) => set('streetview', { ...draft.streetview, location: draft.streetview?.location || '', heading: e.target.value })} placeholder="0" /></Field>
+                </div>
               </Card>
 
               <Card title="活動影片（YouTube）">
