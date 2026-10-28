@@ -24,7 +24,8 @@ function clean(r: RouteData): RouteData {
   c.articles = c.articles || [];
   c.photos = (c.photos || []).map((p) => ({ ...p }));
   c.prep = c.prep || { heading: '', body: '' };
-  c.streetview = { location: '', heading: '', ...(c.streetview || {}) };
+  c.streetview = { location: '', heading: '', label: '', extra: [], ...(c.streetview || {}) };
+  c.streetview.extra = (c.streetview.extra || []).map((x) => ({ label: '', location: '', heading: '', ...x }));
   c.video = { youtubeId: '', heading: '', title: '', description: '', uploadDate: '', duration: '', summary: [], transcript: '', ...(c.video || {}) };
   // 首頁清單的名稱與說明：後台還沒填過的路線，帶入原本寫在程式裡的文字，編輯時看得到、存檔後就屬於後台
   const dflt = DEFAULT_HOME_ROUTE_TEXT[c.slug];
@@ -848,11 +849,27 @@ export const AdminRoutesPanel: React.FC<Props> = ({ isOpen, onClose }) => {
               </Card>
 
               <Card title="登山口街景（Google 街景）">
-                <p className="text-[11px] text-gray-500">座標留空＝這頁不顯示街景。在 Google 地圖對登山口按右鍵，點第一行的數字就能複製「緯度,經度」。</p>
+                <p className="text-[11px] text-gray-500">座標留空＝這頁不顯示街景。在 Google 地圖對登山口按右鍵，點第一行的數字就能複製「緯度,經度」。縱走有兩個以上登山口時，第一個填在這裡，其他的按下方「新增登山口」。</p>
                 <div className="grid md:grid-cols-2 gap-3">
                   <Field label="登山口座標（緯度,經度）"><input className={inputCls} value={draft.streetview?.location || ''} onChange={(e) => set('streetview', { ...draft.streetview, location: e.target.value })} placeholder="24.1432, 121.2735" /></Field>
                   <Field label="起始面向角度（選填）" hint="0＝北、90＝東、180＝南、270＝西"><input className={inputCls} value={draft.streetview?.heading || ''} onChange={(e) => set('streetview', { ...draft.streetview, location: draft.streetview?.location || '', heading: e.target.value })} placeholder="0" /></Field>
+                  <Field label="登山口名稱（有多個登山口時才需要）" hint="例：起點｜武陵山莊"><input className={inputCls} value={draft.streetview?.label || ''} onChange={(e) => set('streetview', { ...draft.streetview, location: draft.streetview?.location || '', label: e.target.value })} placeholder="起點登山口" /></Field>
                 </div>
+                {(draft.streetview?.extra || []).map((x, i) => {
+                  const updExtra = (patch: Partial<{ label: string; location: string; heading: string }>) =>
+                    set('streetview', { ...draft.streetview, location: draft.streetview?.location || '', extra: (draft.streetview?.extra || []).map((y, k) => (k === i ? { ...y, ...patch } : y)) });
+                  return (
+                    <div key={i} className="border border-gray-200 rounded-lg p-3 space-y-2 bg-slate-50/50">
+                      <div className="grid md:grid-cols-3 gap-3">
+                        <Field label={`登山口 ${i + 2} 名稱`}><input className={inputCls} value={x.label || ''} onChange={(e) => updExtra({ label: e.target.value })} placeholder="終點登山口" /></Field>
+                        <Field label="座標（緯度,經度）"><input className={inputCls} value={x.location || ''} onChange={(e) => updExtra({ location: e.target.value })} placeholder="24.1432, 121.2735" /></Field>
+                        <Field label="面向角度（選填）"><input className={inputCls} value={x.heading || ''} onChange={(e) => updExtra({ heading: e.target.value })} placeholder="0" /></Field>
+                      </div>
+                      <button className={`${btnGhost} text-red-600`} onClick={() => set('streetview', { ...draft.streetview, location: draft.streetview?.location || '', extra: (draft.streetview?.extra || []).filter((_, k) => k !== i) })}><Trash2 className="w-3.5 h-3.5" />刪除這個登山口</button>
+                    </div>
+                  );
+                })}
+                <button className={btnGhost} onClick={() => set('streetview', { ...draft.streetview, location: draft.streetview?.location || '', extra: [...(draft.streetview?.extra || []), { label: '', location: '', heading: '' }] })}><Plus className="w-3.5 h-3.5" />新增登山口</button>
               </Card>
 
               <Card title="活動影片（YouTube）">

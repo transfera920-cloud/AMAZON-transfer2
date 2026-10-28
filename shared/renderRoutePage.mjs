@@ -75,8 +75,7 @@ export function bodyToHtml(body = '') {
 // 金鑰留空時，會改顯示「在 Google 地圖查看街景」的連結按鈕（不需金鑰）。
 export const GOOGLE_EMBED_KEY = '';
 
-export function streetviewOf(route) {
-  const sv = route && route.streetview;
+function parseSv(sv) {
   if (!sv || typeof sv !== 'object') return null;
   const m = String(sv.location || '').replace(/，/g, ',').match(/^\s*(-?\d{1,2}(?:\.\d+)?)\s*,\s*(-?\d{1,3}(?:\.\d+)?)\s*$/);
   if (!m) return null;
@@ -85,7 +84,20 @@ export function streetviewOf(route) {
   if (!(lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180)) return null;
   const h = Number(sv.heading);
   const heading = sv.heading !== '' && sv.heading != null && Number.isFinite(h) ? ((Math.round(h) % 360) + 360) % 360 : 0;
-  return { lat, lng, heading };
+  return { lat, lng, heading, label: String(sv.label || '').trim() };
+}
+
+export function streetviewOf(route) {
+  return parseSv(route && route.streetview);
+}
+
+// 縱走等有多個登山口：streetview.extra 是陣列，每個項目 { label, location, heading }。
+// 回傳「第一個登山口 + 其他登山口」中座標有效的全部項目；只有一個時，輸出和原本完全一樣。
+export function streetviewsOf(route) {
+  const base = route && route.streetview;
+  if (!base || typeof base !== 'object') return [];
+  const list = [parseSv(base), ...(Array.isArray(base.extra) ? base.extra.map(parseSv) : [])].filter(Boolean);
+  return list;
 }
 
 const SV_CSS = `/*SV:START*/
@@ -93,13 +105,20 @@ const SV_CSS = `/*SV:START*/
 .sv-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 /*SV:END*/`;
 
-function streetviewBlock(route, sv) {
+function streetviewItem(route, sv, title) {
   const name = esc(route.breadcrumbName || route.name || '');
-  const label = `${name}登山口街景`;
+  const where = title ? esc(title) : `${name}登山口`;
+  const label = `${where}街景`;
   const link = `https://www.google.com/maps/@?api=1&amp;map_action=pano&amp;viewpoint=${sv.lat},${sv.lng}&amp;heading=${sv.heading}&amp;pitch=0&amp;fov=90`;
-  const inner = GOOGLE_EMBED_KEY
-    ? `<div class="sv-frame"><iframe src="https://www.google.com/maps/embed/v1/streetview?key=${esc(GOOGLE_EMBED_KEY)}&amp;location=${sv.lat},${sv.lng}&amp;heading=${sv.heading}&amp;pitch=0&amp;fov=90" title="${label}" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe></div>\n<p><a href="${link}" target="_blank" rel="noopener">在 Google 地圖開啟街景</a></p>`
-    : `<p><a class="cta alt" href="${link}" target="_blank" rel="noopener">在 Google 地圖查看${name}登山口街景</a></p>`;
+  return GOOGLE_EMBED_KEY
+    ? `<div class="sv-frame"><iframe src="https://www.google.com/maps/embed/v1/streetview?key=${esc(GOOGLE_EMBED_KEY)}&amp;location=${sv.lat},${sv.lng}&amp;heading=${sv.heading}&amp;pitch=0&amp;fov=90" title="${label}" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe></div>\n<p><a href="${link}" target="_blank" rel="noopener">在 Google 地圖開啟${title ? esc(title) : ''}街景</a></p>`
+    : `<p><a class="cta alt" href="${link}" target="_blank" rel="noopener">在 Google 地圖查看${where}街景</a></p>`;
+}
+
+function streetviewBlock(route, list) {
+  const inner = list.length === 1
+    ? streetviewItem(route, list[0], '')
+    : list.map((sv, i) => `<h3>${esc(sv.label || `登山口${i + 1}`)}</h3>\n${streetviewItem(route, sv, sv.label || `登山口${i + 1}`)}`).join('\n');
   return `<!--SV:START-->\n<h2>登山口街景</h2>\n<div class="sv">\n${inner}\n</div>\n<!--SV:END-->\n`;
 }
 
@@ -353,7 +372,7 @@ export function renderRoutePage(route, ctx = {}) {
   const all = (ctx.routes || []).filter((r) => r.published !== false);
   const url = `${SITE}/${route.slug}/`;
   const withVideo = hasVideo(route);
-  const svData = streetviewOf(route);
+  const svData = streetviewsOf(route);
   const photos = visiblePhotos(route);
   const paras = withVideo ? transcriptParas(route.video.transcript) : [];
   const t = esc(route.metaTitle);
@@ -397,7 +416,7 @@ export function renderRoutePage(route, ctx = {}) {
 <meta name="twitter:image" content="${SITE}/images/og-cover.jpg" />
 <script type="application/ld+json">${buildJsonLd(route, paras, contact)}</script>
 <style>
-${BASE_CSS}${withVideo ? VIDEO_CSS + '\n' : ''}${photos.length ? PHOTO_CSS + '\n' : ''}${svData && GOOGLE_EMBED_KEY ? SV_CSS + '\n' : ''}</style>
+${BASE_CSS}${withVideo ? VIDEO_CSS + '\n' : ''}${photos.length ? PHOTO_CSS + '\n' : ''}${svData.length && GOOGLE_EMBED_KEY ? SV_CSS + '\n' : ''}</style>
 ${DAY_THEME_HEAD}</head>
 `;
 
@@ -422,7 +441,7 @@ ${regionGroups ? regionMenu(regionGroups, route.slug) : ''}<nav aria-label="brea
 ${validDate(route.updatedAt) ? `<p class="updated">最後更新：<time datetime="${route.updatedAt}">${route.updatedAt}</time></p>\n` : ''}<p>${inline(route.intro)}</p>
 <p><a class="cta" href="${esc(contact.lineUrl)}" target="_blank" rel="noopener">LINE 預約詢問</a><a class="cta alt" href="tel:${esc(contact.phone)}">來電諮詢</a><a class="cta alt" href="${esc(cp.url)}" target="_blank" rel="noopener">${esc(cp.label || DEFAULT_CTA_PRICE.label)}</a></p>
 
-${sections}${photos.length ? photosBlock(photos, photosHeadingOf(route)) : ''}${svData ? streetviewBlock(route, svData) : ''}${withVideo ? videoBlock(route, paras) : ''}${faq ? `<h2>常見問題</h2>\n${faq}\n` : ''}${prep}${regionGroups ? regionFooter(regionGroups, route.slug) : navLinks ? `<h2>其他登山接駁路線</h2>\n<p>${navLinks}</p>\n` : ''}${route.group !== 'popular' ? `<p>更多路線請見<a href="/">首頁的「${esc((ctx.categoryTitles && ctx.categoryTitles[route.group]) || '更多百岳登山接駁路線')}」</a>。</p>\n` : ''}${articles.length ? articlesBlock(articles) : ''}${bodyToHtml(closing)}
+${sections}${photos.length ? photosBlock(photos, photosHeadingOf(route)) : ''}${svData.length ? streetviewBlock(route, svData) : ''}${withVideo ? videoBlock(route, paras) : ''}${faq ? `<h2>常見問題</h2>\n${faq}\n` : ''}${prep}${regionGroups ? regionFooter(regionGroups, route.slug) : navLinks ? `<h2>其他登山接駁路線</h2>\n<p>${navLinks}</p>\n` : ''}${route.group !== 'popular' ? `<p>更多路線請見<a href="/">首頁的「${esc((ctx.categoryTitles && ctx.categoryTitles[route.group]) || '更多百岳登山接駁路線')}」</a>。</p>\n` : ''}${articles.length ? articlesBlock(articles) : ''}${bodyToHtml(closing)}
 <p style="margin-top:40px"><a href="/">← 回到${BRAND}首頁</a></p>
 </main>
 </body>

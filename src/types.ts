@@ -94,7 +94,7 @@ export interface RouteData {
   faq: { q: string; a: string }[];
   prep: { heading: string; body: string };
   video: RouteVideo;
-  streetview?: { location: string; heading?: string }; // 登山口街景：location＝「緯度,經度」，沒填就不顯示
+  streetview?: { location: string; heading?: string; label?: string; extra?: { label?: string; location: string; heading?: string }[] }; // 登山口街景：location＝「緯度,經度」，沒填就不顯示；縱走的其他登山口放 extra
   articles: RouteArticle[];
   photos?: RoutePhoto[];       // 登山口照片
   photosHeading?: string;      // 照片區塊標題（H2），沒填就是「登山口照片」
