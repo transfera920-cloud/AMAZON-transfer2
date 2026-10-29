@@ -99,6 +99,14 @@ try {
       rawSettings = decodeFirestore({ mapValue: { fields: j.fields || {} } }) || {};
     } catch { /* 讀不到就讓後面的腳本自己處理 */ }
     writeSnapshot(ROOT, { base: BASE, routes, settings: rawSettings });
+    // 訪客一律讀這份靜態檔（/site-settings.json），不直接讀 Firestore，讀取次數不再隨流量成長
+    if (rawSettings && Object.keys(rawSettings).length) {
+      try {
+        fs.mkdirSync(PUB, { recursive: true });
+        fs.writeFileSync(path.join(PUB, 'site-settings.json'), JSON.stringify(rawSettings));
+        console.log('[routes] 已輸出 public/site-settings.json（訪客用，免讀資料庫）');
+      } catch (e) { console.warn(`[routes] 無法輸出 site-settings.json：${e.message}`); }
+    }
   }
   else { routes = loadSeed(); source = 'seed（Firestore routes 集合是空的，請到後台「路線內容管理」匯入預設路線）'; }
 } catch (e) {

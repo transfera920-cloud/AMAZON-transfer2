@@ -3,3 +3,6 @@
 
 /images/*
   Cache-Control: public, max-age=2592000
+
+/site-settings.json
+  Cache-Control: public, max-age=300

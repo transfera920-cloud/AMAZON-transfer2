@@ -10,9 +10,7 @@ import {
   doc,
   getDoc,
   getDocFromServer,
-  setDoc,
-  onSnapshot,
-  Unsubscribe
+  setDoc
 } from 'firebase/firestore';
 import firebaseConfig from '../firebase-applet-config.json';
 import { SiteData } from './types';
@@ -235,16 +233,29 @@ export async function saveSiteDataToCloud(newData: SiteData): Promise<void> {
 }
 
 /**
- * 讀取一次網站設定（取代即時監聽）：
- *  - 快取未過期（預設 1 小時）且非強制 → 完全不讀資料庫
- *  - 否則 getDoc 讀 1 次並更新快取；失敗（含額度用完）就沿用快取
+ * 讀取網站設定（不使用即時監聽）：
+ *  - 一般訪客：讀建置時產生的靜態檔 /site-settings.json，完全不碰 Firestore（流量再大也是 0 次讀取）
+ *  - 管理員（force = true）：直接讀 Firestore 1 次，確保看到最新內容
+ *  - 本機快取未過期（預設 1 小時）且非強制 → 連靜態檔都不重抓
  */
 export async function fetchSiteDataOnce(force = false): Promise<SiteData | null> {
-  try {
-    const ts = Number(localStorage.getItem(CACHE_TS_KEY)) || 0;
-    const hasCache = !!localStorage.getItem(STORAGE_KEY);
-    if (!force && hasCache && Date.now() - ts < SETTINGS_CACHE_TTL_MS) return null;
-  } catch { /* localStorage 不可用就直接讀 */ }
+  if (!force) {
+    try {
+      const ts = Number(localStorage.getItem(CACHE_TS_KEY)) || 0;
+      const hasCache = !!localStorage.getItem(STORAGE_KEY);
+      if (hasCache && Date.now() - ts < SETTINGS_CACHE_TTL_MS) return null;
+    } catch { /* localStorage 不可用就直接讀 */ }
+    try {
+      const res = await fetch('/site-settings.json', { cache: 'no-cache' });
+      if (!res.ok) return null;
+      const fresh = sanitizeSiteData(await res.json());
+      updateLocalCachedData(fresh);
+      return fresh;
+    } catch (error) {
+      console.warn('讀取網站設定失敗，沿用本機快取：', error);
+      return null;
+    }
+  }
   try {
     const snap = await getDoc(doc(db, SETTINGS_COLLECTION, SETTINGS_DOC_ID));
     if (!snap.exists()) return null;
@@ -255,34 +266,4 @@ export async function fetchSiteDataOnce(force = false): Promise<SiteData | null>
     console.warn('讀取網站設定失敗，沿用本機快取：', error);
     return null;
   }
-}
-
-/**
- * Real-time listener for multi-device sync
- */
-export function subscribeToSiteData(
-  onUpdate: (data: SiteData) => void,
-  onError?: (err: Error) => void
-): Unsubscribe {
-  const docPath = `${SETTINGS_COLLECTION}/${SETTINGS_DOC_ID}`;
-  const docRef = doc(db, SETTINGS_COLLECTION, SETTINGS_DOC_ID);
-
-  return onSnapshot(
-    docRef,
-    (snap) => {
-      if (snap.exists()) {
-        const cloudData = sanitizeSiteData(snap.data());
-        updateLocalCachedData(cloudData);
-        onUpdate(cloudData);
-      }
-    },
-    (error) => {
-      console.warn('Real-time sync snapshot error:', error);
-      if (onError) {
-        onError(error);
-      } else {
-        handleFirestoreError(error, OperationType.GET, docPath);
-      }
-    }
-  );
 }
