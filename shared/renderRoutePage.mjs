@@ -313,7 +313,10 @@ function buildJsonLd(route, paras, contact = DEFAULT_CONTACT) {
       caption: String(p.caption || p.alt).trim(),
       ...(w > 0 && h > 0 ? { width: w, height: h } : {}),
       inLanguage: 'zh-TW',
-      creator: { '@id': `${SITE}/#org` },
+      // Google 圖片中繼資料要求 creator 為完整的 Person / Organization 物件（僅 @id 參照會被判無效）
+      creator: { '@type': 'Organization', name: BRAND, url: `${SITE}/` },
+      creditText: BRAND,
+      copyrightNotice: `© ${new Date().getFullYear()} ${BRAND}`,
     });
   });
   const v = route.video || {};
