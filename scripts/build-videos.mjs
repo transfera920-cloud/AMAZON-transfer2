@@ -97,7 +97,6 @@ for (const [slug, v] of Object.entries(config)) {
 <div class="video">
 <div class="video-frame"><iframe src="https://www.youtube-nocookie.com/embed/${esc(id)}" title="${esc(title)}" loading="lazy" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
 ${summary ? `<ul>${summary}</ul>` : ''}
-${paras.length ? `<details><summary>影片逐字稿</summary>${paras.map((p) => `<p>${esc(p)}</p>`).join('')}</details>` : ''}
 </div>
 ${B_END}
 `;
