@@ -72,7 +72,7 @@ export function bodyToHtml(body = '') {
 // ---------- 登山口街景（選填）----------
 // 路線資料的 streetview.location 填「緯度,經度」就會顯示；沒填整塊不出現。
 // 要嵌入互動街景：把 Google Cloud 的金鑰（已限制網域 amazon-hike.com 與 Maps Embed API）貼在下面。
-// 金鑰留空時，會改顯示「在 Google 地圖查看街景」的連結按鈕（不需金鑰）。
+// 金鑰留空時，會改顯示「街景」連結按鈕（不需金鑰）。
 export const GOOGLE_EMBED_KEY = '';
 
 function parseSv(sv) {
@@ -111,8 +111,8 @@ function streetviewItem(route, sv, title) {
   const label = `${where}街景`;
   const link = `https://www.google.com/maps/@?api=1&amp;map_action=pano&amp;viewpoint=${sv.lat},${sv.lng}&amp;heading=${sv.heading}&amp;pitch=0&amp;fov=90`;
   return GOOGLE_EMBED_KEY
-    ? `<div class="sv-frame"><iframe src="https://www.google.com/maps/embed/v1/streetview?key=${esc(GOOGLE_EMBED_KEY)}&amp;location=${sv.lat},${sv.lng}&amp;heading=${sv.heading}&amp;pitch=0&amp;fov=90" title="${label}" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe></div>\n<p><a href="${link}" target="_blank" rel="noopener">在 Google 地圖開啟${title ? esc(title) : ''}街景</a></p>`
-    : `<p><a class="cta alt" href="${link}" target="_blank" rel="noopener">在 Google 地圖查看${where}街景</a></p>`;
+    ? `<div class="sv-frame"><iframe src="https://www.google.com/maps/embed/v1/streetview?key=${esc(GOOGLE_EMBED_KEY)}&amp;location=${sv.lat},${sv.lng}&amp;heading=${sv.heading}&amp;pitch=0&amp;fov=90" title="${label}" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe></div>\n<p><a href="${link}" target="_blank" rel="noopener">${title ? esc(title) : ''}街景</a></p>`
+    : `<p><a class="cta alt" href="${link}" target="_blank" rel="noopener">${where}街景</a></p>`;
 }
 
 function streetviewBlock(route, list) {
@@ -424,8 +424,10 @@ ${DAY_THEME_HEAD}</head>
 
   const sections = (route.sections || [])
     .filter((s) => s && String(s.body || '').trim())
-    .map((s) => `<h2>${esc(s.heading)}</h2>\n${bodyToHtml(s.body)}\n\n`)
-    .join('');
+    .map((s) => `<h2>${esc(s.heading)}</h2>\n${bodyToHtml(s.body)}\n\n`);
+  // 登山口街景放在第一、第二個區塊中間（只有一個區塊時接在它後面）
+  const svHtml = svData.length ? streetviewBlock(route, svData) : '';
+  const sectionsHtml = sections.slice(0, 1).join('') + svHtml + sections.slice(1).join('');
 
   const faq = (route.faq || [])
     .filter((f) => f && f.q && f.a)
@@ -443,7 +445,7 @@ ${regionGroups ? regionMenu(regionGroups, route.slug) : ''}<nav aria-label="brea
 ${validDate(route.updatedAt) ? `<p class="updated">最後更新：<time datetime="${route.updatedAt}">${route.updatedAt}</time></p>\n` : ''}<p>${inline(route.intro)}</p>
 <p><a class="cta" href="${esc(contact.lineUrl)}" target="_blank" rel="noopener">LINE 預約詢問</a><a class="cta alt" href="tel:${esc(contact.phone)}">來電諮詢</a><a class="cta alt" href="${esc(cp.url)}" target="_blank" rel="noopener">${esc(cp.label || DEFAULT_CTA_PRICE.label)}</a></p>
 
-${sections}${photos.length ? photosBlock(photos, photosHeadingOf(route)) : ''}${svData.length ? streetviewBlock(route, svData) : ''}${withVideo ? videoBlock(route, paras) : ''}${faq ? `<h2>常見問題</h2>\n${faq}\n` : ''}${prep}${regionGroups ? regionFooter(regionGroups, route.slug) : navLinks ? `<h2>其他登山接駁路線</h2>\n<p>${navLinks}</p>\n` : ''}${route.group !== 'popular' ? `<p>更多路線請見<a href="/">首頁的「${esc((ctx.categoryTitles && ctx.categoryTitles[route.group]) || '更多百岳登山接駁路線')}」</a>。</p>\n` : ''}${articles.length ? articlesBlock(articles) : ''}${bodyToHtml(closing)}
+${sectionsHtml}${photos.length ? photosBlock(photos, photosHeadingOf(route)) : ''}${withVideo ? videoBlock(route, paras) : ''}${faq ? `<h2>常見問題</h2>\n${faq}\n` : ''}${prep}${regionGroups ? regionFooter(regionGroups, route.slug) : navLinks ? `<h2>其他登山接駁路線</h2>\n<p>${navLinks}</p>\n` : ''}${route.group !== 'popular' ? `<p>更多路線請見<a href="/">首頁的「${esc((ctx.categoryTitles && ctx.categoryTitles[route.group]) || '更多百岳登山接駁路線')}」</a>。</p>\n` : ''}${articles.length ? articlesBlock(articles) : ''}${bodyToHtml(closing)}
 <p style="margin-top:40px"><a href="/">← 回到${BRAND}首頁</a></p>
 </main>
 </body>
