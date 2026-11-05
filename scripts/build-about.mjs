@@ -14,7 +14,7 @@ const URL = `${SITE}/about/`;
 const LINE = DEFAULT_CONTACT.lineUrl;
 const PHONE = DEFAULT_CONTACT.phone;
 
-const TITLE = '關於亞馬遜高山接駁｜公司登記、乘客險與服務規則';
+const TITLE = '關於亞馬遜高山接駁｜公司登記、乘客傷害責任險與服務規則';
 const DESC = `${BRAND}由${COMPANY.legalName}（統編 ${COMPANY.taxId}）營運，福斯九人座租賃小客車，依法投保強制險並加保國泰產險乘客傷害責任險（每一個人 600 萬元），駕駛具 10 年以上山區經驗。`;
 
 const EXTRA_CSS = `table{width:100%;border-collapse:collapse;margin:12px 0}
@@ -111,7 +111,7 @@ ${DAY_THEME_HEAD}</head>
 <body>
 <main>
 <nav aria-label="breadcrumb"><a href="/">${BRAND}</a> › 關於我們與保險</nav>
-<h1>關於${BRAND}：公司登記、乘客險與服務規則</h1>
+<h1>關於${BRAND}：公司登記、乘客傷害責任險與服務規則</h1>
 <p class="updated">最後更新：<time datetime="${ABOUT_UPDATED}">${ABOUT_UPDATED}</time></p>
 <p>我們做高山接駁，不只是提供交通服務，而是希望讓登山者少一點交通上的煩惱，多一點安心走進山林的時間，也希望用自己的經驗，讓每一趟登山旅程從出發到下山，都能更加順利。</p>
 <p><a class="cta" href="${esc(LINE)}" target="_blank" rel="noopener">LINE 預約詢問</a><a class="cta alt" href="tel:${esc(PHONE)}">來電諮詢</a></p>
