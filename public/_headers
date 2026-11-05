@@ -6,10 +6,3 @@
 
 /site-settings.json
   Cache-Control: public, max-age=300
-
-/logo-192.webp
-  Cache-Control: public, max-age=2592000
-
-/*
-  X-Content-Type-Options: nosniff
-  Referrer-Policy: strict-origin-when-cross-origin

@@ -32,7 +32,7 @@ export function routeCategories(blocks: HomeBlock[]): RouteCategory[];
 export function resolveGroup(group: string, groupIds: Iterable<string>): string;
 export function bodyHtml(body: string): string;
 export function renderBlockHtml(block: HomeBlock, ctx: { routes: HomeRoutes; faq: HomeFaqEntry[] }): string;
-export function renderHomeBlocksHtml(content: HomeContent, routes: HomeRoutes, updated?: string): string;
+export function renderHomeBlocksHtml(content: HomeContent, routes: HomeRoutes): string;
 export function applyHomeToIndexHtml(html: string, content: HomeContent, routes: HomeRoutes, allPublished?: any[]): string;
 export const HOME_NAV_MARKER_START: string;
 export const HOME_NAV_MARKER_END: string;

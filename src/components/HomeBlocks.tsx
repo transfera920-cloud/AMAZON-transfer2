@@ -1,5 +1,4 @@
 import React from 'react';
-import homeGenerated from '../data/home.generated.json';
 import { parseBlocks, parseInline, LINK_CLASS } from '../../shared/homeContent.mjs';
 import type { HomeBlock, HomeContent, HomeRoutes, HomeRouteItem, InlinePart, RoadItem } from '../../shared/homeContent.mjs';
 
@@ -90,11 +89,6 @@ const RoadGuideBlock: React.FC<{ block: Extract<HomeBlock, { kind: 'roadguide' }
         </div>
       ))}
     </div>
-    {homeGenerated.updated && (
-      <p className="mt-4 text-xs text-emerald-300/70">
-        以上為整理資訊，管制時間可能臨時調整，出發前請以官方公告為準。本站內容更新日期：<time dateTime={homeGenerated.updated}>{homeGenerated.updated}</time>
-      </p>
-    )}
   </SectionShell>
 );
 
