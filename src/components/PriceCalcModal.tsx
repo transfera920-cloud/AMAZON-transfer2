@@ -217,7 +217,7 @@ export const PriceCalcModal: React.FC<PriceCalcModalProps> = ({ isOpen, onClose,
             </div>
             <div>
               <h3 className="font-bold text-lg text-white">高山包車接駁價格快速估算</h3>
-              <p className="text-xs text-emerald-200">價格透明化 ‧ 合法營業車輛 ‧ 乘客平安險保障</p>
+              <p className="text-xs text-emerald-200">價格透明化 ‧ 合法營業車輛 ‧ 乘客傷害責任險保障</p>
             </div>
           </div>
           <button

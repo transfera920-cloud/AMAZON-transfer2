@@ -15,6 +15,8 @@ import { fetchRoutesResilient } from './fetch-routes.mjs';
 import { writeSnapshot } from './snapshot.mjs';
 import { renderRoutePage, esc, SITE, DEFAULT_CONTACT, visiblePhotos, photoSrc, photosHeadingOf } from '../shared/renderRoutePage.mjs';
 import { resolveHomeContent, routeCategories, cleanGroupId, resolveGroup } from '../shared/homeContent.mjs';
+import { ABOUT_UPDATED } from '../shared/aboutContent.mjs';
+import { unifyWording } from '../shared/wording.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PUB = path.join(ROOT, 'public');
@@ -103,7 +105,7 @@ try {
     if (rawSettings && Object.keys(rawSettings).length) {
       try {
         fs.mkdirSync(PUB, { recursive: true });
-        fs.writeFileSync(path.join(PUB, 'site-settings.json'), JSON.stringify(rawSettings));
+        fs.writeFileSync(path.join(PUB, 'site-settings.json'), unifyWording(JSON.stringify(rawSettings)));
         console.log('[routes] 已輸出 public/site-settings.json（訪客用，免讀資料庫）');
       } catch (e) { console.warn(`[routes] 無法輸出 site-settings.json：${e.message}`); }
     }
@@ -191,7 +193,7 @@ for (const r of published) {
   const html = renderRoutePage(r, { routes: published, contact, categoryTitles, categories });
   const dir = path.join(PUB, r.slug);
   fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(path.join(dir, 'index.html'), html);
+  fs.writeFileSync(path.join(dir, 'index.html'), unifyWording(html));
   written++;
 }
 console.log(`[routes] 已輸出 ${written} 個路線頁`);
@@ -207,6 +209,7 @@ const urls = [
   { loc: `${SITE}/`, lastmod: maxDate, images: [] },
   ...published.map((r) => ({ loc: `${SITE}/${r.slug}/`, lastmod: r.updatedAt, images: imagesOf(r) })),
   { loc: `${SITE}/permit/`, lastmod: maxDate, images: [] },
+  { loc: `${SITE}/about/`, lastmod: ABOUT_UPDATED, images: [] },
 ];
 fs.writeFileSync(
   path.join(PUB, 'sitemap.xml'),
@@ -269,7 +272,7 @@ if (fs.existsSync(llmsPath)) {
     if (r.prep && (r.prep.heading || r.prep.body)) out.push('', `### ${line(r.prep.heading)}`, strip(r.prep.body));
     parts.push(out.join('\n'));
   }
-  fs.writeFileSync(path.join(PUB, 'llms-full.txt'), parts.join('\n') + '\n');
+  fs.writeFileSync(path.join(PUB, 'llms-full.txt'), unifyWording(parts.join('\n') + '\n'));
   console.log(`[routes] 已輸出 llms-full.txt（${published.length} 條路線）`);
 }
 console.log('[routes] 完成');

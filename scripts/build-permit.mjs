@@ -8,6 +8,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { decodeFirestore, buildGroups, renderGroups } from './permit-render.mjs';
 import { readSnapshot } from './snapshot.mjs';
+import { unifyWording } from '../shared/wording.mjs';
 import { DAY_THEME_HEAD } from '../shared/dayTheme.mjs';
 import { resolveHomeContent, parseInline, plainText, DEFAULT_PERMIT_FAQ } from '../shared/homeContent.mjs';
 
@@ -227,7 +228,8 @@ ${FAQ.length ? `<h2>常見問題</h2>\n${FAQ.map((f) => `<h3>${esc(f.q)}</h3>\n<
 
 <h2>其他登山接駁路線</h2>
 <p>${navLinksHtml()}</p>
-<p style="margin-top:40px"><a href="/">← 回到亞馬遜高山接駁首頁</a></p>
+<p style="margin-top:40px"><a href="/about/">關於我們與保險：公司登記、乘客險、服務規則</a></p>
+<p><a href="/">← 回到亞馬遜高山接駁首頁</a></p>
 </main>
 </body>
 </html>
@@ -246,5 +248,5 @@ if (!fromCloud) {
   groups = buildGroups(SEED_CARDS);
 }
 fs.mkdirSync(path.dirname(OUT), { recursive: true });
-fs.writeFileSync(OUT, buildHtml(groups, fromCloud));
+fs.writeFileSync(OUT, unifyWording(buildHtml(groups, fromCloud)));
 console.log(`[permit] 已產生 /permit/（${fromCloud ? '來自後台' : '預設內容'}，${groups.length} 個區塊）`);

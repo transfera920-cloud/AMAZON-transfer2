@@ -129,7 +129,7 @@ const VIDEO_CSS = `/*VIDEO:START*/
 .video summary{cursor:pointer;color:#a7f3d0;font-weight:700}
 /*VIDEO:END*/`;
 
-const BASE_CSS = `:root{color-scheme:dark}
+export const BASE_CSS = `:root{color-scheme:dark}
 body{margin:0;background:#07130e;color:#d1fae5;font-family:system-ui,"Noto Sans TC",sans-serif;line-height:1.8}
 main{max-width:760px;margin:0 auto;padding:24px 16px 56px}
 a{color:#00e676}nav{font-size:14px;margin-bottom:20px}
@@ -281,6 +281,9 @@ function buildJsonLd(route, paras, contact = DEFAULT_CONTACT) {
         '@type': 'LocalBusiness',
         '@id': `${SITE}/#org`,
         name: BRAND,
+        legalName: '亞馬遜小客車租賃有限公司',
+        taxID: '24892608',
+        foundingDate: '2015',
         alternateName: ['高山接駁', '登山接駁', 'Amazon Hike Transfer'],
         url: `${SITE}/`,
         telephone: '+886972573495',
@@ -446,7 +449,8 @@ ${validDate(route.updatedAt) ? `<p class="updated">最後更新：<time datetime
 <p><a class="cta" href="${esc(contact.lineUrl)}" target="_blank" rel="noopener">LINE 預約詢問</a><a class="cta alt" href="tel:${esc(contact.phone)}">來電諮詢</a><a class="cta alt" href="${esc(cp.url)}" target="_blank" rel="noopener">${esc(cp.label || DEFAULT_CTA_PRICE.label)}</a></p>
 
 ${sectionsHtml}${photos.length ? photosBlock(photos, photosHeadingOf(route)) : ''}${withVideo ? videoBlock(route, paras) : ''}${faq ? `<h2>常見問題</h2>\n${faq}\n` : ''}${prep}${regionGroups ? regionFooter(regionGroups, route.slug) : navLinks ? `<h2>其他登山接駁路線</h2>\n<p>${navLinks}</p>\n` : ''}${route.group !== 'popular' ? `<p>更多路線請見<a href="/">首頁的「${esc((ctx.categoryTitles && ctx.categoryTitles[route.group]) || '更多百岳登山接駁路線')}」</a>。</p>\n` : ''}${articles.length ? articlesBlock(articles) : ''}${bodyToHtml(closing)}
-<p style="margin-top:40px"><a href="/">← 回到${BRAND}首頁</a></p>
+<p style="margin-top:40px"><a href="/about/">關於我們與保險：公司登記、乘客險、服務規則</a></p>
+<p><a href="/">← 回到${BRAND}首頁</a></p>
 </main>
 </body>
 </html>
@@ -504,7 +508,7 @@ export function makeRouteTemplate(slug, name, order = 99) {
     published: false,
     h1: `${n}接駁｜登山口包車價格`,
     metaTitle: `${n}接駁｜登山口包車價格`,
-    metaDescription: `${n}接駁，${n}登山口包車接送。台北、台中、高雄等地出發，可先用價格估算系統試算。合法營業車、600萬乘客平安險。`,
+    metaDescription: `${n}接駁，${n}登山口包車接送。台北、台中、高雄等地出發，可先用價格估算系統試算。合法營業車、600萬乘客傷害責任險。`,
     breadcrumbName: `${n}接駁`,
     serviceName: `${n}登山口包車接駁`,
     intro: `亞馬遜高山接駁（也就是許多登山客搜尋的「登山接駁」）提供${n}登山口的包車接送。`,
@@ -512,7 +516,7 @@ export function makeRouteTemplate(slug, name, order = 99) {
       {
         id: 'services',
         heading: `${n}接駁服務內容`,
-        body: `- 登山口：（請填寫）。\n- 主要路線：（請填寫）。\n- 提供來回包車或單程接送，也可安排夜間或 D0 跨夜出發的時段。\n- 車型：9 人座商務車或 7 人座休旅。\n- 合法租賃營業車、職業駕照司機、600萬乘客平安險。`,
+        body: `- 登山口：（請填寫）。\n- 主要路線：（請填寫）。\n- 提供來回包車或單程接送，也可安排夜間或 D0 跨夜出發的時段。\n- 車型：9 人座商務車或 7 人座休旅。\n- 合法租賃營業車、職業駕照司機、600萬乘客傷害責任險。`,
       },
       {
         id: 'cost',

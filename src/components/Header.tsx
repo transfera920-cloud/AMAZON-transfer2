@@ -97,7 +97,7 @@ export const Header: React.FC<HeaderProps> = ({ data, onOpenAdmin, isCloudConnec
               ))
             ) : (
               <span className="px-4 py-1.5 rounded-full bg-[#0a2015]/80 border border-emerald-700/40 text-emerald-200">
-                • 合法租賃營業車 • 職業駕照司機 • 準時接送不延誤 • 600萬乘客險
+                • 合法租賃營業車 • 職業駕照司機 • 準時接送不延誤 • 600萬乘客傷害責任險
               </span>
             )}
           </div>

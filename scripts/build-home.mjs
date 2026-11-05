@@ -15,6 +15,7 @@ import { fileURLToPath } from 'node:url';
 import { decodeFirestore } from './permit-render.mjs';
 import { fetchRoutesResilient } from './fetch-routes.mjs';
 import { readSnapshot } from './snapshot.mjs';
+import { unifyWording } from '../shared/wording.mjs';
 import { resolveHomeContent, buildHomeRoutes, applyHomeToIndexHtml, routeCategories } from '../shared/homeContent.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -105,11 +106,11 @@ const homeUpdated = allPublished
 const indexPath = path.join(ROOT, 'index.html');
 const html = fs.readFileSync(indexPath, 'utf8');
 const next = applyHomeToIndexHtml(html, content, finalRoutes, allPublished);
-if (next !== html) fs.writeFileSync(indexPath, next);
+if (next !== html) fs.writeFileSync(indexPath, unifyWording(next));
 
 fs.writeFileSync(
   path.join(ROOT, 'src', 'data', 'home.generated.json'),
-  JSON.stringify({ _說明: '由 scripts/build-home.mjs 在建置時自動產生，請勿手動修改。', updated: homeUpdated, routes: finalRoutes }, null, 2) + '\n'
+  unifyWording(JSON.stringify({ _說明: '由 scripts/build-home.mjs 在建置時自動產生，請勿手動修改。', updated: homeUpdated, routes: finalRoutes }, null, 2) + '\n')
 );
 
 const catSummary = categories.map((c) => `${c.title}（${c.id}）${(finalRoutes[c.id] || []).length} 條`).join('、');
