@@ -97,6 +97,11 @@ const live = new Set(allPublished.map((r) => r.slug));
 const keepLive = (list) => list.filter((r) => live.has(r.slug));
 const finalRoutes = Object.fromEntries(Object.entries(homeRoutes).map(([g, list]) => [g, keepLive(list)]));
 
+const homeUpdated = allPublished
+  .map((r) => String(r.updatedAt || ''))
+  .filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d))
+  .sort()
+  .pop() || '';
 const indexPath = path.join(ROOT, 'index.html');
 const html = fs.readFileSync(indexPath, 'utf8');
 const next = applyHomeToIndexHtml(html, content, finalRoutes, allPublished);
@@ -104,7 +109,7 @@ if (next !== html) fs.writeFileSync(indexPath, next);
 
 fs.writeFileSync(
   path.join(ROOT, 'src', 'data', 'home.generated.json'),
-  JSON.stringify({ _說明: '由 scripts/build-home.mjs 在建置時自動產生，請勿手動修改。', routes: finalRoutes }, null, 2) + '\n'
+  JSON.stringify({ _說明: '由 scripts/build-home.mjs 在建置時自動產生，請勿手動修改。', updated: homeUpdated, routes: finalRoutes }, null, 2) + '\n'
 );
 
 const catSummary = categories.map((c) => `${c.title}（${c.id}）${(finalRoutes[c.id] || []).length} 條`).join('、');
