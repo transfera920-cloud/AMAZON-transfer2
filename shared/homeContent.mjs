@@ -408,7 +408,8 @@ ${it.highlight ? `<p class="${TONE_CLASS[it.tone] || TONE_CLASS.amber} font-medi
 </div>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 text-xs text-emerald-100/80">
 ${cards}
-</div>`
+</div>
+${ctx.updated ? `<p class="mt-4 text-xs text-emerald-300/70">以上為整理資訊，管制時間可能臨時調整，出發前請以官方公告為準。本站內容更新日期：<time datetime="${esc(ctx.updated)}">${esc(ctx.updated)}</time></p>` : ''}`
     );
   }
   if (block.kind === 'faq') {
@@ -422,8 +423,8 @@ ${cards}
 }
 
 /** 首頁所有區塊的靜態 HTML（不含標記） */
-export function renderHomeBlocksHtml(content, routes) {
-  const ctx = { routes, faq: content.faq };
+export function renderHomeBlocksHtml(content, routes, updated = '') {
+  const ctx = { routes, faq: content.faq, updated };
   // 路線清單區塊（熱門／更多）不再顯示在頁面中間，路線連結改由上方的路線選單呈現（renderNavHtml）
   return content.blocks.filter((b) => b.kind !== 'routes').map((b) => renderBlockHtml(b, ctx)).filter(Boolean).join('\n\n');
 }
@@ -461,7 +462,13 @@ export function renderNavHtml(blocks, routes) {
 export function applyHomeToIndexHtml(html, content, routes, allPublished) {
   const re = new RegExp(`${HOME_MARKER_START}[\\s\\S]*?${HOME_MARKER_END}`);
   if (!re.test(html)) throw new Error('index.html 找不到首頁區塊標記（<!--HOME:BLOCKS:START-->）');
-  const block = `${HOME_MARKER_START}\n${renderHomeBlocksHtml(content, routes)}\n        ${HOME_MARKER_END}`;
+  // 內容更新日期 = 已發布路線中最新的 updatedAt（只認 YYYY-MM-DD；沒有就不顯示、也不改 JSON-LD）
+  const updated = (allPublished || [])
+    .map((r) => String((r && r.updatedAt) || ''))
+    .filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d))
+    .sort()
+    .pop() || '';
+  const block = `${HOME_MARKER_START}\n${renderHomeBlocksHtml(content, routes, updated)}\n        ${HOME_MARKER_END}`;
   let out = html.replace(re, () => block);
 
   // 路線選單：放在「百岳與高山登山接駁」卡片區上方；有標記就更新，沒有標記就在卡片區前面插入
@@ -493,6 +500,8 @@ export function applyHomeToIndexHtml(html, content, routes, allPublished) {
       ld['@graph'] = graph.filter((n) => n !== faqNode);
     }
   }
+  const pageNode = graph.find((n) => n['@type'] === 'WebPage');
+  if (pageNode && updated) pageNode.dateModified = updated;
   const biz = graph.find((n) => n['@type'] === 'LocalBusiness');
   if (biz && biz.hasOfferCatalog && allPublished && allPublished.length) {
     biz.hasOfferCatalog.itemListElement = allPublished.map((r) => ({
