@@ -42,6 +42,7 @@
 - [登山路況與道路管制查詢](https://road.amazon-hike.com/)：省道、林道、國家公園官方路況入口整理
 - [台灣林道通行狀況查詢](https://forestroad.amazon-hike.com/)：林業及自然保育署列管 83 條林道通報整理
 - [登山出團氣象確認清單](https://weather.amazon-hike.com/)：出團前特報、預報、雷達與降雨檢查清單
+- [道路與山區即時監控](https://live.amazon-hike.com/)：中橫（台8線）、合歡山、玉山、雪霸、太魯閣的道路與山區攝影機入口整理，含官方與第三方影像來源
 
 ## 關於與信任資訊
 - [關於我們與保險｜公司登記、乘客險與服務規則](https://transfer.amazon-hike.com/about/)：公司資料、車輛與駕駛、保險與理賠、訂金與取消規則、常見問題

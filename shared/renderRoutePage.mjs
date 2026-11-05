@@ -372,6 +372,13 @@ ${items.map((a) => `<li><a href="${esc(a.url)}" target="_blank" rel="noopener">$
  * ctx.routes  : 所有「已發布」路線（用來產生「其他登山接駁路線」導覽）
  * ctx.contact : { lineUrl, phone }
  */
+// 出發前路況影像：自動加在每一個路線頁（若後台的「出發前準備」已經放了同一個連結就不重複）
+const LIVE_CAM_URL = 'https://live.amazon-hike.com/';
+const liveCamLine = (route) =>
+  JSON.stringify(route.prep || '').includes('live.amazon-hike.com')
+    ? ''
+    : `<p>出發前也可以看<a href="${LIVE_CAM_URL}" target="_blank" rel="noopener">道路與山區即時監控</a>：整理合歡山、玉山、雪霸、太魯閣與中橫（台8線）的攝影機入口，出發前先看現場狀況。</p>\n\n`;
+
 export function renderRoutePage(route, ctx = {}) {
   const contact = { ...DEFAULT_CONTACT, ...(ctx.contact || {}) };
   const all = (ctx.routes || []).filter((r) => r.published !== false);
@@ -448,7 +455,7 @@ ${regionGroups ? regionMenu(regionGroups, route.slug) : ''}<nav aria-label="brea
 ${validDate(route.updatedAt) ? `<p class="updated">最後更新：<time datetime="${route.updatedAt}">${route.updatedAt}</time></p>\n` : ''}<p>${inline(route.intro)}</p>
 <p><a class="cta" href="${esc(contact.lineUrl)}" target="_blank" rel="noopener">LINE 預約詢問</a><a class="cta alt" href="tel:${esc(contact.phone)}">來電諮詢</a><a class="cta alt" href="${esc(cp.url)}" target="_blank" rel="noopener">${esc(cp.label || DEFAULT_CTA_PRICE.label)}</a></p>
 
-${sectionsHtml}${photos.length ? photosBlock(photos, photosHeadingOf(route)) : ''}${withVideo ? videoBlock(route, paras) : ''}${faq ? `<h2>常見問題</h2>\n${faq}\n` : ''}${prep}${regionGroups ? regionFooter(regionGroups, route.slug) : navLinks ? `<h2>其他登山接駁路線</h2>\n<p>${navLinks}</p>\n` : ''}${route.group !== 'popular' ? `<p>更多路線請見<a href="/">首頁的「${esc((ctx.categoryTitles && ctx.categoryTitles[route.group]) || '更多百岳登山接駁路線')}」</a>。</p>\n` : ''}${articles.length ? articlesBlock(articles) : ''}${bodyToHtml(closing)}
+${sectionsHtml}${photos.length ? photosBlock(photos, photosHeadingOf(route)) : ''}${withVideo ? videoBlock(route, paras) : ''}${faq ? `<h2>常見問題</h2>\n${faq}\n` : ''}${prep}${liveCamLine(route)}${regionGroups ? regionFooter(regionGroups, route.slug) : navLinks ? `<h2>其他登山接駁路線</h2>\n<p>${navLinks}</p>\n` : ''}${route.group !== 'popular' ? `<p>更多路線請見<a href="/">首頁的「${esc((ctx.categoryTitles && ctx.categoryTitles[route.group]) || '更多百岳登山接駁路線')}」</a>。</p>\n` : ''}${articles.length ? articlesBlock(articles) : ''}${bodyToHtml(closing)}
 <p style="margin-top:40px"><a href="/about/">關於我們與保險：公司登記、乘客險、服務規則</a></p>
 <p><a href="/">← 回到${BRAND}首頁</a></p>
 </main>

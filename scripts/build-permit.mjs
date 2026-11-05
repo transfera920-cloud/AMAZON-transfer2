@@ -224,6 +224,7 @@ ${FAQ.length ? `<h2>常見問題</h2>\n${FAQ.map((f) => `<h3>${esc(f.q)}</h3>\n<
 <li><a href="https://stays.amazon-hike.com/trailhead-stays" target="_blank" rel="noopener">登山口住宿查詢</a>：搜尋登山口附近民宿與山屋，安排入山前一晚（D0）住宿。</li>
 <li><a href="https://feast.amazon-hike.com/" target="_blank" rel="noopener">下山慶功宴餐廳</a>：依行車時間查詢登山口附近的合菜與美食。</li>
 <li><a href="https://road.amazon-hike.com/" target="_blank" rel="noopener">登山路況與管制查詢</a>：出發前查看官方路況與管制入口。</li>
+<li><a href="https://live.amazon-hike.com/" target="_blank" rel="noopener">道路與山區即時監控</a>：出發前查看合歡山、玉山、雪霸、太魯閣與中橫的攝影機入口。</li>
 </ul>
 
 <h2>其他登山接駁路線</h2>
