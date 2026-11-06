@@ -17,6 +17,7 @@ import { renderRoutePage, esc, SITE, DEFAULT_CONTACT, visiblePhotos, photoSrc, p
 import { resolveHomeContent, routeCategories, cleanGroupId, resolveGroup } from '../shared/homeContent.mjs';
 import { ABOUT_UPDATED } from '../shared/aboutContent.mjs';
 import { unifyWording } from '../shared/wording.mjs';
+import { fleetImageUrls } from '../shared/fleetPhotos.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PUB = path.join(ROOT, 'public');
@@ -201,15 +202,18 @@ console.log(`[routes] 已輸出 ${written} 個路線頁`);
 // ---------- sitemap.xml ----------
 const maxDate = published.reduce((m, r) => (r.updatedAt > m ? r.updatedAt : m), '0000-00-00');
 const imagesOf = (r) =>
-  visiblePhotos(r).map((p) => {
-    const u = photoSrc(p.url);
-    return u.startsWith('/') ? `${SITE}${u}` : u;
-  });
+  [
+    ...visiblePhotos(r).map((p) => {
+      const u = photoSrc(p.url);
+      return u.startsWith('/') ? `${SITE}${u}` : u;
+    }),
+    ...fleetImageUrls(SITE, 2), // 每個路線頁底部都有 2 張車輛實拍
+  ];
 const urls = [
-  { loc: `${SITE}/`, lastmod: maxDate, images: [] },
+  { loc: `${SITE}/`, lastmod: maxDate, images: fleetImageUrls(SITE) },
   ...published.map((r) => ({ loc: `${SITE}/${r.slug}/`, lastmod: r.updatedAt, images: imagesOf(r) })),
   { loc: `${SITE}/permit/`, lastmod: maxDate, images: [] },
-  { loc: `${SITE}/about/`, lastmod: ABOUT_UPDATED, images: [] },
+  { loc: `${SITE}/about/`, lastmod: ABOUT_UPDATED, images: fleetImageUrls(SITE) },
 ];
 fs.writeFileSync(
   path.join(PUB, 'sitemap.xml'),

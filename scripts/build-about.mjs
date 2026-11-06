@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { SITE, BRAND, DEFAULT_CONTACT, BASE_CSS, esc } from '../shared/renderRoutePage.mjs';
 import { DAY_THEME_HEAD } from '../shared/dayTheme.mjs';
 import { ABOUT_FAQ, ABOUT_UPDATED, COMPANY } from '../shared/aboutContent.mjs';
+import { FLEET_CSS, FLEET_PHOTOS, fleetFiguresHtml, fleetImageObjects, fleetImageUrls } from '../shared/fleetPhotos.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = path.join(ROOT, 'public', 'about', 'index.html');
@@ -39,6 +40,7 @@ const jsonLd = {
       isPartOf: { '@id': `${SITE}/#website` },
       about: { '@id': `${SITE}/#org` },
       breadcrumb: { '@id': `${URL}#breadcrumb` },
+      primaryImageOfPage: { '@id': `${URL}#photo-1` },
       mentions: { '@type': 'Organization', '@id': 'https://amazon-hike.com/#organization', name: '亞馬遜國家山岳協會', url: 'https://amazon-hike.com/' },
     },
     {
@@ -52,12 +54,13 @@ const jsonLd = {
       alternateName: ['高山接駁', '登山接駁', 'Amazon Hike Transfer'],
       url: `${SITE}/`,
       telephone: '+886972573495',
-      image: `${SITE}/images/og-cover.jpg`,
+      image: [`${SITE}/images/og-cover.jpg`, ...fleetImageUrls(SITE)],
       logo: `${SITE}/logo.png`,
       priceRange: '$$',
       address: { '@type': 'PostalAddress', addressCountry: 'TW', addressRegion: '嘉義縣' },
-      sameAs: [LINE, 'https://www.facebook.com/groups/518840791872080'],
+      sameAs: [LINE, 'https://www.facebook.com/groups/518840791872080', 'https://amazon-hike.com/'],
     },
+    ...fleetImageObjects(SITE).map((o, i) => ({ ...o, '@id': `${URL}#photo-${i + 1}` })),
     {
       '@type': 'BreadcrumbList',
       '@id': `${URL}#breadcrumb`,
@@ -105,7 +108,7 @@ const html = `<!doctype html>
 <meta name="twitter:image" content="${SITE}/images/og-cover.jpg" />
 <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
 <style>
-${BASE_CSS}${EXTRA_CSS}
+${BASE_CSS}${EXTRA_CSS}\n${FLEET_CSS}
 </style>
 ${DAY_THEME_HEAD}</head>
 <body>
@@ -131,6 +134,9 @@ ${DAY_THEME_HEAD}</head>
 <li>駕駛有至少 10 年的山區道路經驗，熟悉高山路線、林道與登山口。</li>
 <li>具有因應山區道路狀況、天候變化與交通管制的實務經驗。</li>
 </ul>
+<div class="fleet">
+${fleetFiguresHtml()}
+</div>
 
 <h2>保險與理賠</h2>
 <div class="box">車輛依法投保強制汽車責任險，另外加保<strong>國泰產險「汽車第三人責任保險乘客傷害責任附加條款」，每一個人保險金額 600 萬元</strong>（簡稱乘客傷害責任險）。實際保障內容與條件，以保單條款為準。</div>

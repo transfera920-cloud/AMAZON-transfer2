@@ -1,6 +1,6 @@
 // 「關於我們與保險」頁（/about/）的內容。改這裡的文字後，重新建置就會更新頁面、sitemap 與結構化資料。
 // 內容只放可公開、可查證的資料；保險內容以保單條款為準。
-export const ABOUT_UPDATED = '2026-11-05'; // 內容有修改時，請一起更新這個日期（YYYY-MM-DD）
+export const ABOUT_UPDATED = '2026-11-06'; // 內容有修改時，請一起更新這個日期（YYYY-MM-DD）
 
 export const COMPANY = {
   legalName: '亞馬遜小客車租賃有限公司',

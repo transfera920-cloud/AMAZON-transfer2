@@ -19,6 +19,7 @@ import { Footer } from './components/Footer';
 import { db } from './firebase';
 import { ADMIN_EMAIL } from './data/adminConfig';
 import { HomeBlocks } from './components/HomeBlocks';
+import { FleetGallery } from './components/FleetGallery';
 import { HomeNav } from './components/HomeNav';
 import { resolveHomeContent, routeCategories, buildHomeRoutes } from '../shared/homeContent.mjs';
 import type { HomeRoutes } from '../shared/homeContent.mjs';
@@ -180,6 +181,9 @@ export default function App() {
 
         {/* 路線清單區塊（熱門／更多）改由上方 HomeNav 顯示，頁面中間不再重複呈現 */}
         <HomeBlocks content={homeBlocksContent} routes={homeRoutes} />
+
+        {/* 車輛實拍 */}
+        <FleetGallery />
 
         {/* 關於我們區塊 */}
         <AboutSection

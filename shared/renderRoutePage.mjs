@@ -7,6 +7,9 @@
 //   - [文字](網址) = 超連結（https 開頭會自動開新分頁；/permit/ 這類站內連結不會）
 
 import { DAY_THEME_HEAD } from './dayTheme.mjs';
+import { FLEET_CSS, fleetBlockHtml, fleetImageObjects, fleetImageUrls } from './fleetPhotos.mjs';
+
+const SERVICE_CITIES = ['台北', '新北', '桃園', '新竹', '台中', '彰化', '嘉義', '台南', '高雄', '宜蘭'];
 
 export const SITE = 'https://transfer.amazon-hike.com';
 export const BRAND = '亞馬遜高山接駁';
@@ -275,7 +278,8 @@ function buildJsonLd(route, paras, contact = DEFAULT_CONTACT) {
       '@type': 'Service',
       name: route.serviceName,
       serviceType: '登山口包車接送',
-      areaServed: { '@type': 'Country', name: 'Taiwan' },
+      areaServed: [...SERVICE_CITIES.map((name) => ({ '@type': 'City', name })), { '@type': 'Country', name: 'Taiwan' }],
+      image: fleetImageUrls(SITE, 2),
       // 與首頁的 LocalBusiness（同一個 @id）欄位保持一致，搜尋引擎與 AI 才會當成同一個實體
       provider: {
         '@type': 'LocalBusiness',
@@ -287,11 +291,11 @@ function buildJsonLd(route, paras, contact = DEFAULT_CONTACT) {
         alternateName: ['高山接駁', '登山接駁', 'Amazon Hike Transfer'],
         url: `${SITE}/`,
         telephone: '+886972573495',
-        image: `${SITE}/images/og-cover.jpg`,
+        image: [`${SITE}/images/og-cover.jpg`, ...fleetImageUrls(SITE)],
         logo: `${SITE}/logo.png`,
         priceRange: '$$',
         address: { '@type': 'PostalAddress', addressCountry: 'TW', addressRegion: '嘉義縣' },
-        sameAs: [contact.lineUrl, 'https://www.facebook.com/groups/518840791872080'].filter(Boolean),
+        sameAs: [contact.lineUrl, 'https://www.facebook.com/groups/518840791872080', 'https://amazon-hike.com/'].filter(Boolean),
       },
       '@id': `${url}#service`,
     },
@@ -428,7 +432,7 @@ export function renderRoutePage(route, ctx = {}) {
 <meta name="twitter:image" content="${SITE}/images/og-cover.jpg" />
 <script type="application/ld+json">${buildJsonLd(route, paras, contact)}</script>
 <style>
-${BASE_CSS}${withVideo ? VIDEO_CSS + '\n' : ''}${photos.length ? PHOTO_CSS + '\n' : ''}${svData.length && GOOGLE_EMBED_KEY ? SV_CSS + '\n' : ''}</style>
+${BASE_CSS}${FLEET_CSS}\n${withVideo ? VIDEO_CSS + '\n' : ''}${photos.length ? PHOTO_CSS + '\n' : ''}${svData.length && GOOGLE_EMBED_KEY ? SV_CSS + '\n' : ''}</style>
 ${DAY_THEME_HEAD}</head>
 `;
 
@@ -456,7 +460,7 @@ ${validDate(route.updatedAt) ? `<p class="updated">最後更新：<time datetime
 <p><a class="cta" href="${esc(contact.lineUrl)}" target="_blank" rel="noopener">LINE 預約詢問</a><a class="cta alt" href="tel:${esc(contact.phone)}">來電諮詢</a><a class="cta alt" href="${esc(cp.url)}" target="_blank" rel="noopener">${esc(cp.label || DEFAULT_CTA_PRICE.label)}</a></p>
 
 ${sectionsHtml}${photos.length ? photosBlock(photos, photosHeadingOf(route)) : ''}${withVideo ? videoBlock(route, paras) : ''}${faq ? `<h2>常見問題</h2>\n${faq}\n` : ''}${prep}${liveCamLine(route)}${regionGroups ? regionFooter(regionGroups, route.slug) : navLinks ? `<h2>其他登山接駁路線</h2>\n<p>${navLinks}</p>\n` : ''}${route.group !== 'popular' ? `<p>更多路線請見<a href="/">首頁的「${esc((ctx.categoryTitles && ctx.categoryTitles[route.group]) || '更多百岳登山接駁路線')}」</a>。</p>\n` : ''}${articles.length ? articlesBlock(articles) : ''}${bodyToHtml(closing)}
-<p style="margin-top:40px"><a href="/about/">關於我們與保險：公司登記、乘客險、服務規則</a></p>
+${fleetBlockHtml(2)}<p style="margin-top:40px"><a href="/about/">關於我們與保險：公司登記、乘客險、服務規則</a></p>
 <p><a href="/">← 回到${BRAND}首頁</a></p>
 </main>
 </body>
