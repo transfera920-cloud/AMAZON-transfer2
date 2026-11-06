@@ -11,7 +11,7 @@ export const FleetGallery: React.FC = () => (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 relative z-10">
       {FLEET_PHOTOS.map((p) => (
         <figure key={p.src} className="m-0">
-          <img src={p.src} alt={p.alt} width={p.width} height={p.height} loading="lazy" decoding="async" className="w-full h-auto rounded-xl bg-[#071a10]" />
+          <img src={p.src} alt={p.alt} width={p.width} height={p.height} loading="lazy" decoding="async" className="w-full h-auto aspect-[4/3] object-cover rounded-xl bg-[#071a10]" />
           <figcaption className="text-xs md:text-sm text-emerald-200/85 mt-1.5 leading-relaxed">{p.caption}</figcaption>
         </figure>
       ))}

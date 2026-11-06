@@ -37,7 +37,7 @@ export const FLEET_HEADING = '我們的接駁車輛';
 export const FLEET_CSS = `/*FLEET:START*/
 .fleet{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:16px 0}
 .fleet figure{margin:0}
-.fleet img{display:block;width:100%;height:auto;border-radius:12px;background:#0b1f17}
+.fleet img{display:block;width:100%;height:auto;aspect-ratio:4/3;object-fit:cover;border-radius:12px;background:#0b1f17}
 .fleet figcaption{font-size:14px;color:#a7f3d0;margin-top:6px;line-height:1.6}
 /*FLEET:END*/`;
 
