@@ -1,5 +1,5 @@
 import React from 'react';
-import { FLEET_PHOTOS, FLEET_HEADING } from '../../shared/fleetPhotos.mjs';
+import { FLEET_EXTERIOR, FLEET_INTERIOR, FLEET_HEADING, INTERIOR_HEADING } from '../../shared/fleetPhotos.mjs';
 
 /** 車輛實拍。照片與說明來自 shared/fleetPhotos.mjs（與 index.html 靜態 HTML、/about/、路線頁同一份）。 */
 export const FleetGallery: React.FC = () => (
@@ -9,7 +9,16 @@ export const FleetGallery: React.FC = () => (
       <span>{FLEET_HEADING}</span>
     </h2>
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 relative z-10">
-      {FLEET_PHOTOS.map((p) => (
+      {FLEET_EXTERIOR.map((p) => (
+        <figure key={p.src} className="m-0">
+          <img src={p.src} alt={p.alt} width={p.width} height={p.height} loading="lazy" decoding="async" className="w-full h-auto aspect-[4/3] object-cover rounded-xl bg-[#071a10]" />
+          <figcaption className="text-xs md:text-sm text-emerald-200/85 mt-1.5 leading-relaxed">{p.caption}</figcaption>
+        </figure>
+      ))}
+    </div>
+    <h3 className="text-base md:text-lg font-bold text-white mt-6 mb-3 relative z-10">{INTERIOR_HEADING}</h3>
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4 relative z-10">
+      {FLEET_INTERIOR.map((p) => (
         <figure key={p.src} className="m-0">
           <img src={p.src} alt={p.alt} width={p.width} height={p.height} loading="lazy" decoding="async" className="w-full h-auto aspect-[4/3] object-cover rounded-xl bg-[#071a10]" />
           <figcaption className="text-xs md:text-sm text-emerald-200/85 mt-1.5 leading-relaxed">{p.caption}</figcaption>

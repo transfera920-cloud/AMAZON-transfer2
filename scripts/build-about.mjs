@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { SITE, BRAND, DEFAULT_CONTACT, BASE_CSS, esc } from '../shared/renderRoutePage.mjs';
 import { DAY_THEME_HEAD } from '../shared/dayTheme.mjs';
 import { ABOUT_FAQ, ABOUT_UPDATED, COMPANY } from '../shared/aboutContent.mjs';
-import { FLEET_CSS, FLEET_PHOTOS, fleetFiguresHtml, fleetImageObjects, fleetImageUrls } from '../shared/fleetPhotos.mjs';
+import { FLEET_CSS, FLEET_PHOTOS, INTERIOR_HEADING, fleetFiguresHtml, interiorBlockHtml, fleetImageObjects, fleetImageUrls } from '../shared/fleetPhotos.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = path.join(ROOT, 'public', 'about', 'index.html');
@@ -136,6 +136,10 @@ ${DAY_THEME_HEAD}</head>
 </ul>
 <div class="fleet">
 ${fleetFiguresHtml()}
+</div>
+<h3>${INTERIOR_HEADING}</h3>
+<div class="fleet">
+${interiorBlockHtml()}
 </div>
 
 <h2>保險與理賠</h2>
