@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { LinksModal } from './LinksModal';
-import { DynamicIcon } from './DynamicIcon';
 import { CardItem, ActiveModalType } from '../types';
 
 interface CardsGridProps {
@@ -100,15 +99,11 @@ export const CardsGrid: React.FC<CardsGridProps> = ({ sectionTitle, cards, onOpe
               }
               target={isExternal ? '_blank' : undefined}
               rel={isExternal ? 'noopener noreferrer' : undefined}
-              className="bg-[#0e2318]/85 hover:bg-[#122e20] p-3.5 md:p-6 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_35px_rgba(0,200,83,0.2)] border border-emerald-900/60 hover:border-emerald-500/60 flex flex-row md:flex-col items-center gap-3.5 md:gap-0 text-left md:text-center card-hover group cursor-pointer relative overflow-hidden transition-all duration-300 backdrop-blur-md"
+              className="bg-[#0e2318]/85 hover:bg-[#122e20] p-3.5 md:p-5 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_35px_rgba(0,200,83,0.2)] border border-emerald-900/60 hover:border-emerald-500/60 flex flex-row md:flex-col items-center gap-3.5 md:gap-0 text-left md:text-center card-hover group cursor-pointer relative overflow-hidden transition-all duration-300 backdrop-blur-md"
               id={`card-link-${card.id}`}
               title={card.title}
             >
               <div className="absolute -top-10 -right-10 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl group-hover:bg-emerald-400/25 transition duration-300 pointer-events-none"></div>
-
-              <div className="w-11 h-11 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-[#0a2718] to-[#06190f] text-[#00e676] border border-emerald-700/50 shrink-0 flex items-center justify-center text-xl md:text-2xl mb-0 md:mb-4 group-hover:from-[#00c853] group-hover:to-[#00963e] group-hover:text-white group-hover:shadow-[0_0_20px_rgba(0,200,83,0.45)] transition-all duration-300 shadow-sm">
-                <DynamicIcon iconName={card.icon} className="w-6 h-6" />
-              </div>
 
               <div className="flex-1 min-w-0 md:flex md:flex-col md:flex-grow md:items-center">
                 <h3 className="font-bold text-white text-base mb-0.5 md:mb-2 group-hover:text-[#00e676] transition-colors duration-200">
